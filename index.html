@@ -232,9 +232,11 @@
           </div>
           <label>Session focus
             <select id="studyFocus">
-              <option value="mixed">Mixed grammar + vocabulary</option>
+              <option value="mixed">Mixed learning</option>
               <option value="grammar">Grammar only</option>
               <option value="vocabulary">Vocabulary only</option>
+              <option value="sentences">Sentence comprehension</option>
+              <option value="passages">Passage comprehension</option>
             </select>
           </label>
           <label>Session length
@@ -252,19 +254,23 @@
             <span id="studyItemLevel">N5</span>
           </div>
 
-          <section class="single-study-card" id="singleStudyCard">
-            <div class="study-lang-label" id="studyLanguageLabel">日本語 · JAPANESE</div>
-            <h3 id="studyMain"></h3>
-            <div id="studyReading" class="study-reading"></div>
-            <p id="studyMeaning"></p>
-            <div id="studyGuide" class="study-guide hidden"></div>
-            <div id="studyMeta" class="study-meta"></div>
-            <button class="speak-btn" id="speakCurrent">Play pronunciation</button>
+          <section class="single-study-card" id="singleStudyCard" tabindex="0" role="button" aria-label="Reveal answer">
+            <div class="study-card-front">
+              <div class="study-lang-label" id="studyLanguageLabel">日本語 · JAPANESE</div>
+              <h3 id="studyMain"></h3>
+              <p id="studyQuestion" class="study-question"></p>
+              <button class="speak-btn" id="speakCurrent">Play pronunciation</button>
+              <div id="studyRevealHint" class="reveal-hint"><span>Click card to reveal</span><i>↘</i></div>
+            </div>
+            <div id="studyAnswer" class="study-card-answer hidden">
+              <div id="studyReading" class="study-reading"></div>
+              <p id="studyMeaning"></p>
+              <div id="studyGuide" class="study-guide hidden"></div>
+              <div id="studyMeta" class="study-meta"></div>
+            </div>
           </section>
 
-          <div id="quizArea" class="quiz-area hidden"></div>
-
-          <div class="study-actions" id="studyActions">
+          <div class="study-actions hidden" id="studyActions">
             <button class="rating-btn again" data-rating="1">Again</button>
             <button class="rating-btn hard" data-rating="2">Hard</button>
             <button class="rating-btn good" data-rating="4">Good</button>
@@ -341,8 +347,8 @@
     <div class="dialog-header">
       <div>
         <div class="modal-kicker">USAGE LAB</div>
-        <h2>Inspect one language at a time</h2>
-        <p>Local heuristic analysis against the bundled grammar and vocabulary data.</p>
+        <h2>Break down sentences and passages</h2>
+        <p>Local word separation, basic structure hints, grammar matching, and sentence-by-sentence passage analysis.</p>
       </div>
       <button class="modal-close static-close" data-action="close-usage" aria-label="Close"><span class="close-icon" aria-hidden="true"></span></button>
     </div>
@@ -354,10 +360,10 @@
       <div class="usage-workspace">
         <div class="usage-input-panel">
           <div class="lab-input-wrap">
-            <textarea id="usageInput" maxlength="300" placeholder="日本語の文を入力…"></textarea>
+            <textarea id="usageInput" maxlength="2000" placeholder="日本語の文・段落を入力…"></textarea>
             <div class="input-meta">
-              <span id="charCount">0/300</span>
-              <button id="sendUsage" class="analyze-button">Analyze sentence ↗</button>
+              <span id="charCount">0/2000</span>
+              <button id="sendUsage" class="analyze-button">Analyze text ↗</button>
             </div>
           </div>
           <div class="try-examples">
@@ -368,7 +374,7 @@
         <div class="usage-results-panel">
           <div class="evidence-grid" aria-label="Analysis evidence scores">
             <div class="verify-row"><span>Grammar evidence</span><strong class="verify-check">—</strong></div>
-            <div class="verify-row"><span>Vocabulary evidence</span><strong class="verify-check">—</strong></div>
+            <div class="verify-row"><span>Word coverage</span><strong class="verify-check">—</strong></div>
             <div class="verify-row"><span>Register confidence</span><strong class="verify-check">—</strong></div>
           </div>
           <div id="labAnalysis" class="lab-analysis" aria-live="polite">
@@ -407,6 +413,19 @@
       </fieldset>
     </div>
 
+
+    <section class="audio-setup">
+      <div class="audio-setup-head">
+        <div><span class="modal-kicker">AUDIO SETUP</span><h3>Detected browser voices</h3></div>
+        <button class="btn secondary compact-btn" id="refreshAudioVoices">Refresh voices</button>
+      </div>
+      <div id="audioStatus" class="audio-status"></div>
+      <div class="audio-test-row">
+        <button class="btn secondary" id="testJapaneseAudio">Test Japanese</button>
+        <button class="btn secondary" id="testCantoneseAudio">Test Cantonese</button>
+      </div>
+    </section>
+
     <div class="profile-stats" id="profileStats"></div>
     <div class="profile-actions">
       <button class="btn primary" id="saveProfile">Save settings</button>
@@ -428,6 +447,7 @@
   <script src="data/cantonese_grammar.js"></script>
   <script src="data/japanese_vocabulary.js"></script>
   <script src="data/cantonese_vocabulary.js"></script>
+  <script src="data/comprehension.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

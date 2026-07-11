@@ -11,7 +11,11 @@
     jpG: DATA.japaneseGrammar?.items || [],
     jpV: DATA.japaneseVocabulary?.items || [],
     yueG: DATA.cantoneseGrammar?.items || [],
-    yueV: DATA.cantoneseVocabulary?.items || []
+    yueV: DATA.cantoneseVocabulary?.items || [],
+    jpS: DATA.comprehension?.japanese?.sentences || [],
+    jpP: DATA.comprehension?.japanese?.passages || [],
+    yueS: DATA.comprehension?.cantonese?.sentences || [],
+    yueP: DATA.comprehension?.cantonese?.passages || []
   };
 
   const byId = new Map();
@@ -292,6 +296,22 @@
     PHRASE: "phrase",
     NUMBER: "number",
     TIME: "time",
+    HOUR: "hour",
+    MINUTES: "minutes",
+    CLASSIFIER: "classifier",
+    CL: "classifier",
+    PRONOUN: "pronoun",
+    REQUEST: "request",
+    TOPIC: "topic",
+    COMMENT: "comment",
+    PREDICATE: "predicate",
+    MODIFIER: "modifier",
+    "DIRECT OBJECT": "direct object",
+    "INDIRECT OBJECT": "indirect object",
+    DO: "direct object",
+    IO: "indirect object",
+    S: "subject",
+    O: "object",
     X: "first part",
     Y: "second part",
     A: "first part",
@@ -321,8 +341,13 @@
     return output.replace(/\s*\+\s*/g, " + ").replace(/\s{2,}/g, " ").trim();
   }
 
+  function isComprehensionKind(kind) {
+    return kind.endsWith("S") || kind.endsWith("P");
+  }
+
   function humanizedPattern(kind, item) {
     if (kind === "jpG" || kind === "yueG") return humanizeTemplate(item.pattern, item);
+    if (isComprehensionKind(kind)) return item.text || "";
     return kind === "jpV" ? item.expression : item.word;
   }
 
@@ -330,11 +355,12 @@
     if (kind === "jpV") return item.reading || "";
     if (kind === "yueV") return item.jyutping || "";
     if (kind === "yueG") return humanizeTemplate(item.jyutping || "", item);
+    if (isComprehensionKind(kind)) return item.reading || "";
     return "";
   }
 
   function meaningOf(item) {
-    return item.meaning || "";
+    return item.translation || item.meaning || "";
   }
 
   function yueVocabLevel(item) {
@@ -368,7 +394,10 @@
   function itemCategory(kind, item) {
     if (kind === "jpG" || kind === "yueG") return titleCase(item.category || "General");
     if (kind === "jpV") return japaneseVocabCollection(item);
-    return cantoneseVocabBand(item);
+    if (kind === "yueV") return cantoneseVocabBand(item);
+    if (kind.endsWith("S")) return "Sentence comprehension";
+    if (kind.endsWith("P")) return "Passage comprehension";
+    return "General";
   }
 
   function grammarGuide(item) {
@@ -389,6 +418,16 @@
       "adverb": "a word that describes how an action happens",
       "clause": "a small sentence-like unit",
       "place": "a location",
+      "hour": "the hour on the clock",
+      "minutes": "the minute value",
+      "classifier": "a counting word used with a noun",
+      "pronoun": "a word such as I, you, or they",
+      "request": "what you are asking someone to do",
+      "topic": "what the sentence is mainly about",
+      "comment": "what is said about the topic",
+      "predicate": "the part that says what happens or describes the subject",
+      "direct object": "the thing directly affected by the action",
+      "indirect object": "the recipient or beneficiary of the action",
       "person / thing": "the person or thing being discussed",
       "identity / category": "what that person or thing is"
     };
@@ -431,20 +470,27 @@
 
   function inTarget(kind, item, lang) {
     if (lang === "jp") return allowedJapaneseLevels(state.profile.jpTarget).includes(item.level);
-    if (kind === "yueG") return allowedCantoneseLevels(state.profile.yueTarget).includes(item.level);
-    return Number(item.frequency_rank) <= YUE_VOCAB_LIMITS[state.profile.yueTarget];
+    if (kind === "yueV") return Number(item.frequency_rank) <= YUE_VOCAB_LIMITS[state.profile.yueTarget];
+    return allowedCantoneseLevels(state.profile.yueTarget).includes(item.level);
   }
 
   function studyPool(lang, focus) {
     const grammarKind = lang === "jp" ? "jpG" : "yueG";
     const vocabKind = lang === "jp" ? "jpV" : "yueV";
+    const sentenceKind = lang === "jp" ? "jpS" : "yueS";
+    const passageKind = lang === "jp" ? "jpP" : "yueP";
     const grammar = source[grammarKind].filter(item => inTarget(grammarKind, item, lang));
     const vocabulary = source[vocabKind].filter(item => inTarget(vocabKind, item, lang));
+    const sentences = source[sentenceKind].filter(item => inTarget(sentenceKind, item, lang));
+    const passages = source[passageKind].filter(item => inTarget(passageKind, item, lang));
     if (focus === "grammar") return grammar.map(item => ({ kind: grammarKind, item }));
     if (focus === "vocabulary") return vocabulary.map(item => ({ kind: vocabKind, item }));
+    if (focus === "sentences") return sentences.map(item => ({ kind: sentenceKind, item }));
+    if (focus === "passages") return passages.map(item => ({ kind: passageKind, item }));
     return [
       ...grammar.map(item => ({ kind: grammarKind, item })),
-      ...vocabulary.map(item => ({ kind: vocabKind, item }))
+      ...vocabulary.map(item => ({ kind: vocabKind, item })),
+      ...sentences.map(item => ({ kind: sentenceKind, item }))
     ];
   }
 
@@ -467,36 +513,77 @@
   // ---------- audio ----------
 
   let speechVoices = [];
+  let voiceLoadPromise = null;
+
   function refreshVoices() {
-    if (!("speechSynthesis" in window)) return;
-    speechVoices = window.speechSynthesis.getVoices();
+    if (!("speechSynthesis" in window)) return [];
+    speechVoices = window.speechSynthesis.getVoices() || [];
+    renderAudioStatus();
+    return speechVoices;
   }
-  refreshVoices();
+
+  function ensureVoices() {
+    if (!("speechSynthesis" in window)) return Promise.resolve([]);
+    refreshVoices();
+    if (speechVoices.length) return Promise.resolve(speechVoices);
+    if (voiceLoadPromise) return voiceLoadPromise;
+    voiceLoadPromise = new Promise(resolve => {
+      let settled = false;
+      const finish = () => {
+        if (settled) return;
+        refreshVoices();
+        if (speechVoices.length) {
+          settled = true;
+          resolve(speechVoices);
+        }
+      };
+      const handler = () => finish();
+      window.speechSynthesis.addEventListener?.("voiceschanged", handler, { once: true });
+      setTimeout(finish, 250);
+      setTimeout(() => {
+        if (!settled) {
+          settled = true;
+          refreshVoices();
+          resolve(speechVoices);
+        }
+      }, 1200);
+    }).finally(() => { voiceLoadPromise = null; });
+    return voiceLoadPromise;
+  }
+
   if ("speechSynthesis" in window) {
     window.speechSynthesis.addEventListener?.("voiceschanged", refreshVoices);
     window.speechSynthesis.onvoiceschanged = refreshVoices;
+    refreshVoices();
+  }
+
+  function voiceScore(voice, lang) {
+    const locale = normalize(voice.lang);
+    const name = normalize(voice.name);
+    let score = 0;
+    if (lang === "jp") {
+      if (locale === "ja-jp") score += 130;
+      else if (locale.startsWith("ja")) score += 100;
+      if (/nanami|haruka|ayumi|kyoko|otoya|ichiro|japanese/.test(name)) score += 15;
+    } else {
+      // Browsers and operating systems usually expose Hong Kong Cantonese as zh-HK;
+      // some expose a yue-HK locale. Prefer either over Mandarin locales.
+      if (locale === "yue-hk") score += 170;
+      else if (locale.startsWith("yue")) score += 155;
+      else if (locale === "zh-hk") score += 150;
+      else if (locale.startsWith("zh-hk")) score += 145;
+      if (/hiumaan|hiugaai|wanlung|cantonese|hong kong|hongkong/.test(name)) score += 30;
+      if (/mandarin|putonghua/.test(name)) score -= 100;
+    }
+    return score;
   }
 
   function pickVoice(lang) {
-    refreshVoices();
-    const scored = speechVoices.map(voice => {
-      const locale = normalize(voice.lang);
-      const name = normalize(voice.name);
-      let score = 0;
-      if (lang === "jp") {
-        if (locale === "ja-jp") score += 100;
-        else if (locale.startsWith("ja")) score += 80;
-        if (/nanami|haruka|ayumi|kyoko|otoya|ichiro/.test(name)) score += 10;
-      } else {
-        if (locale === "yue-hk") score += 120;
-        else if (locale.startsWith("yue")) score += 110;
-        else if (locale === "zh-hk") score += 100;
-        else if (locale.startsWith("zh-hk")) score += 95;
-        if (/hiumaan|hiugaai|wanlung|cantonese|hong kong/.test(name)) score += 15;
-      }
-      return { voice, score };
-    }).filter(entry => entry.score > 0).sort((a, b) => b.score - a.score);
-    return scored[0]?.voice || null;
+    const ranked = speechVoices
+      .map(voice => ({ voice, score: voiceScore(voice, lang) }))
+      .filter(entry => entry.score > 0)
+      .sort((a, b) => b.score - a.score);
+    return ranked[0]?.voice || null;
   }
 
   function stripTemplatePlaceholders(text) {
@@ -511,10 +598,26 @@
   function speechText(kind, item) {
     if (kind === "jpV") return item.reading || item.expression || "";
     if (kind === "yueV") return item.word || "";
+    if (isComprehensionKind(kind)) return item.text || "";
     return stripTemplatePlaceholders(item.pattern || "");
   }
 
-  function speakItem(kind, item) {
+  function renderAudioStatus() {
+    const container = $("#audioStatus");
+    if (!container) return;
+    if (!("speechSynthesis" in window)) {
+      container.innerHTML = '<div class="audio-status-row bad"><strong>Browser speech unavailable</strong><span>Use a current desktop browser or connect a hosted TTS provider.</span></div>';
+      return;
+    }
+    const jp = pickVoice("jp");
+    const yue = pickVoice("yue");
+    container.innerHTML = `
+      <div class="audio-status-row ${jp ? "good" : "bad"}"><strong>Japanese</strong><span>${jp ? escapeHtml(`${jp.name} · ${jp.lang}`) : "No Japanese voice detected"}</span></div>
+      <div class="audio-status-row ${yue ? "good" : "bad"}"><strong>Cantonese</strong><span>${yue ? escapeHtml(`${yue.name} · ${yue.lang}`) : "No yue-HK / zh-HK voice detected"}</span></div>
+      ${yue ? "" : '<p class="audio-help">On Windows, install the Chinese (Traditional, Hong Kong SAR) language/voice features, restart the browser, then press Refresh voices. For guaranteed audio on every device, use a hosted Cantonese TTS service and serve the generated audio through a backend or serverless function.</p>'}`;
+  }
+
+  async function speakItem(kind, item) {
     if (!("speechSynthesis" in window)) {
       showToast("Speech synthesis is not available in this browser.");
       return;
@@ -522,18 +625,30 @@
     const lang = langFromKind(kind);
     const text = speechText(kind, item);
     if (!text) {
-      showToast("This grammar template does not contain enough concrete text to pronounce.");
+      showToast("This item does not contain pronounceable target-language text.");
+      return;
+    }
+
+    await ensureVoices();
+    const voice = pickVoice(lang);
+    if (lang === "yue" && !voice) {
+      renderAudioStatus();
+      showToast("No Cantonese / Hong Kong voice is installed. Open Profile → Audio setup for the exact fix.");
       return;
     }
 
     window.speechSynthesis.cancel();
+    window.speechSynthesis.resume();
     const utterance = new SpeechSynthesisUtterance(text);
-    const voice = pickVoice(lang);
-    utterance.lang = lang === "jp" ? "ja-JP" : (voice?.lang || "zh-HK");
+    utterance.lang = lang === "jp" ? (voice?.lang || "ja-JP") : (voice?.lang || "zh-HK");
     if (voice) utterance.voice = voice;
-    utterance.rate = lang === "jp" ? 0.86 : 0.82;
+    utterance.rate = lang === "jp" ? 0.86 : 0.78;
     utterance.pitch = 1;
-    utterance.onerror = () => showToast(`Could not play ${languageName(lang)} audio with the current browser voice.`);
+    utterance.volume = 1;
+    utterance.onerror = event => {
+      console.warn("AIDA speech error", event.error);
+      showToast(`Could not play ${languageName(lang)} audio with the selected browser voice.`);
+    };
     window.speechSynthesis.speak(utterance);
   }
 
@@ -545,13 +660,13 @@
     items: [],
     index: 0,
     ratings: [],
-    quizAnswered: false
+    revealed: false
   };
 
   function applyStudyLanguage(lang) {
     study.lang = lang === "yue" ? "yue" : "jp";
     state.preferredStudyLanguage = study.lang;
-    $$("[data-study-switch]").forEach(button => button.classList.toggle("active", button.dataset.studySwitch === study.lang));
+    $$('[data-study-switch]').forEach(button => button.classList.toggle("active", button.dataset.studySwitch === study.lang));
 
     const japanese = study.lang === "jp";
     $("#studyLanguageKicker").textContent = japanese ? "JAPANESE TRACK" : "CANTONESE TRACK";
@@ -560,8 +675,8 @@
       ? `Study Japanese through ${state.profile.jpTarget}.`
       : `Study Cantonese through ${state.profile.yueTarget}.`;
     $("#studySetupDescription").textContent = japanese
-      ? "Your session can use your target JLPT level and every easier level, never material above your target."
-      : "Your session can use your target Cantonese band and every earlier band. Vocabulary bands are based on frequency rank because the bundled Cantonese vocabulary file has no native level labels.";
+      ? "Your target is cumulative: N4 includes N5 + N4, N3 includes N5 + N4 + N3, and nothing above your target."
+      : "Your target is cumulative: Intermediate includes Beginner + Intermediate, and Advanced includes every Cantonese band.";
     $("#studyScopeCallout").innerHTML = `<strong>Current scope</strong><span>${escapeHtml(targetScopeText(study.lang))}</span>`;
   }
 
@@ -583,11 +698,18 @@
       return;
     }
 
-    study = { ...study, items, index: 0, ratings: [], quizAnswered: false };
+    study = { ...study, items, index: 0, ratings: [], revealed: false };
     $("#studySetup").classList.add("hidden");
     $("#studyComplete").classList.add("hidden");
     $("#studySession").classList.remove("hidden");
     renderStudyItem();
+  }
+
+  function studyTypeLabel(kind) {
+    if (kind.endsWith("G")) return "GRAMMAR";
+    if (kind.endsWith("V")) return "VOCABULARY";
+    if (kind.endsWith("P")) return "PASSAGE";
+    return "SENTENCE";
   }
 
   function renderStudyItem() {
@@ -600,66 +722,47 @@
     const { kind, item } = entry;
     const percent = (study.index / study.items.length) * 100;
     const grammar = kind.endsWith("G");
+    const comprehension = isComprehensionKind(kind);
+    study.revealed = false;
+
     $("#sessionProgressBar").style.width = `${percent}%`;
     $("#studySessionProgress").textContent = `${study.index + 1} / ${study.items.length}`;
-    $("#studyItemType").textContent = grammar ? "GRAMMAR" : "VOCABULARY";
+    $("#studyItemType").textContent = studyTypeLabel(kind);
     $("#studyItemLevel").textContent = itemLevel(kind, item);
     $("#studyLanguageLabel").textContent = study.lang === "jp" ? "日本語 · JAPANESE" : "廣東話 · CANTONESE";
     $("#studyMain").textContent = humanizedPattern(kind, item);
+    $("#studyQuestion").textContent = comprehension ? item.question : "Recall the meaning and usage, then reveal the answer.";
     $("#studyReading").textContent = humanizedReading(kind, item);
     $("#studyMeaning").textContent = meaningOf(item);
     $("#studyMeta").textContent = displayMeta(kind, item);
 
-    const guide = grammar ? grammarGuide(item) : "";
+    const guide = comprehension
+      ? `Answer: ${item.answer}`
+      : grammar ? `${item.usage_note || ""}${grammarGuide(item) ? ` ${grammarGuide(item)}` : ""}`.trim() : "";
     $("#studyGuide").classList.toggle("hidden", !guide);
     $("#studyGuide").textContent = guide;
     $("#speakCurrent").disabled = !speechText(kind, item);
 
-    renderStudyQuiz(entry);
+    $("#singleStudyCard").classList.remove("revealed");
+    $("#studyAnswer").classList.add("hidden");
+    $("#studyActions").classList.add("hidden");
+    $("#studyRevealHint").classList.remove("hidden");
   }
 
-  function distractorPool(kind, item) {
-    const lang = langFromKind(kind);
-    const isGrammar = kind.endsWith("G");
-    const candidateKind = isGrammar ? (lang === "jp" ? "jpG" : "yueG") : (lang === "jp" ? "jpV" : "yueV");
-    return source[candidateKind]
-      .filter(candidate => inTarget(candidateKind, candidate, lang))
-      .filter(candidate => normalize(candidate.meaning) !== normalize(item.meaning));
-  }
-
-  function renderStudyQuiz(entry) {
-    study.quizAnswered = false;
-    const { kind, item } = entry;
-    const correct = meaningOf(item);
-    const distractors = shuffled(distractorPool(kind, item)).slice(0, 3).map(candidate => candidate.meaning);
-    const options = shuffled([correct, ...distractors]);
-    const prompt = humanizedPattern(kind, item);
-
-    $("#quizArea").classList.remove("hidden");
-    $("#quizArea").innerHTML = `
-      <h4>What does <span>${escapeHtml(prompt)}</span> mean?</h4>
-      <div class="quiz-options">
-        ${options.map(option => `<button class="quiz-option" data-answer="${escapeHtml(option)}">${escapeHtml(option)}</button>`).join("")}
-      </div>`;
-
-    $$("#quizArea .quiz-option").forEach(button => {
-      button.addEventListener("click", () => {
-        if (study.quizAnswered) return;
-        study.quizAnswered = true;
-        const correctAnswer = button.dataset.answer === correct;
-        button.classList.add(correctAnswer ? "correct" : "wrong");
-        if (!correctAnswer) {
-          $$("#quizArea .quiz-option").find(candidate => candidate.dataset.answer === correct)?.classList.add("correct");
-          state.answers[study.lang].wrong += 1;
-        } else {
-          state.answers[study.lang].correct += 1;
-        }
-        saveState();
-      });
-    });
+  function revealStudyCard() {
+    if (study.revealed) return;
+    study.revealed = true;
+    $("#singleStudyCard").classList.add("revealed");
+    $("#studyAnswer").classList.remove("hidden");
+    $("#studyActions").classList.remove("hidden");
+    $("#studyRevealHint").classList.add("hidden");
   }
 
   function rateCurrent(rating) {
+    if (!study.revealed) {
+      revealStudyCard();
+      return;
+    }
     const entry = study.items[study.index];
     if (!entry) return;
     schedule(entry.kind, entry.item, rating);
@@ -839,61 +942,210 @@
   const usageDialog = $("#usageLabDialog");
   let labMode = "ja";
   const usageExamples = {
-    ja: ["ここに座ってもいいですか？", "明日は友達と映画を見ます。", "無理しなくてもいいですよ。"],
-    yue: ["聽日一齊去食飯呀？", "我而家喺屋企。", "你唔使咁擔心。"]
+    ja: {
+      sentences: ["ここに座ってもいいですか？", "雨が降っていたので、電車で会社に行きました。"],
+      passages: [
+        "先週、新しいアルバイトを始めました。仕事は少し忙しいですが、店の人たちは親切です。まだ覚えることがたくさんあるので、毎日メモを取りながら働いています。"
+      ]
+    },
+    yue: {
+      sentences: ["我未做完功課，所以今晚唔出去。", "如果聽日落大雨，我哋就改喺屋企食飯。"],
+      passages: [
+        "有時候學語言最難唔係記生字，而係明明識個字，真正同人講嘢嗰陣又反應唔切。所以我而家會將新詞放落自己常用嘅句子入面，再隔幾日重新講一次。"
+      ]
+    }
   };
 
-  function rawGrammarChunks(pattern) {
-    return String(pattern || "")
-      .replace(/[A-Z]+|PLACE|NOUN|VERB|ADJ|SUBJECT|OBJECT|CLAUSE|PHRASE|NUMBER|TIME|V|N|A|B|X|Y/g, " ")
-      .split(/[\s〜~＋+\/（）()…\.・]+/)
-      .map(chunk => chunk.trim())
-      .filter(Boolean);
+  const lexiconTries = {};
+  const structuralMarkers = new Set([
+    "係", "喺", "嘅", "咗", "緊", "過", "唔", "冇", "未", "畀", "比", "就", "先", "都", "又", "仲", "呢", "嗰",
+    "は", "が", "を", "に", "へ", "で", "と", "も", "の", "から", "まで", "より", "て", "ば", "なら", "ので", "のに"
+  ]);
+
+  function buildLexiconTrie(mode) {
+    if (lexiconTries[mode]) return lexiconTries[mode];
+    const root = { next: Object.create(null), item: null };
+    const items = mode === "yue" ? source.yueV : source.jpV;
+    const getWord = mode === "yue" ? item => item.word : item => item.expression;
+    items.forEach(item => {
+      const word = String(getWord(item) || "").trim();
+      if (!word || word.length > 24) return;
+      let node = root;
+      for (const char of word) {
+        node.next[char] ||= { next: Object.create(null), item: null };
+        node = node.next[char];
+      }
+      // Keep the most common Cantonese entry if duplicates exist.
+      if (!node.item || mode !== "yue" || (item.frequency_rank || Infinity) < (node.item.frequency_rank || Infinity)) node.item = item;
+    });
+    lexiconTries[mode] = root;
+    return root;
+  }
+
+  function segmentText(text, mode) {
+    const trie = buildLexiconTrie(mode);
+    const tokens = [];
+    let i = 0;
+    while (i < text.length) {
+      const char = text[i];
+      if (/\s/.test(char)) { i += 1; continue; }
+      if (/[。！？!?、，,.；;：「」『』（）()\[\]…]/.test(char)) {
+        tokens.push({ text: char, punctuation: true });
+        i += 1;
+        continue;
+      }
+      let node = trie;
+      let best = null;
+      let j = i;
+      while (j < text.length && node.next[text[j]]) {
+        node = node.next[text[j]];
+        j += 1;
+        if (node.item) best = { item: node.item, end: j };
+      }
+      if (best) {
+        tokens.push({ text: text.slice(i, best.end), item: best.item, known: true });
+        i = best.end;
+      } else {
+        const previous = tokens[tokens.length - 1];
+        if (previous && !previous.known && !previous.punctuation) previous.text += char;
+        else tokens.push({ text: char, known: false });
+        i += 1;
+      }
+    }
+    return tokens;
+  }
+
+  function scriptChunks(pattern, mode) {
+    const rx = mode === "yue" ? /[\u3400-\u9fff]+/g : /[\u3040-\u30ff\u3400-\u9fff]+/g;
+    return String(pattern || "").match(rx) || [];
   }
 
   function matchGrammar(sentence, mode) {
     const items = mode === "yue" ? source.yueG : source.jpG;
     const hits = [];
     for (const item of items) {
-      const chunks = rawGrammarChunks(item.pattern);
+      const chunks = scriptChunks(item.pattern, mode);
       if (!chunks.length) continue;
       const matched = chunks.filter(chunk => sentence.includes(chunk));
-      if (matched.length && matched.some(chunk => chunk.length >= 2 || sentence === chunk)) {
-        hits.push({ item, score: matched.length / chunks.length });
-      }
+      if (!matched.length) continue;
+      const strongest = Math.max(...matched.map(chunk => chunk.length));
+      if (strongest < 2 && !matched.some(chunk => structuralMarkers.has(chunk))) continue;
+      const coverage = matched.length / chunks.length;
+      const specificity = matched.reduce((sum, chunk) => sum + Math.min(4, chunk.length), 0);
+      hits.push({ item, score: coverage * 100 + specificity });
     }
     return hits.sort((a, b) => b.score - a.score).slice(0, 8);
   }
 
-  function matchVocab(sentence, mode) {
-    const items = mode === "yue" ? source.yueV : source.jpV;
-    const hits = [];
-    for (const item of items) {
-      const word = mode === "yue" ? item.word : item.expression;
-      if (word && sentence.includes(word)) hits.push(item);
+  function vocabItemFields(item, mode) {
+    return mode === "yue"
+      ? { word: item.word, reading: item.jyutping, meaning: item.meaning }
+      : { word: item.expression, reading: item.reading, meaning: item.meaning };
+  }
+
+  function uniqueKnownVocab(tokens, mode) {
+    const seen = new Set();
+    return tokens.filter(token => token.known && token.item).map(token => token.item).filter(item => {
+      const key = vocabItemFields(item, mode).word;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  }
+
+  function structureHints(tokens, mode) {
+    const words = tokens.filter(token => !token.punctuation).map(token => token.text);
+    const joined = words.join("");
+    const hints = [];
+    if (mode === "ja") {
+      const particles = {
+        "は": "topic marker — the phrase before は is usually what the sentence is about",
+        "が": "subject/focus marker — often identifies who or what performs or experiences something",
+        "を": "direct-object marker — the phrase before を usually receives the action",
+        "に": "destination, time, recipient, or target marker",
+        "へ": "direction marker",
+        "で": "location of an action, means, or instrument",
+        "の": "links nouns; often possession or noun modification",
+        "と": "quotation, companion, or complete-list marker",
+        "から": "starting point or reason",
+        "ので": "reason/cause connector",
+        "ても": "concession: even if / even though"
+      };
+      Object.entries(particles).forEach(([marker, explanation]) => {
+        if (joined.includes(marker)) hints.push({ label: marker, explanation });
+      });
+      if (/です|ます|ました|ません/.test(joined)) hints.push({ label: "Polite predicate", explanation: "A です/ます-family ending indicates polite speech." });
+      if (/ている|ています/.test(joined)) hints.push({ label: "Ongoing/state", explanation: "〜ている commonly marks an ongoing action or resulting state." });
+    } else {
+      const markers = {
+        "係": "copula — links a person or thing to an identity/category",
+        "喺": "location marker/verb — indicates where someone or something is",
+        "唔": "general negation — not / do not",
+        "冇": "negative of 有 and common completed-event negation",
+        "未": "not yet",
+        "咗": "perfective/change marker — an event has occurred or a state has changed",
+        "緊": "ongoing/progressive aspect",
+        "過": "experiential aspect — has done before",
+        "嘅": "links a modifier or possessor to a noun; also appears in sentence-final uses",
+        "畀": "give/recipient marker and, in some structures, passive marker",
+        "如果": "if-clause opener",
+        "就": "often marks the result/consequence that follows a condition",
+        "所以": "therefore / so — introduces a result",
+        "雖然": "although — usually sets up a contrast",
+        "但係": "but — contrast connector"
+      };
+      Object.entries(markers).forEach(([marker, explanation]) => {
+        if (joined.includes(marker)) hints.push({ label: marker, explanation });
+      });
+      if (/^[我你佢我哋你哋佢哋]/.test(joined)) hints.unshift({ label: "Likely topic/subject", explanation: `The sentence begins with ${joined[0]}, a common pronoun occupying the topic/subject position.` });
+      if (/[呀啦喇喎啫㗎嘛呢]$/.test(joined)) hints.push({ label: "Sentence-final particle", explanation: "The final particle adds conversational stance or tone rather than dictionary meaning alone." });
     }
-    if (mode === "yue") hits.sort((a, b) => (a.frequency_rank || Infinity) - (b.frequency_rank || Infinity));
-    else hits.sort((a, b) => (b.expression?.length || 0) - (a.expression?.length || 0));
-    return hits.slice(0, 12);
+    return hints.slice(0, 10);
   }
 
   function registerInference(sentence, mode, grammarHits) {
     if (mode === "ja") {
-      if (/です|ます|ください|ません|でしょう|いただ/.test(sentence)) return { label: "Polite or formal markers detected", score: 90 };
+      if (/です|ます|ください|ません|でしょう|いただ/.test(sentence)) return { label: "Polite/formal markers detected", score: 90 };
       if (/[だよねなぞぜ]$/.test(sentence)) return { label: "Likely casual or neutral conversational style", score: 72 };
       return { label: "Register is ambiguous without more context", score: 55 };
     }
-    const registers = grammarHits.map(hit => hit.item.register).filter(Boolean);
-    if (registers.length) return { label: `Matched grammar register: ${[...new Set(registers)].map(titleCase).join(", ")}`, score: 85 };
-    if (/[呀啦喇喎啫㗎嘛呢]$/.test(sentence)) return { label: "Conversational sentence-final particle detected", score: 82 };
+    const registers = grammarHits.map(hit => hit.item.register).filter(value => value && value !== "varies");
+    if (registers.length) return { label: `Matched grammar register: ${[...new Set(registers)].map(titleCase).join(", ")}`, score: 82 };
+    if (/[呀啦喇喎啫㗎嘛呢]$/.test(sentence)) return { label: "Conversational sentence-final particle detected", score: 84 };
     return { label: "Register is ambiguous without relationship context", score: 55 };
   }
 
+  function splitIntoSentences(text) {
+    return (text.match(/[^。！？!?\n]+[。！？!?]?/g) || [])
+      .map(sentence => sentence.trim())
+      .filter(Boolean);
+  }
+
+  function analyzeSentence(sentence, mode) {
+    const tokens = segmentText(sentence, mode);
+    const grammarHits = matchGrammar(sentence, mode);
+    const vocabHits = uniqueKnownVocab(tokens, mode);
+    const hints = structureHints(tokens, mode);
+    const register = registerInference(sentence, mode, grammarHits);
+    const targetChars = [...sentence].filter(char => /[\u3040-\u30ff\u3400-\u9fff]/.test(char)).length || 1;
+    const knownChars = tokens.filter(token => token.known).reduce((sum, token) => sum + [...token.text].length, 0);
+    return { sentence, tokens, grammarHits, vocabHits, hints, register, coverage: clamp(Math.round(knownChars / targetChars * 100), 0, 100) };
+  }
+
+  function renderToken(token, mode) {
+    if (token.punctuation) return `<span class="seg-token punctuation">${escapeHtml(token.text)}</span>`;
+    if (!token.known || !token.item) return `<span class="seg-token unknown" title="Not found as a bundled vocabulary entry">${escapeHtml(token.text)}</span>`;
+    const fields = vocabItemFields(token.item, mode);
+    const title = [fields.reading, fields.meaning].filter(Boolean).join(" · ");
+    return `<span class="seg-token known" title="${escapeHtml(title)}"><b>${escapeHtml(token.text)}</b>${fields.reading ? `<small>${escapeHtml(fields.reading)}</small>` : ""}</span>`;
+  }
+
   function renderUsageExamples() {
-    $("#usageExamples").innerHTML = usageExamples[labMode]
-      .map(example => `<button data-usage-example="${escapeHtml(example)}">${escapeHtml(example)}</button>`)
-      .join("");
-    $$("[data-usage-example]").forEach(button => {
+    const group = usageExamples[labMode];
+    $("#usageExamples").innerHTML = `
+      <div class="example-group"><small>Sentences</small>${group.sentences.map(example => `<button data-usage-example="${escapeHtml(example)}">${escapeHtml(example)}</button>`).join("")}</div>
+      <div class="example-group"><small>Passage</small>${group.passages.map(example => `<button data-usage-example="${escapeHtml(example)}">${escapeHtml(example)}</button>`).join("")}</div>`;
+    $$('[data-usage-example]').forEach(button => {
       button.addEventListener("click", () => {
         $("#usageInput").value = button.dataset.usageExample;
         $("#usageInput").dispatchEvent(new Event("input"));
@@ -904,52 +1156,57 @@
 
   function setLabMode(mode) {
     labMode = mode === "yue" ? "yue" : "ja";
-    $$("[data-lab]").forEach(button => button.classList.toggle("active", button.dataset.lab === labMode));
-    $("#usageInput").placeholder = labMode === "ja" ? "日本語の文を入力…" : "輸入廣東話句子…";
+    $$('[data-lab]').forEach(button => button.classList.toggle("active", button.dataset.lab === labMode));
+    $("#usageInput").placeholder = labMode === "ja" ? "日本語の文・段落を入力…" : "輸入廣東話句子或段落…";
     $("#usageInput").value = "";
-    $("#charCount").textContent = "0/300";
-    $("#labAnalysis").innerHTML = '<div class="analysis-empty">Analysis will appear here after you enter a sentence.</div>';
+    $("#charCount").textContent = "0/2000";
+    $("#labAnalysis").innerHTML = '<div class="analysis-empty">Paste a sentence or passage. AIDA will separate known words, identify basic structure markers, and match local grammar patterns.</div>';
     $$(".verify-check").forEach(node => { node.textContent = "—"; });
     renderUsageExamples();
   }
 
   function analyzeUsage() {
-    const sentence = $("#usageInput").value.trim();
-    if (!sentence) {
-      showToast("Type a sentence first.");
+    const text = $("#usageInput").value.trim();
+    if (!text) {
+      showToast("Type or paste a sentence or passage first.");
       return;
     }
 
-    const grammarHits = matchGrammar(sentence, labMode);
-    const vocabHits = matchVocab(sentence, labMode);
-    const register = registerInference(sentence, labMode, grammarHits);
-    const grammarScore = clamp(35 + grammarHits.length * 12, 35, 100);
-    const vocabScore = clamp(30 + vocabHits.length * 8, 30, 100);
-    const scores = [grammarScore, vocabScore, register.score];
-    $$(".verify-check").forEach((node, index) => { node.textContent = `${scores[index]}%`; });
+    const sentences = splitIntoSentences(text);
+    const analyses = sentences.map(sentence => analyzeSentence(sentence, labMode));
+    const grammarCount = analyses.reduce((sum, analysis) => sum + analysis.grammarHits.length, 0);
+    const averageCoverage = analyses.length ? Math.round(analyses.reduce((sum, analysis) => sum + analysis.coverage, 0) / analyses.length) : 0;
+    const averageRegister = analyses.length ? Math.round(analyses.reduce((sum, analysis) => sum + analysis.register.score, 0) / analyses.length) : 0;
+    const grammarScore = clamp(30 + grammarCount * 8, 30, 100);
+    [grammarScore, averageCoverage, averageRegister].forEach((score, index) => { $$(".verify-check")[index].textContent = `${score}%`; });
 
     const grammarKind = labMode === "ja" ? "jpG" : "yueG";
-    const vocabKind = labMode === "ja" ? "jpV" : "yueV";
-    const grammarHtml = grammarHits.length
-      ? grammarHits.map(({ item }) => `
-          <div class="analysis-match">
-            <b>${escapeHtml(humanizedPattern(grammarKind, item))}</b>
-            <span>${escapeHtml(item.meaning)}</span>
-          </div>`).join("")
-      : '<div class="analysis-match">No bundled grammar pattern was confidently detected.</div>';
-    const vocabHtml = vocabHits.length
-      ? vocabHits.slice(0, 8).map(item => `
-          <div class="analysis-match">
-            <b>${escapeHtml(humanizedPattern(vocabKind, item))}</b>
-            ${humanizedReading(vocabKind, item) ? `<small>${escapeHtml(humanizedReading(vocabKind, item))}</small>` : ""}
-            <span>${escapeHtml(item.meaning)}</span>
-          </div>`).join("")
-      : '<div class="analysis-match">No exact bundled vocabulary entries were matched.</div>';
+    const sentenceHtml = analyses.map((analysis, index) => {
+      const grammarHtml = analysis.grammarHits.length
+        ? analysis.grammarHits.slice(0, 5).map(({ item }) => `<div class="analysis-match"><b>${escapeHtml(humanizedPattern(grammarKind, item))}</b><span>${escapeHtml(item.meaning)}</span></div>`).join("")
+        : '<div class="analysis-match muted-match">No confident bundled grammar match for this sentence.</div>';
+      const structureHtml = analysis.hints.length
+        ? analysis.hints.map(hint => `<div class="structure-hint"><b>${escapeHtml(hint.label)}</b><span>${escapeHtml(hint.explanation)}</span></div>`).join("")
+        : '<div class="analysis-match muted-match">No basic structure marker was confidently identified.</div>';
+      return `
+        <article class="sentence-analysis">
+          <div class="sentence-analysis-head"><span>Sentence ${index + 1}</span><strong>${analysis.coverage}% vocabulary coverage</strong></div>
+          <p class="analyzed-sentence">${escapeHtml(analysis.sentence)}</p>
+          <div class="analysis-subsection"><h5>Word separation</h5><div class="segmented-line">${analysis.tokens.map(token => renderToken(token, labMode)).join("")}</div></div>
+          <div class="analysis-subsection"><h5>Basic structure</h5><div class="structure-grid">${structureHtml}</div></div>
+          <div class="analysis-subsection"><h5>Grammar matches</h5>${grammarHtml}</div>
+          <div class="analysis-subsection"><h5>Register</h5><div class="analysis-match"><span>${escapeHtml(analysis.register.label)}</span></div></div>
+        </article>`;
+    }).join("");
 
     $("#labAnalysis").innerHTML = `
-      <div class="analysis-section"><h4>Detected grammar</h4>${grammarHtml}</div>
-      <div class="analysis-section"><h4>Detected vocabulary</h4>${vocabHtml}</div>
-      <div class="analysis-section"><h4>Register</h4><div class="analysis-match"><span>${escapeHtml(register.label)}. Context is still required for a definitive social-fit judgment.</span></div></div>`;
+      <div class="analysis-overview">
+        <div><strong>${sentences.length}</strong><span>${sentences.length === 1 ? "sentence" : "sentences"}</span></div>
+        <div><strong>${grammarCount}</strong><span>grammar matches</span></div>
+        <div><strong>${averageCoverage}%</strong><span>known-word coverage</span></div>
+      </div>
+      ${sentences.length > 1 ? '<div class="passage-note">Passage mode: analysis is broken down sentence by sentence so structure does not bleed across sentence boundaries.</div>' : ""}
+      ${sentenceHtml}`;
   }
 
   // ---------- source library ----------
@@ -1178,6 +1435,8 @@
       <div class="profile-stat"><strong>${state.xp.yue}</strong><span>Cantonese XP</span></div>
       <div class="profile-stat"><strong>${learnedEntries().length}</strong><span>items learned</span></div>
       <div class="profile-stat"><strong>${streak()}</strong><span>day streak</span></div>`;
+    renderAudioStatus();
+    ensureVoices().then(renderAudioStatus);
     showDialog($("#profileDialog"));
   }
 
@@ -1211,8 +1470,8 @@
       <div class="progress-kpis">
         <div class="progress-kpi"><strong>${state.xp.jp}</strong><span>Japanese XP</span></div>
         <div class="progress-kpi"><strong>${state.xp.yue}</strong><span>Cantonese XP</span></div>
-        <div class="progress-kpi"><strong>${languageAccuracy("jp")}%</strong><span>Japanese quiz accuracy</span></div>
-        <div class="progress-kpi"><strong>${languageAccuracy("yue")}%</strong><span>Cantonese quiz accuracy</span></div>
+        <div class="progress-kpi"><strong>${languageMastery("jp")}%</strong><span>Japanese average mastery</span></div>
+        <div class="progress-kpi"><strong>${languageMastery("yue")}%</strong><span>Cantonese average mastery</span></div>
       </div>
       <div class="progress-targets">
         <div><span>Japanese target</span><strong>${escapeHtml(state.profile.jpTarget)}</strong><small>${escapeHtml(targetScopeText("jp"))}</small></div>
@@ -1289,7 +1548,18 @@
 
   $("#generateSession").addEventListener("click", generateSession);
   $$("[data-rating]").forEach(button => button.addEventListener("click", () => rateCurrent(Number(button.dataset.rating))));
-  $("#speakCurrent").addEventListener("click", () => {
+  $("#singleStudyCard").addEventListener("click", event => {
+    if (event.target.closest("button")) return;
+    revealStudyCard();
+  });
+  $("#singleStudyCard").addEventListener("keydown", event => {
+    if ((event.key === "Enter" || event.key === " ") && !event.target.closest("button")) {
+      event.preventDefault();
+      revealStudyCard();
+    }
+  });
+  $("#speakCurrent").addEventListener("click", event => {
+    event.stopPropagation();
     const entry = study.items[study.index];
     if (entry) speakItem(entry.kind, entry.item);
   });
@@ -1299,7 +1569,7 @@
   });
 
   $("#usageInput").addEventListener("input", event => {
-    $("#charCount").textContent = `${event.target.value.length}/300`;
+    $("#charCount").textContent = `${event.target.value.length}/2000`;
   });
   $("#sendUsage").addEventListener("click", analyzeUsage);
 
@@ -1318,6 +1588,16 @@
     $("#libraryCategory").value = "all";
     renderLibrary();
   });
+
+
+  $("#refreshAudioVoices").addEventListener("click", async () => {
+    await ensureVoices();
+    refreshVoices();
+    renderAudioStatus();
+    showToast("Browser voice list refreshed.");
+  });
+  $("#testJapaneseAudio").addEventListener("click", () => speakItem("jpS", { text: "日本語の音声を確認しています。" }));
+  $("#testCantoneseAudio").addEventListener("click", () => speakItem("yueS", { text: "而家測試廣東話發音。" }));
 
   $("#saveProfile").addEventListener("click", saveProfile);
   $("#exportProgress").addEventListener("click", exportProgress);

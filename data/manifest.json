@@ -3,7 +3,9 @@
   "notes": [
     "Japanese grammar contains the full grammar-library index captured from Bunpro's public grammar list metadata; it does not copy premium example sentences or full lesson prose.",
     "Cantonese grammar is a structured teaching index synthesized from Jason Tang's Guide to Cantonese Grammar and CUHK's Cantonese Grammar multimedia chapter structure, with concise original summaries.",
-    "Vocabulary files are normalized from the two CSV files supplied by the user."
+    "Vocabulary files are normalized from the two CSV files supplied by the user.",
+    "Abstract chapter-label grammar entries with no Japanese or Cantonese surface form were removed from the learner-facing dataset.",
+    "Sentence and passage comprehension items are original AIDA learning content added for target-aware comprehension practice."
   ],
   "sources": {
     "japanese_grammar_primary": "https://bunpro.jp/grammar_points",
@@ -11,12 +13,17 @@
     "cantonese_grammar_primary": "https://www.cuhk.edu.hk/lin/cbrc/CantoneseGrammar/multimedia.htm",
     "cantonese_grammar_secondary": "https://ywjt2.user.srcf.net/cantonese/guide_to_cantonese_grammar.pdf",
     "japanese_vocabulary_source": "user-supplied all.csv",
-    "cantonese_vocabulary_source": "user-supplied Most Common Cantonese Words (Frequency List) - 40kExport.csv.csv"
+    "cantonese_vocabulary_source": "user-supplied Most Common Cantonese Words (Frequency List) - 40kExport.csv.csv",
+    "comprehension_source": "original AIDA learning content"
   },
   "counts": {
-    "japanese_grammar": 964,
-    "cantonese_grammar": 102,
+    "japanese_grammar": 963,
+    "cantonese_grammar": 67,
     "japanese_vocabulary": 7972,
-    "cantonese_vocabulary": 44435
+    "cantonese_vocabulary": 44435,
+    "japanese_comprehension_sentences": 10,
+    "japanese_comprehension_passages": 5,
+    "cantonese_comprehension_sentences": 8,
+    "cantonese_comprehension_passages": 5
   }
 }

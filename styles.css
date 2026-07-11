@@ -155,3 +155,137 @@ dialog{color:var(--text)}
   .dialog-header{padding:18px}.dialog-header h2{font-size:25px}.library-controls{grid-template-columns:1fr}.search-control{grid-column:auto}.library-results{height:calc(100% - 510px)}
   .study-session{padding:16px}.study-card{padding:16px}.single-study-card{padding:30px 20px}.single-study-card h3{font-size:42px}.profile-dialog,.progress-dialog{padding:26px 18px}.profile-stats,.progress-kpis{grid-template-columns:1fr 1fr}.site-footer{flex-direction:column}
 }
+
+/* ---------- V5 interaction polish ---------- */
+@keyframes aidaFadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes aidaLineSweep{0%{transform:translateX(-115%)}100%{transform:translateX(115%)}}
+@keyframes aidaReveal{from{opacity:0;transform:translateY(10px) scale(.992);filter:blur(5px)}to{opacity:1;transform:none;filter:none}}
+@keyframes aidaGlow{0%,100%{opacity:.18}50%{opacity:.42}}
+
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;opacity:.22;
+  background-image:
+    linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.014) 1px,transparent 1px);
+  background-size:54px 54px;
+  mask-image:linear-gradient(to bottom,black,transparent 82%);
+}
+
+.topbar,.intro,.track-grid,.workspace-grid{animation:aidaFadeUp .55s cubic-bezier(.2,.75,.2,1) both}
+.track-grid{animation-delay:.06s}.workspace-grid{animation-delay:.12s}
+
+.panel,.panel-lite,.library-item,.queue-card,.tool-links button,.btn,.speak-btn,.inline-audio,.analyze-button,.primary-nav button{
+  transition:border-color .22s ease,background .22s ease,color .22s ease,transform .22s cubic-bezier(.2,.75,.2,1),box-shadow .22s ease,opacity .22s ease;
+}
+.panel{position:relative;isolation:isolate}
+.panel::before{
+  content:"";position:absolute;inset:-1px;pointer-events:none;z-index:-1;border-radius:inherit;opacity:0;
+  background:radial-gradient(700px circle at var(--mx,50%) var(--my,0%),rgba(255,255,255,.07),transparent 42%);
+  transition:opacity .28s ease;
+}
+.panel:hover{transform:translateY(-2px);border-color:#3a3a3a;box-shadow:0 18px 55px rgba(0,0,0,.24)}
+.panel:hover::before{opacity:1}
+.btn:hover,.analyze-button:hover,.speak-btn:hover,.inline-audio:hover{transform:translateY(-1px)}
+.btn:active,.analyze-button:active,.speak-btn:active,.inline-audio:active{transform:translateY(0) scale(.985)}
+.primary-nav button{position:relative}
+.primary-nav button::after{content:"";position:absolute;left:14px;right:14px;bottom:5px;height:1px;background:#fff;transform:scaleX(0);transform-origin:center;transition:transform .22s ease}
+.primary-nav button:hover::after{transform:scaleX(1)}
+
+.base-dialog[open]{animation:aidaReveal .28s cubic-bezier(.2,.75,.2,1) both}
+.base-dialog::backdrop{animation:aidaFadeUp .24s ease both}
+.session-rail{position:relative}
+.session-rail::after{content:"";position:absolute;inset:0;width:45%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.6),transparent);animation:aidaLineSweep 2.1s linear infinite;opacity:.35}
+
+/* Study card: prompt first, answer and ratings only after reveal. */
+.single-study-card{
+  position:relative;display:block;min-height:410px;padding:0;overflow:hidden;cursor:pointer;
+  background:
+    radial-gradient(circle at 85% 10%,rgba(255,255,255,.045),transparent 28%),
+    linear-gradient(145deg,#080808,#0b0b0b 62%,#080808);
+}
+.single-study-card::before{
+  content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;
+  background:linear-gradient(110deg,transparent 20%,rgba(255,255,255,.035) 48%,transparent 72%);
+  transform:translateX(-115%);transition:transform .7s cubic-bezier(.2,.75,.2,1);
+}
+.single-study-card:hover{border-color:#494949;box-shadow:0 22px 60px rgba(0,0,0,.32)}
+.single-study-card:hover::before{transform:translateX(115%)}
+.single-study-card:focus-visible{outline:2px solid #fff;outline-offset:4px}
+.study-card-front{min-height:408px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;padding:46px 5% 54px}
+.study-card-front h3{max-width:1000px}
+.study-question{max-width:820px;margin:18px 0 0;color:#bdbdb8;font-size:16px;line-height:1.65}
+.study-card-answer{margin:0 5% 42px;padding:26px 0 0;border-top:1px solid #2b2b2b;animation:aidaReveal .34s cubic-bezier(.2,.75,.2,1) both}
+.study-card-answer .study-reading{font-size:18px}
+.study-card-answer>p{max-width:900px;margin:18px 0 0;color:#f0f0ec;font-size:18px;line-height:1.7}
+.single-study-card.revealed{cursor:default;border-color:#565656}
+.single-study-card.revealed::after{content:"REVEALED";position:absolute;right:18px;top:18px;color:#777;font-size:11px;letter-spacing:.14em}
+.reveal-hint{position:absolute;left:5%;right:5%;bottom:20px;display:flex;align-items:center;justify-content:space-between;color:#74746f;font-size:12px;letter-spacing:.08em;text-transform:uppercase}
+.reveal-hint i{font-style:normal;font-size:18px;transition:transform .22s ease}
+.single-study-card:hover .reveal-hint i{transform:translate(3px,3px)}
+.study-actions:not(.hidden){animation:aidaReveal .28s ease both}
+.rating-btn{min-height:54px;position:relative;overflow:hidden}
+.rating-btn::before{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent,rgba(255,255,255,.07),transparent);transform:translateX(-120%);transition:transform .45s ease}
+.rating-btn:hover::before{transform:translateX(120%)}
+
+/* Usage Lab parsing and passage analysis. */
+.usage-dialog{width:min(1380px,97vw);height:min(900px,95vh)}
+.usage-workspace{grid-template-columns:minmax(360px,.8fr) minmax(0,1.35fr)}
+.lab-input-wrap textarea{height:330px}
+.try-examples>div{display:grid;gap:10px}
+.example-group{display:flex!important;flex-wrap:wrap;align-items:center;gap:7px}
+.example-group>small{width:100%;color:#6f6f6b;font-size:11px;letter-spacing:.1em;text-transform:uppercase}
+.analysis-overview{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin-bottom:14px;background:#252525;border:1px solid #252525;border-radius:12px;overflow:hidden}
+.analysis-overview>div{display:grid;gap:4px;padding:14px;background:#0b0b0b}
+.analysis-overview strong{font-family:Georgia,"Times New Roman",serif;font-size:25px;font-weight:400}
+.analysis-overview span{color:#777;font-size:12px}
+.passage-note{margin:0 0 14px;padding:12px 14px;border:1px solid #292929;border-radius:10px;background:#0e0e0e;color:#a8a8a3;font-size:13px;line-height:1.55}
+.sentence-analysis{padding:22px 0;border-top:1px solid #292929;animation:aidaFadeUp .35s ease both}
+.sentence-analysis:first-of-type{border-top:0}
+.sentence-analysis-head{display:flex;justify-content:space-between;gap:16px;color:#767672;font-size:12px;text-transform:uppercase;letter-spacing:.08em}
+.sentence-analysis-head strong{color:#a9a9a4;font-weight:600}
+.analyzed-sentence{margin:12px 0 18px;color:#f3f3ef;font-family:Georgia,"Noto Serif JP","Noto Serif TC",serif;font-size:22px;line-height:1.6}
+.analysis-subsection{margin-top:18px}
+.analysis-subsection h5{margin:0 0 9px;color:#777;font-size:11px;letter-spacing:.12em;text-transform:uppercase}
+.segmented-line{display:flex;flex-wrap:wrap;gap:7px;align-items:flex-start;padding:14px;border:1px solid #242424;border-radius:12px;background:#080808}
+.seg-token{display:inline-flex;align-items:baseline;gap:5px;border:1px solid #303030;border-radius:8px;padding:7px 9px;background:#101010;color:#ededE9;font-size:14px;line-height:1.2;cursor:default}
+.seg-token small{color:#74746f;font-size:10px}
+.seg-token.unknown{border-style:dashed;color:#8a8a85;background:#0a0a0a}
+.seg-token.punctuation{border:0;background:transparent;padding:7px 1px;color:#666}
+.structure-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.structure-hint{display:grid;gap:4px;padding:11px 12px;border:1px solid #282828;border-radius:10px;background:#0d0d0d}
+.structure-hint b{font-size:14px;color:#fff}.structure-hint span{color:#9a9a95;font-size:12px;line-height:1.5}
+.muted-match{color:#777}
+
+/* Audio diagnostics. */
+.audio-setup{margin-top:22px;padding:18px;border:1px solid var(--line);border-radius:14px;background:#090909}
+.audio-setup-head{display:flex;align-items:center;justify-content:space-between;gap:18px}
+.audio-setup-head h3{margin:5px 0 0;font-family:Georgia,"Times New Roman",serif;font-size:25px;font-weight:400}
+.compact-btn{min-height:40px;padding:9px 13px}
+.audio-status{display:grid;gap:8px;margin-top:15px}
+.audio-status-row{display:grid;grid-template-columns:110px 1fr;gap:16px;align-items:center;padding:11px 12px;border:1px solid #292929;border-radius:10px;background:#0d0d0d}
+.audio-status-row strong{font-size:13px}.audio-status-row span{color:#999994;font-size:13px;line-height:1.45}
+.audio-status-row.good strong::before,.audio-status-row.bad strong::before{content:"";display:inline-block;width:7px;height:7px;margin-right:8px;border-radius:50%;vertical-align:1px}
+.audio-status-row.good strong::before{background:#fff;box-shadow:0 0 0 4px rgba(255,255,255,.08)}
+.audio-status-row.bad strong::before{border:1px solid #777}
+.audio-help{margin:4px 0 0;color:#9a9a95;font-size:13px;line-height:1.6}
+.audio-test-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+
+/* Larger microcopy and cleaner close-button centering. */
+.eyebrow,.modal-kicker,.section-index,.item-kind,.study-lang-label{font-size:13px}
+.dialog-header p,.panel-description,.tool-links small,.library-footnote,.queue-copy small,.review-reveal small{font-size:13px}
+.modal-close{display:grid;place-items:center}
+.close-icon{width:16px;height:16px}
+.close-icon::before,.close-icon::after{left:7.5px;top:1px;height:14px}
+
+@media(max-width:900px){
+  .usage-workspace{grid-template-columns:1fr}.structure-grid{grid-template-columns:1fr}.analysis-overview{grid-template-columns:1fr 1fr 1fr}
+  .study-card-front{padding:36px 7% 52px}.study-card-answer{margin:0 7% 34px}
+}
+@media(max-width:560px){
+  .analysis-overview{grid-template-columns:1fr}.sentence-analysis-head{align-items:flex-start;flex-direction:column}.audio-status-row{grid-template-columns:1fr}.audio-setup-head{align-items:flex-start;flex-direction:column}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}
+}
+.single-study-card.revealed .study-card-front{min-height:0;padding-bottom:26px;justify-content:flex-start}
+.single-study-card.revealed .study-card-front h3{font-size:clamp(34px,4vw,58px)}
