@@ -1,0 +1,965 @@
+﻿id,slug,pattern,meaning,level,lesson,course_group,category,source_url,verification
+jp-g-0001,だ,だ,"To be, Is",N5,1,N5 Lesson 1,general,https://bunpro.jp/grammar_points/だ,source-indexed
+jp-g-0002,です,です,"To be, Is",N5,1,N5 Lesson 1,general,https://bunpro.jp/grammar_points/です,source-indexed
+jp-g-0003,は,は,As for... (Highlights sentence topic),N5,1,N5 Lesson 1,general,https://bunpro.jp/grammar_points/は,source-indexed
+jp-g-0004,も,も,"Also, Too, As well, Even, Either, Neither",N5,1,N5 Lesson 1,general,https://bunpro.jp/grammar_points/も,source-indexed
+jp-g-0005,これ,これ,This,N5,1,N5 Lesson 1,general,https://bunpro.jp/grammar_points/これ,source-indexed
+jp-g-0006,それ,それ,That,N5,1,N5 Lesson 1,general,https://bunpro.jp/grammar_points/それ,source-indexed
+jp-g-0007,あれ,あれ,That (over there),N5,1,N5 Lesson 1,general,https://bunpro.jp/grammar_points/あれ,source-indexed
+jp-g-0008,の,の,Indicates possession,N5,1,N5 Lesson 1,general,https://bunpro.jp/grammar_points/の,source-indexed
+jp-g-0009,いい,いい →  いい,い-Adjective meaning 'good',N5,1,N5 Lesson 1,general,https://bunpro.jp/grammar_points/いい,source-indexed
+jp-g-0010,い-adjectives,い-Adjectives →  い-Adjective,Adjectives ending in い,N5,1,N5 Lesson 1,general,https://bunpro.jp/grammar_points/い-adjectives,source-indexed
+jp-g-0011,な-adjectives,な-Adjectives →  な-Adjective,Adjectives that are also nouns,N5,1,N5 Lesson 1,general,https://bunpro.jp/grammar_points/な-adjectives,source-indexed
+jp-g-0012,か,か,Question marking particle,N5,1,N5 Lesson 1,particle,https://bunpro.jp/grammar_points/か,source-indexed
+jp-g-0013,が,が,"Subject marking particle, Identification particle",N5,2,N5 Lesson 2,particle,https://bunpro.jp/grammar_points/が,source-indexed
+jp-g-0014,よ,よ,Emphasis (Sentence ending particle),N5,2,N5 Lesson 2,particle,https://bunpro.jp/grammar_points/よ,source-indexed
+jp-g-0015,ね,ね,"Isn't it?, Right? (Sentence ending particle)",N5,2,N5 Lesson 2,particle,https://bunpro.jp/grammar_points/ね,source-indexed
+jp-g-0016,る-Verbs,る-Verb (Dictionary),る + ます (Ichidan Verbs),N5,2,N5 Lesson 2,verb-form,https://bunpro.jp/grammar_points/る-Verbs,source-indexed
+jp-g-0017,う-Verbs,う-Verb (Dictionary),う + ます (Godan Verbs),N5,2,N5 Lesson 2,verb-form,https://bunpro.jp/grammar_points/う-Verbs,source-indexed
+jp-g-0018,を,を,Object marking particle,N5,2,N5 Lesson 2,particle,https://bunpro.jp/grammar_points/を,source-indexed
+jp-g-0019,polite-verb-endings,ます,Polite Verb Endings,N5,2,N5 Lesson 2,verb-form,https://bunpro.jp/grammar_points/polite-verb-endings,source-indexed
+jp-g-0020,るverb-ない,る-Verb (Negative),Will/Does/Do (not),N5,2,N5 Lesson 2,verb-form,https://bunpro.jp/grammar_points/るverb-ない,source-indexed
+jp-g-0021,うverb--ない,う-Verb (Negative),Will/Does/Do (not),N5,2,N5 Lesson 2,verb-form,https://bunpro.jp/grammar_points/うverb--ない,source-indexed
+jp-g-0022,と-and,と,And,N5,2,N5 Lesson 2,general,https://bunpro.jp/grammar_points/と-and,source-indexed
+jp-g-0023,ここ,ここ,"Here, This place",N5,2,N5 Lesson 2,general,https://bunpro.jp/grammar_points/ここ,source-indexed
+jp-g-0024,そこ,そこ,"There, That place",N5,2,N5 Lesson 2,general,https://bunpro.jp/grammar_points/そこ,source-indexed
+jp-g-0025,あそこ,あそこ,Over there,N5,2,N5 Lesson 2,general,https://bunpro.jp/grammar_points/あそこ,source-indexed
+jp-g-0026,で,で,"At, In",N5,3,N5 Lesson 3,general,https://bunpro.jp/grammar_points/で,source-indexed
+jp-g-0027,に,に,"In, At, To, For, On",N5,3,N5 Lesson 3,general,https://bunpro.jp/grammar_points/に,source-indexed
+jp-g-0028,か-or,か,Or,N5,3,N5 Lesson 3,general,https://bunpro.jp/grammar_points/か-or,source-indexed
+jp-g-0029,と-with,と,With,N5,3,N5 Lesson 3,general,https://bunpro.jp/grammar_points/と-with,source-indexed
+jp-g-0030,でしょう,でしょう,"Right?, Probably, Isn't it?",N5,3,N5 Lesson 3,modality,https://bunpro.jp/grammar_points/でしょう,source-indexed
+jp-g-0031,だろう,だろう,"Right?, Probably, Isn't it?",N5,3,N5 Lesson 3,modality,https://bunpro.jp/grammar_points/だろう,source-indexed
+jp-g-0032,がある,がある →  がある,"To be, There is",N5,3,N5 Lesson 3,general,https://bunpro.jp/grammar_points/がある,source-indexed
+jp-g-0033,がいる,がいる →  がいる,"To be, There is, To remain (in a state)",N5,3,N5 Lesson 3,general,https://bunpro.jp/grammar_points/がいる,source-indexed
+jp-g-0034,この,この,This,N5,3,N5 Lesson 3,general,https://bunpro.jp/grammar_points/この,source-indexed
+jp-g-0035,その,その,That,N5,3,N5 Lesson 3,general,https://bunpro.jp/grammar_points/その,source-indexed
+jp-g-0036,あの,あの,That (over there),N5,3,N5 Lesson 3,general,https://bunpro.jp/grammar_points/あの,source-indexed
+jp-g-0037,-んです-のです,～んです・のです →  んです・のです,"Explanatory, Emphasis, The fact is",N5,3,N5 Lesson 3,general,https://bunpro.jp/grammar_points/-んです-のです,source-indexed
+jp-g-0038,past-tense-い-adjectives,い-Adjective (Past),"Was, Were (Past tense)",N5,3,N5 Lesson 3,general,https://bunpro.jp/grammar_points/past-tense-い-adjectives,source-indexed
+jp-g-0039,のは,の →  のは・のが,"Verb nominalizer, The one who..., That which...",N5,4,N5 Lesson 4,verb-form,https://bunpro.jp/grammar_points/のは,source-indexed
+jp-g-0040,い-adjective-noun,い-Adjective + Noun →  い-Adjective + (Noun),Describing a noun,N5,4,N5 Lesson 4,general,https://bunpro.jp/grammar_points/い-adjective-noun,source-indexed
+jp-g-0041,な-adjective-noun,な-Adjective + Noun →  な-Adjective + (Noun),Describing a noun,N5,4,N5 Lesson 4,general,https://bunpro.jp/grammar_points/な-adjective-noun,source-indexed
+jp-g-0042,へいく,へいく →  へいく,"To go to, To head toward",N5,4,N5 Lesson 4,general,https://bunpro.jp/grammar_points/へいく,source-indexed
+jp-g-0043,する,する,"To do, To make into",N5,4,N5 Lesson 4,general,https://bunpro.jp/grammar_points/する,source-indexed
+jp-g-0044,くる,くる →  くる,To come,N5,4,N5 Lesson 4,general,https://bunpro.jp/grammar_points/くる,source-indexed
+jp-g-0045,る-verb-past,る-Verb (Past),る - Verbs (Past tense),N5,4,N5 Lesson 4,verb-form,https://bunpro.jp/grammar_points/る-verb-past,source-indexed
+jp-g-0046,う-verb-past,う-Verb (Past),う - Verbs (Past tense),N5,4,N5 Lesson 4,verb-form,https://bunpro.jp/grammar_points/う-verb-past,source-indexed
+jp-g-0047,すき,好き →  すき,"Like, Fond of",N5,4,N5 Lesson 4,general,https://bunpro.jp/grammar_points/すき,source-indexed
+jp-g-0048,きらい,きらい →  きらい,"Dislike, Not fond of",N5,4,N5 Lesson 4,general,https://bunpro.jp/grammar_points/きらい,source-indexed
+jp-g-0049,のがすき,のがすき →  のがすき,"Like doing, Love doing",N5,4,N5 Lesson 4,general,https://bunpro.jp/grammar_points/のがすき,source-indexed
+jp-g-0050,がある-noun,がある + Noun →  がある + (Noun),"Noun (B) that has Noun (A), Noun (B) with Noun (A)",N5,4,N5 Lesson 4,general,https://bunpro.jp/grammar_points/がある-noun,source-indexed
+jp-g-0051,negative-い-adjectives,い-Adjectives くない →  くない,Not (Adjective),N5,4,N5 Lesson 4,general,https://bunpro.jp/grammar_points/negative-い-adjectives,source-indexed
+jp-g-0052,で-by,で,"With, By (using)",N5,5,N5 Lesson 5,general,https://bunpro.jp/grammar_points/で-by,source-indexed
+jp-g-0053,ので,ので,"Because, So, Since, The reason being",N5,5,N5 Lesson 5,general,https://bunpro.jp/grammar_points/ので,source-indexed
+jp-g-0054,から-because,から,"Because, Since",N5,5,N5 Lesson 5,general,https://bunpro.jp/grammar_points/から-because,source-indexed
+jp-g-0055,から,から,From,N5,5,N5 Lesson 5,general,https://bunpro.jp/grammar_points/から,source-indexed
+jp-g-0056,けど-だけど,けど・だけど →  けど,"But, However",N5,5,N5 Lesson 5,general,https://bunpro.jp/grammar_points/けど-だけど,source-indexed
+jp-g-0057,が-but,が,"But, However",N5,5,N5 Lesson 5,general,https://bunpro.jp/grammar_points/が-but,source-indexed
+jp-g-0058,る-verb-neg-past,る-Verb (Negative-Past),る - Verbs (Negative-past tense),N5,5,N5 Lesson 5,verb-form,https://bunpro.jp/grammar_points/る-verb-neg-past,source-indexed
+jp-g-0059,う-verb-neg-past,う-Verb (Negative-Past),う - Verbs (Negative-past tense),N5,5,N5 Lesson 5,verb-form,https://bunpro.jp/grammar_points/う-verb-neg-past,source-indexed
+jp-g-0060,verb-て,Verb + て →  ～て (Conjunction),"And, Then (Linking events)",N5,5,N5 Lesson 5,verb-form,https://bunpro.jp/grammar_points/verb-て,source-indexed
+jp-g-0061,ている1,ている① →  ～ている ①,"Is, Am, Are (~ing)",N5,5,N5 Lesson 5,general,https://bunpro.jp/grammar_points/ている1,source-indexed
+jp-g-0062,へ,へ,"To, Toward",N5,5,N5 Lesson 5,general,https://bunpro.jp/grammar_points/へ,source-indexed
+jp-g-0063,verb-にいく,Verb + にいく →  ～にいく,"To go ~, To go in order to ~",N5,5,N5 Lesson 5,verb-form,https://bunpro.jp/grammar_points/verb-にいく,source-indexed
+jp-g-0064,だれ,誰 →  だれ,Who,N5,6,N5 Lesson 6,general,https://bunpro.jp/grammar_points/だれ,source-indexed
+jp-g-0065,なぜ,なぜ,Why,N5,6,N5 Lesson 6,general,https://bunpro.jp/grammar_points/なぜ,source-indexed
+jp-g-0066,どうして,どうして,Why,N5,6,N5 Lesson 6,general,https://bunpro.jp/grammar_points/どうして,source-indexed
+jp-g-0067,なんで,なんで,Why,N5,6,N5 Lesson 6,general,https://bunpro.jp/grammar_points/なんで,source-indexed
+jp-g-0068,い-adjective-predicate,い-Adjective (Predicate) →  い-Adjective + です (Predicate),い-Adjective (Predicate),N5,6,N5 Lesson 6,general,https://bunpro.jp/grammar_points/い-adjective-predicate,source-indexed
+jp-g-0069,な-adjective-predicate,な-Adjective だ →  な-Adjective + だ (Predicate),な-Adjective (Predicate),N5,6,N5 Lesson 6,general,https://bunpro.jp/grammar_points/な-adjective-predicate,source-indexed
+jp-g-0070,だった-でした,だった・でした,"Was, Were (Past tense)",N5,6,N5 Lesson 6,general,https://bunpro.jp/grammar_points/だった-でした,source-indexed
+jp-g-0071,じゃない,じゃない,"Is not, Isn't",N5,6,N5 Lesson 6,general,https://bunpro.jp/grammar_points/じゃない,source-indexed
+jp-g-0072,じゃなかった,じゃなかった,"Was not, Wasn't",N5,6,N5 Lesson 6,general,https://bunpro.jp/grammar_points/じゃなかった,source-indexed
+jp-g-0073,い-Adjective-くなかった,い-Adjective くなかった →  くなかった,"Was not, Wasn't (Adjective)",N5,6,N5 Lesson 6,general,https://bunpro.jp/grammar_points/い-Adjective-くなかった,source-indexed
+jp-g-0074,と,と,Quotation,N5,6,N5 Lesson 6,particle,https://bunpro.jp/grammar_points/と,source-indexed
+jp-g-0075,って,って,Casual quotation,N5,6,N5 Lesson 6,particle,https://bunpro.jp/grammar_points/って,source-indexed
+jp-g-0076,verb-non-past,Verbs (Non-past) →  Verb (Non-Past),(Non-past),N5,6,N5 Lesson 6,verb-form,https://bunpro.jp/grammar_points/verb-non-past,source-indexed
+jp-g-0077,verb-た-noun,Verb［た・ている］+ Noun →  ～た + (Noun),"Verb modified noun, Relative clause",N5,6,N5 Lesson 6,verb-form,https://bunpro.jp/grammar_points/verb-た-noun,source-indexed
+jp-g-0078,の-noun-ommission,の,Possessive use (Noun omission),N5,6,N5 Lesson 6,general,https://bunpro.jp/grammar_points/の-noun-ommission,source-indexed
+jp-g-0079,な,な →  な (Prohibitive),"Do not, Don't (Prohibitive)",N5,6,N5 Lesson 6,general,https://bunpro.jp/grammar_points/な,source-indexed
+jp-g-0080,だけ,だけ,"Only, Just",N5,7,N5 Lesson 7,general,https://bunpro.jp/grammar_points/だけ,source-indexed
+jp-g-0081,どれ,どれ,Which (of three or more),N5,7,N5 Lesson 7,general,https://bunpro.jp/grammar_points/どれ,source-indexed
+jp-g-0082,どこ,どこ,Where,N5,7,N5 Lesson 7,general,https://bunpro.jp/grammar_points/どこ,source-indexed
+jp-g-0083,どの,どの,"Which (of three or more), What (kind)",N5,7,N5 Lesson 7,general,https://bunpro.jp/grammar_points/どの,source-indexed
+jp-g-0084,ている2,ている② →  ～ている ②,"State of being, Has (have) done",N5,7,N5 Lesson 7,general,https://bunpro.jp/grammar_points/ている2,source-indexed
+jp-g-0085,てから,てから →  ～てから,"Once...is done, Once...happens, After doing",N5,7,N5 Lesson 7,general,https://bunpro.jp/grammar_points/てから,source-indexed
+jp-g-0086,verb-て-b,Verb + て+ B →  ～て (Sequence),"And, And then, After that (sequence)",N5,7,N5 Lesson 7,verb-form,https://bunpro.jp/grammar_points/verb-て-b,source-indexed
+jp-g-0087,もう,もう,"Already, Anymore",N5,7,N5 Lesson 7,general,https://bunpro.jp/grammar_points/もう,source-indexed
+jp-g-0088,まだ,まだ,Still,N5,7,N5 Lesson 7,general,https://bunpro.jp/grammar_points/まだ,source-indexed
+jp-g-0089,まだ-ていません,まだ～ていません,Still haven't done (something),N5,7,N5 Lesson 7,general,https://bunpro.jp/grammar_points/まだ-ていません,source-indexed
+jp-g-0090,てもいい,てもいい →  ～てもいい,"It is alright/fine/okay even if, Can/may, ~ is also okay",N5,7,N5 Lesson 7,conditional,https://bunpro.jp/grammar_points/てもいい,source-indexed
+jp-g-0091,たい,たい,Want to do,N5,7,N5 Lesson 7,general,https://bunpro.jp/grammar_points/たい,source-indexed
+jp-g-0092,たり-たりする,たり～たりする,Things like ~ and ~,N5,7,N5 Lesson 7,general,https://bunpro.jp/grammar_points/たり-たりする,source-indexed
+jp-g-0093,けっこう,けっこう →  けっこう,"Quite, A lot, Fairly, Rather",N5,8,N5 Lesson 8,general,https://bunpro.jp/grammar_points/けっこう,source-indexed
+jp-g-0094,たくさん,たくさん →  たくさん,"Many, A lot of, Plenty, Enough",N5,8,N5 Lesson 8,general,https://bunpro.jp/grammar_points/たくさん,source-indexed
+jp-g-0095,まえに,まえに →  まえに,"Before, In front of",N5,8,N5 Lesson 8,general,https://bunpro.jp/grammar_points/まえに,source-indexed
+jp-g-0096,くらい1,くらい ①,"About, Approximately",N5,8,N5 Lesson 8,general,https://bunpro.jp/grammar_points/くらい1,source-indexed
+jp-g-0097,noun-まで,Noun + まで,"Until, Till, To (but no further than)",N5,8,N5 Lesson 8,general,https://bunpro.jp/grammar_points/noun-まで,source-indexed
+jp-g-0098,v-まで,Verb + まで,Until (something) happens,N5,8,N5 Lesson 8,verb-form,https://bunpro.jp/grammar_points/v-まで,source-indexed
+jp-g-0099,すぎる,すぎる →  すぎる,"Too much, Very",N5,8,N5 Lesson 8,general,https://bunpro.jp/grammar_points/すぎる,source-indexed
+jp-g-0100,にする,にする,"To decide on, To choose, To make something into, To view something as",N5,8,N5 Lesson 8,general,https://bunpro.jp/grammar_points/にする,source-indexed
+jp-g-0101,になる-くなる,～になる・～くなる →  になる・くなる,To become (Adjective),N5,8,N5 Lesson 8,general,https://bunpro.jp/grammar_points/になる-くなる,source-indexed
+jp-g-0102,のなかで-がいちばん,のなかで～がいちばん～ →  のなかで～がいちばん,"Out of ~, ~ is the best/most ~",N5,8,N5 Lesson 8,general,https://bunpro.jp/grammar_points/のなかで-がいちばん,source-indexed
+jp-g-0103,より-のほうが,より～のほうが →  より～のほうが,To be more ~ than ~,N5,8,N5 Lesson 8,general,https://bunpro.jp/grammar_points/より-のほうが,source-indexed
+jp-g-0104,なにか-なにも,なにか・なにも →  なに + か,"Something, Nothing, Anything, Not anything, Some kind of, Not any kind of",N5,8,N5 Lesson 8,general,https://bunpro.jp/grammar_points/なにか-なにも,source-indexed
+jp-g-0105,誰か-どこか-誰も-どこも,誰か・どこか・誰も・どこも →  だれか・どこか・だれも・どこも,"Someone, Somewhere, Not anyone, Not anywhere",N5,8,N5 Lesson 8,general,https://bunpro.jp/grammar_points/誰か-どこか-誰も-どこも,source-indexed
+jp-g-0106,ましょう,ましょう,"Let's, Shall we (Polite volitional)",N5,9,N5 Lesson 9,verb-form,https://bunpro.jp/grammar_points/ましょう,source-indexed
+jp-g-0107,ましょうか,～ましょうか →  ましょうか,"Shall we, Shall I",N5,9,N5 Lesson 9,general,https://bunpro.jp/grammar_points/ましょうか,source-indexed
+jp-g-0108,ませんか,ませんか,"Won't you, Would you not, Why don't we",N5,9,N5 Lesson 9,general,https://bunpro.jp/grammar_points/ませんか,source-indexed
+jp-g-0109,verb-てもいい,Verb + てもいい →  ～てもいい (Verb),"It's okay to, It's alright to, Can/may",N5,9,N5 Lesson 9,verb-form,https://bunpro.jp/grammar_points/verb-てもいい,source-indexed
+jp-g-0110,てください,てください →  ～てください,Please do (Polite request),N5,9,N5 Lesson 9,register,https://bunpro.jp/grammar_points/てください,source-indexed
+jp-g-0111,ないでください,ないでください →  ～ないでください,Please don't (Polite request),N5,9,N5 Lesson 9,register,https://bunpro.jp/grammar_points/ないでください,source-indexed
+jp-g-0112,てはいけない,てはいけない →  ～てはいけない,"Must not, May not",N5,9,N5 Lesson 9,general,https://bunpro.jp/grammar_points/てはいけない,source-indexed
+jp-g-0113,なくてはいけない,なくてはいけない,"Must do, Have to do",N5,9,N5 Lesson 9,general,https://bunpro.jp/grammar_points/なくてはいけない,source-indexed
+jp-g-0114,なくてはならない,なくてはならない,"Must do, Have to do",N5,9,N5 Lesson 9,general,https://bunpro.jp/grammar_points/なくてはならない,source-indexed
+jp-g-0115,たほうがいい,たほうがいい →  ～たほうがいい,"It'd be better to, Should do",N5,9,N5 Lesson 9,general,https://bunpro.jp/grammar_points/たほうがいい,source-indexed
+jp-g-0116,ないほうがいい,ないほうがいい →  ないほうがいい,"It'd be better not to, Shouldn't do",N5,9,N5 Lesson 9,general,https://bunpro.jp/grammar_points/ないほうがいい,source-indexed
+jp-g-0117,なくちゃ-なきゃ,なくちゃ・なきゃ,"Must do, Have to do",N5,9,N5 Lesson 9,general,https://bunpro.jp/grammar_points/なくちゃ-なきゃ,source-indexed
+jp-g-0118,や,や,"Things like, And the like",N5,9,N5 Lesson 9,general,https://bunpro.jp/grammar_points/や,source-indexed
+jp-g-0119,たことがある,たことがある →  ～たことがある,Have done before,N5,10,N5 Lesson 10,general,https://bunpro.jp/grammar_points/たことがある,source-indexed
+jp-g-0120,ている3,ている③ →  ～ている ③,"Has/have done, Is ~ing (Repetition)",N5,10,N5 Lesson 10,general,https://bunpro.jp/grammar_points/ている3,source-indexed
+jp-g-0121,adjective-て-noun-で,Adjective + て・Noun + で →  ～て (Adjectives and Nouns),And... (Conjunctive),N5,10,N5 Lesson 10,general,https://bunpro.jp/grammar_points/adjective-て-noun-で,source-indexed
+jp-g-0122,adjective-て-b,Adjective + て + B →  ～て (Qualities and States),"And..., Both and (Conjunctive)",N5,10,N5 Lesson 10,general,https://bunpro.jp/grammar_points/adjective-て-b,source-indexed
+jp-g-0123,のがへた,のがへた →  のがへた,"To be bad at, Poor at, Unskillful",N5,10,N5 Lesson 10,general,https://bunpro.jp/grammar_points/のがへた,source-indexed
+jp-g-0124,のがじょうず,のがじょうず →  のがじょうず,"To be good at, Proficient",N5,10,N5 Lesson 10,general,https://bunpro.jp/grammar_points/のがじょうず,source-indexed
+jp-g-0125,adjective-の-は,Adjective + の(は) →  (Adjective) + のは,"The 'one' that... (Indefinite pronoun, Adjective nominalization)",N5,10,N5 Lesson 10,general,https://bunpro.jp/grammar_points/adjective-の-は,source-indexed
+jp-g-0126,あげる,あげる,"To give (away), To present, To provide",N5,10,N5 Lesson 10,general,https://bunpro.jp/grammar_points/あげる,source-indexed
+jp-g-0127,くれる,くれる,"To give (me), To be given",N5,10,N5 Lesson 10,general,https://bunpro.jp/grammar_points/くれる,source-indexed
+jp-g-0128,もらう,もらう →  もらう,"To receive, To get, To obtain",N5,10,N5 Lesson 10,general,https://bunpro.jp/grammar_points/もらう,source-indexed
+jp-g-0129,けれども,けれども,"But, Although",N5,10,N5 Lesson 10,general,https://bunpro.jp/grammar_points/けれども,source-indexed
+jp-g-0130,つもりだ,つもりだ,"To plan to, To intend to",N5,10,N5 Lesson 10,general,https://bunpro.jp/grammar_points/つもりだ,source-indexed
+jp-g-0131,でも,でも,"Or something, Any... (with question words), No matter (who)",N4,1,N4 Lesson 1,general,https://bunpro.jp/grammar_points/でも,source-indexed
+jp-g-0132,やすい,やすい →  ～やすい,"Easy to, Likely to",N4,1,N4 Lesson 1,general,https://bunpro.jp/grammar_points/やすい,source-indexed
+jp-g-0133,にくい,にくい,"Difficult to, Hard to",N4,1,N4 Lesson 1,conditional,https://bunpro.jp/grammar_points/にくい,source-indexed
+jp-g-0134,づらい,づらい,"Hard to, Tough to, Painful to, Difficult to",N4,1,N4 Lesson 1,conditional,https://bunpro.jp/grammar_points/づらい,source-indexed
+jp-g-0135,だんだん,だんだん →  だんだん,"Gradually, Little by little, Step by step",N4,1,N4 Lesson 1,general,https://bunpro.jp/grammar_points/だんだん,source-indexed
+jp-g-0136,どんどん,どんどん,"Progressively, Rapidly increasing, More and more",N4,1,N4 Lesson 1,general,https://bunpro.jp/grammar_points/どんどん,source-indexed
+jp-g-0137,ら,～ら →  ら,"We, Them, They, These, Those",N4,1,N4 Lesson 1,general,https://bunpro.jp/grammar_points/ら,source-indexed
+jp-g-0138,ていく,ていく →  ～ていく,"To ~ and go, To go on, To start",N4,1,N4 Lesson 1,general,https://bunpro.jp/grammar_points/ていく,source-indexed
+jp-g-0139,てくる,てくる  → ～てくる,"To come to, To become, To continue, To be starting to, Has been ~ing",N4,1,N4 Lesson 1,general,https://bunpro.jp/grammar_points/てくる,source-indexed
+jp-g-0140,かた,かた →  かた,"Way of ~ing, How to ~, Manner of ~ing",N4,1,N4 Lesson 1,general,https://bunpro.jp/grammar_points/かた,source-indexed
+jp-g-0141,だけで,だけで,"Just by, Just with",N4,1,N4 Lesson 1,general,https://bunpro.jp/grammar_points/だけで,source-indexed
+jp-g-0142,だが・ですが,だが・ですが →  だが,"But, Still, However, Nevertheless",N4,1,N4 Lesson 1,general,https://bunpro.jp/grammar_points/だが・ですが,source-indexed
+jp-g-0143,なくて-conjunction,なくて →  なくて (Sequence),"To not ~ and ~, Not ~ and ~ (Conjugations)",N4,1,N4 Lesson 1,general,https://bunpro.jp/grammar_points/なくて-conjunction,source-indexed
+jp-g-0144,なくて,なくて →  なくて (Reasons and Causes),"Not ~ and, Not so, Because not (Examples)",N4,1,N4 Lesson 1,general,https://bunpro.jp/grammar_points/なくて,source-indexed
+jp-g-0145,ないで,ないで,"Without doing, Not ~ and ~",N4,1,N4 Lesson 1,general,https://bunpro.jp/grammar_points/ないで,source-indexed
+jp-g-0146,Verb[passive],Verb［れる・られる］ →  れる・られる (Passive),"Was done to ~ by ~, Done without consent, Done to one's dismay",N4,1,N4 Lesson 1,verb-form,https://bunpro.jp/grammar_points/Verb[passive],source-indexed
+jp-g-0147,transitive-intransitive-verbs,他動詞・自動詞 →  たどうし・じどうし,Done through action vs. occurring on its own,N4,1,N4 Lesson 1,verb-form,https://bunpro.jp/grammar_points/transitive-intransitive-verbs,source-indexed
+jp-g-0148,なおす,なおす →  なおす,"To do over, To redo",N4,1,N4 Lesson 1,general,https://bunpro.jp/grammar_points/なおす,source-indexed
+jp-g-0149,ということ,ということ →  ということ,"~ing, The ~ that ~ (Nominalization)",N4,1,N4 Lesson 1,general,https://bunpro.jp/grammar_points/ということ,source-indexed
+jp-g-0150,とき,とき →  とき,"When, At the time of",N4,2,N4 Lesson 2,general,https://bunpro.jp/grammar_points/とき,source-indexed
+jp-g-0151,まず,まず,"To start with, Firstly",N4,2,N4 Lesson 2,general,https://bunpro.jp/grammar_points/まず,source-indexed
+jp-g-0152,まで,まで,"Even, To even, To the extent of",N4,2,N4 Lesson 2,general,https://bunpro.jp/grammar_points/まで,source-indexed
+jp-g-0153,までに,までに,"By ~, By the time that ~, Before ~",N4,2,N4 Lesson 2,general,https://bunpro.jp/grammar_points/までに,source-indexed
+jp-g-0154,また,また,"Also, As well, Moreover, Again, Additionally",N4,2,N4 Lesson 2,general,https://bunpro.jp/grammar_points/また,source-indexed
+jp-g-0155,はじめる,はじめる →  はじめる,"To start, To begin to",N4,2,N4 Lesson 2,general,https://bunpro.jp/grammar_points/はじめる,source-indexed
+jp-g-0156,おわる,おわる →  おわる,"To finish, To end",N4,2,N4 Lesson 2,general,https://bunpro.jp/grammar_points/おわる,source-indexed
+jp-g-0157,ごろ,ごろ →  ころ,"Around, About",N4,2,N4 Lesson 2,general,https://bunpro.jp/grammar_points/ごろ,source-indexed
+jp-g-0158,あとで,あとで →  あとで,"After, Later",N4,2,N4 Lesson 2,general,https://bunpro.jp/grammar_points/あとで,source-indexed
+jp-g-0159,ていた,ていた  → ～ていた,Was doing ~,N4,2,N4 Lesson 2,general,https://bunpro.jp/grammar_points/ていた,source-indexed
+jp-g-0160,に-frequency,に (Frequency),"Times (In each time period), Every, Frequency of",N4,2,N4 Lesson 2,general,https://bunpro.jp/grammar_points/に-frequency,source-indexed
+jp-g-0161,とうとう,とうとう →  とうとう,"Finally, After all",N4,2,N4 Lesson 2,general,https://bunpro.jp/grammar_points/とうとう,source-indexed
+jp-g-0162,より,より,"More than, Over",N4,2,N4 Lesson 2,general,https://bunpro.jp/grammar_points/より,source-indexed
+jp-g-0163,ごとに,ごとに →  ごとに,"Each, Every",N4,2,N4 Lesson 2,general,https://bunpro.jp/grammar_points/ごとに,source-indexed
+jp-g-0164,なるべく,なるべく,"As ~ as possible, Wherever practicable",N4,2,N4 Lesson 2,general,https://bunpro.jp/grammar_points/なるべく,source-indexed
+jp-g-0165,るところだ,るところだ →  ～るところだ,"About to, On the verge of",N4,2,N4 Lesson 2,general,https://bunpro.jp/grammar_points/るところだ,source-indexed
+jp-g-0166,のに-despite,のに,"Despite, Although, Even though",N4,2,N4 Lesson 2,general,https://bunpro.jp/grammar_points/のに-despite,source-indexed
+jp-g-0167,とおもう,とおもう →  とおもう,I think,N4,3,N4 Lesson 3,general,https://bunpro.jp/grammar_points/とおもう,source-indexed
+jp-g-0168,など,など →  など,"Such as, Things like, Etc., And so on",N4,3,N4 Lesson 3,general,https://bunpro.jp/grammar_points/など,source-indexed
+jp-g-0169,みたい,みたい,"Like, Similar to, Resembling",N4,3,N4 Lesson 3,general,https://bunpro.jp/grammar_points/みたい,source-indexed
+jp-g-0170,こと,こと,Converting a verb into a noun,N4,3,N4 Lesson 3,verb-form,https://bunpro.jp/grammar_points/こと,source-indexed
+jp-g-0171,そう,そう,"Look like, Appear, Seem, Have a feeling that",N4,3,N4 Lesson 3,modality,https://bunpro.jp/grammar_points/そう,source-indexed
+jp-g-0172,さ,さ,Converting adjectives to nouns,N4,3,N4 Lesson 3,general,https://bunpro.jp/grammar_points/さ,source-indexed
+jp-g-0173,とか-とか,とか～とか →  とか,"Among other things, For example, Such as",N4,3,N4 Lesson 3,general,https://bunpro.jp/grammar_points/とか-とか,source-indexed
+jp-g-0174,そういう,そういう,"Like that, Kind of",N4,3,N4 Lesson 3,general,https://bunpro.jp/grammar_points/そういう,source-indexed
+jp-g-0175,よう-おう,Verb[よう] →  う・よう (Volitional),"Let's, I shall (Casual volitional)",N4,3,N4 Lesson 3,verb-form,https://bunpro.jp/grammar_points/よう-おう,source-indexed
+jp-g-0176,ようだ,ようだ →  ようだ,"It seems that, It appears that, It looks like",N4,3,N4 Lesson 3,modality,https://bunpro.jp/grammar_points/ようだ,source-indexed
+jp-g-0177,ぜんぜん,ぜんぜん →  ぜんぜん,(Not) at all,N4,3,N4 Lesson 3,general,https://bunpro.jp/grammar_points/ぜんぜん,source-indexed
+jp-g-0178,かな,かな,I wonder,N4,3,N4 Lesson 3,general,https://bunpro.jp/grammar_points/かな,source-indexed
+jp-g-0179,あまり-ない,あまり～ない →  あまり～ない,"Not very, Not much, Not really, Hardly",N4,3,N4 Lesson 3,general,https://bunpro.jp/grammar_points/あまり-ない,source-indexed
+jp-g-0180,ば,ば,"If… then, (Conditional)",N4,3,N4 Lesson 3,conditional,https://bunpro.jp/grammar_points/ば,source-indexed
+jp-g-0181,なら,なら,"Were it, If, If it's the case, As for (Conditional)",N4,3,N4 Lesson 3,conditional,https://bunpro.jp/grammar_points/なら,source-indexed
+jp-g-0182,がる,がる,"To feel, To think, To act as if, To want, To desire",N4,3,N4 Lesson 3,conditional,https://bunpro.jp/grammar_points/がる,source-indexed
+jp-g-0183,がする,がする,"To give off, Smell, Sound, Taste, Sensation",N4,3,N4 Lesson 3,general,https://bunpro.jp/grammar_points/がする,source-indexed
+jp-g-0184,たがる,たがる,To want to (Third person),N4,3,N4 Lesson 3,general,https://bunpro.jp/grammar_points/たがる,source-indexed
+jp-g-0185,かもしれない,かもしれない,"Might, Maybe, Probably",N4,4,N4 Lesson 4,modality,https://bunpro.jp/grammar_points/かもしれない,source-indexed
+jp-g-0186,みたいに-みたいな,みたいに・みたいな →  みたいに,"Like, Similar to, Resembling",N4,4,N4 Lesson 4,general,https://bunpro.jp/grammar_points/みたいに-みたいな,source-indexed
+jp-g-0187,そうに-そうな,そうに・そうな  → そうに,"Seem, Look like, Sound",N4,4,N4 Lesson 4,modality,https://bunpro.jp/grammar_points/そうに-そうな,source-indexed
+jp-g-0188,のように-のような,のように・のような  → のように,"Like (Noun), Similar to (Noun)",N4,4,N4 Lesson 4,general,https://bunpro.jp/grammar_points/のように-のような,source-indexed
+jp-g-0189,ようと思う-おうと思う,〜ようと思う・〜おうと思う →  う・よう + とおもう,"I think I will, I think I shall, Going to, Gonna (Volitional + と思う)",N4,4,N4 Lesson 4,verb-form,https://bunpro.jp/grammar_points/ようと思う-おうと思う,source-indexed
+jp-g-0190,describing-verbs,く・に,"～ly (Describing verbs), Adverbs",N4,4,N4 Lesson 4,verb-form,https://bunpro.jp/grammar_points/describing-verbs,source-indexed
+jp-g-0191,にする-くする,～にする・～くする →  にする・くする,"Adjective + する, To make something/someone (more)",N4,4,N4 Lesson 4,general,https://bunpro.jp/grammar_points/にする-くする,source-indexed
+jp-g-0192,といい,といい,"I hope, I wish, You should, It would be good",N4,4,N4 Lesson 4,general,https://bunpro.jp/grammar_points/といい,source-indexed
+jp-g-0193,ようになる,ようになる →  ようになる,"To reach the point that, To come to be that, To turn into",N4,4,N4 Lesson 4,general,https://bunpro.jp/grammar_points/ようになる,source-indexed
+jp-g-0194,まい-のように,まい～のように →  まい～のように,"Almost every ~, Nearly every ~, On a ~ basis",N4,4,N4 Lesson 4,general,https://bunpro.jp/grammar_points/まい-のように,source-indexed
+jp-g-0195,じゃないか,じゃないか,"Isn't it?, Is it not?",N4,4,N4 Lesson 4,general,https://bunpro.jp/grammar_points/じゃないか,source-indexed
+jp-g-0196,らしい1,らしい ①,"Seems like, Apparently, I heard",N4,4,N4 Lesson 4,modality,https://bunpro.jp/grammar_points/らしい1,source-indexed
+jp-g-0197,ておく,ておく →  ～ておく,To do something in advance,N4,4,N4 Lesson 4,general,https://bunpro.jp/grammar_points/ておく,source-indexed
+jp-g-0198,がほしい,がほしい →  がほしい,"To want something, To be in need of",N4,4,N4 Lesson 4,general,https://bunpro.jp/grammar_points/がほしい,source-indexed
+jp-g-0199,てほしい,てほしい →  ～てほしい,I want you to,N4,4,N4 Lesson 4,general,https://bunpro.jp/grammar_points/てほしい,source-indexed
+jp-g-0200,ときいた,ときいた →  ときいた,I heard that,N4,4,N4 Lesson 4,general,https://bunpro.jp/grammar_points/ときいた,source-indexed
+jp-g-0201,聞こえる,聞こえる →  きこえる,"To be audible, To sound (like), (Can) hear, To be heard",N4,4,N4 Lesson 4,general,https://bunpro.jp/grammar_points/聞こえる,source-indexed
+jp-g-0202,見える,見える →  みえる,"To be visible, To seem, To be in sight",N4,4,N4 Lesson 4,modality,https://bunpro.jp/grammar_points/見える,source-indexed
+jp-g-0203,だす,だす →  だす,"To suddenly begin, To start doing",N4,4,N4 Lesson 4,general,https://bunpro.jp/grammar_points/だす,source-indexed
+jp-g-0204,代,～代 →  だい,"Teens, Twenties, Thirties, 1910s, 20s/30s",N4,5,N4 Lesson 5,general,https://bunpro.jp/grammar_points/代,source-indexed
+jp-g-0205,number-も,Number + も,"Emphasis, As ~ as, Not even",N4,5,N4 Lesson 5,general,https://bunpro.jp/grammar_points/number-も,source-indexed
+jp-g-0206,ほとんど,ほとんど →  ほとんど,"Almost all, Most, Hardly any, Few (Adverbial noun)",N4,5,N4 Lesson 5,verb-form,https://bunpro.jp/grammar_points/ほとんど,source-indexed
+jp-g-0207,そんな-こんな-あんな-どんな,そんな・こんな・あんな・どんな →  そんな,"Such a・Kind of, Something like ~",N4,5,N4 Lesson 5,general,https://bunpro.jp/grammar_points/そんな-こんな-あんな-どんな,source-indexed
+jp-g-0208,各,各 →  かく,"Each, Every, Respective, Various",N4,5,N4 Lesson 5,general,https://bunpro.jp/grammar_points/各,source-indexed
+jp-g-0209,以上1,以上 ① →  いじょう ①,"More than (or equal to), Over・(and) above, Any more・Greater, Exceeding",N4,5,N4 Lesson 5,general,https://bunpro.jp/grammar_points/以上1,source-indexed
+jp-g-0210,いか,いか →  いか,"Less than (or equal to), Under・(and) below, Any less・fewer, Not exceeding",N4,5,N4 Lesson 5,general,https://bunpro.jp/grammar_points/いか,source-indexed
+jp-g-0211,いがい,いがい →  いがい,"Except・besides, Other than, With the exception of",N4,5,N4 Lesson 5,general,https://bunpro.jp/grammar_points/いがい,source-indexed
+jp-g-0212,ずっと1,ずっと ①,"Continuously, All throughout, Entire time, Ever (since), The whole time, All the way",N4,5,N4 Lesson 5,general,https://bunpro.jp/grammar_points/ずっと1,source-indexed
+jp-g-0213,だいたい,だいたい →  だいたい,"Most・mostly, Adequately・generally, For the most part, Roughly・approximately, In the first place",N4,5,N4 Lesson 5,general,https://bunpro.jp/grammar_points/だいたい,source-indexed
+jp-g-0214,のなかで,のなかで →  のなかで,"In, Among, Within",N4,5,N4 Lesson 5,general,https://bunpro.jp/grammar_points/のなかで,source-indexed
+jp-g-0215,ように-ような,ように・ような →  よう + に・な,"As・like, Just like",N4,5,N4 Lesson 5,general,https://bunpro.jp/grammar_points/ように-ような,source-indexed
+jp-g-0216,number-amount-は,Number/Amount + は →  (Amount) + は,"At least, Sort of, Or so",N4,5,N4 Lesson 5,general,https://bunpro.jp/grammar_points/number-amount-は,source-indexed
+jp-g-0217,なん-counter-か,なん + counter + か →  なん + (Counter) + か,"Some, Several, A few",N4,5,N4 Lesson 5,general,https://bunpro.jp/grammar_points/なん-counter-か,source-indexed
+jp-g-0218,真(っ),真(っ) →  まっ,"Completely, Exactly, Right",N4,5,N4 Lesson 5,general,https://bunpro.jp/grammar_points/真(っ),source-indexed
+jp-g-0219,number-しか-ない,Number + しか〜ない →  (Number) + しか〜ない,"No more than, Not exceeding, As few as・as little as, Only",N4,5,N4 Lesson 5,general,https://bunpro.jp/grammar_points/number-しか-ない,source-indexed
+jp-g-0220,は-の一つだ,～は～の一つだ →  は～のひとつだ,〜 is one of (many) 〜,N4,5,N4 Lesson 5,general,https://bunpro.jp/grammar_points/は-の一つだ,source-indexed
+jp-g-0221,ない-はない,～ない～はない →  ない～はない,There is not ~ that is not/does not,N4,5,N4 Lesson 5,general,https://bunpro.jp/grammar_points/ない-はない,source-indexed
+jp-g-0222,すこしも-ない,すこしも～ない →  すこしも～ない,"Not even a little, Not at all, Not in the least, Never",N4,5,N4 Lesson 5,general,https://bunpro.jp/grammar_points/すこしも-ない,source-indexed
+jp-g-0223,すくなくない,すくなくない →  すくなくない,"Quite a few, Quite a lot, Many, Not a few, Not a little",N4,5,N4 Lesson 5,general,https://bunpro.jp/grammar_points/すくなくない,source-indexed
+jp-g-0224,ばあいは,ばあいは →  ばあいは,"In the event of, In the case of",N4,6,N4 Lesson 6,general,https://bunpro.jp/grammar_points/ばあいは,source-indexed
+jp-g-0225,verbて-request,Verb[て] →  ～て (Casual Request),Please do for me (Casual request),N4,6,N4 Lesson 6,verb-form,https://bunpro.jp/grammar_points/verbて-request,source-indexed
+jp-g-0226,てよかった,てよかった →  ～てよかった,I'm glad that,N4,6,N4 Lesson 6,general,https://bunpro.jp/grammar_points/てよかった,source-indexed
+jp-g-0227,causative,Verb［せる・させる］ →  せる・させる (Causative),To make/let/have (somebody do something),N4,6,N4 Lesson 6,verb-form,https://bunpro.jp/grammar_points/causative,source-indexed
+jp-g-0228,といってもいい,といってもいい →  といってもいい,"You could say, You might say",N4,6,N4 Lesson 6,modality,https://bunpro.jp/grammar_points/といってもいい,source-indexed
+jp-g-0229,ても,ても →  ～ても・でも,"Even if, Even though",N4,6,N4 Lesson 6,conditional,https://bunpro.jp/grammar_points/ても,source-indexed
+jp-g-0230,てしまう-ちゃう,てしまう・ちゃう →  ～てしまう,"To do something by accident, To finish completely・totally, Unfortunately",N4,6,N4 Lesson 6,general,https://bunpro.jp/grammar_points/てしまう-ちゃう,source-indexed
+jp-g-0231,verbて-b2,Verb[て] + B →  ～て (Reasons and Causes),"And・and so, Due to, Because of, Since, Conjunctive",N4,6,N4 Lesson 6,verb-form,https://bunpro.jp/grammar_points/verbて-b2,source-indexed
+jp-g-0232,causative-passive,Causative-Passive →  させられる (Causative-Passive),"Verbs (Causative-passive voice), To be made to do something, To be forced to do",N4,6,N4 Lesson 6,verb-form,https://bunpro.jp/grammar_points/causative-passive,source-indexed
+jp-g-0233,verb-て-noun-で-b,Verb[て]・Noun[で] + B →  ～て (Means and Manner),"By, With, On, By means of, ~ing with",N4,6,N4 Lesson 6,verb-form,https://bunpro.jp/grammar_points/verb-て-noun-で-b,source-indexed
+jp-g-0234,てある,てある  → ～てある,"Something is done, Has been done, Remaining state",N4,6,N4 Lesson 6,general,https://bunpro.jp/grammar_points/てある,source-indexed
+jp-g-0235,ように-てほしい,ように～てほしい →  ように～てほしい,"Want ~ to ~ like ~, Want ~ to be able to ~, Want ~ to ~ in the way of ~",N4,6,N4 Lesson 6,general,https://bunpro.jp/grammar_points/ように-てほしい,source-indexed
+jp-g-0236,ているあいだに,ているあいだに →  ～ているあいだに,"While, During the time that ~",N4,6,N4 Lesson 6,general,https://bunpro.jp/grammar_points/ているあいだに,source-indexed
+jp-g-0237,なくてもいい,なくてもいい,Don't have to,N4,6,N4 Lesson 6,general,https://bunpro.jp/grammar_points/なくてもいい,source-indexed
+jp-g-0238,てみる,てみる →  ～てみる,To try to,N4,6,N4 Lesson 6,general,https://bunpro.jp/grammar_points/てみる,source-indexed
+jp-g-0239,てすみません,てすみません →  ～てすみません,I'm sorry for,N4,6,N4 Lesson 6,general,https://bunpro.jp/grammar_points/てすみません,source-indexed
+jp-g-0240,てあげる,てあげる →  ～てあげる,"To do something for someone, As a favor for",N4,7,N4 Lesson 7,general,https://bunpro.jp/grammar_points/てあげる,source-indexed
+jp-g-0241,てくれる,てくれる →  ～てくれる,To do something for someone (usually you),N4,7,N4 Lesson 7,general,https://bunpro.jp/grammar_points/てくれる,source-indexed
+jp-g-0242,てもらう,てもらう →  ～てもらう,"To get someone to do, To have someone do",N4,7,N4 Lesson 7,general,https://bunpro.jp/grammar_points/てもらう,source-indexed
+jp-g-0243,なさい,なさい,Command to do,N4,7,N4 Lesson 7,general,https://bunpro.jp/grammar_points/なさい,source-indexed
+jp-g-0244,verbて-b,Verb[て] + B →  ～て (Non-Sequence),"Non-sequence, And, But (Contrast), Parallel action/state",N4,7,N4 Lesson 7,verb-form,https://bunpro.jp/grammar_points/verbて-b,source-indexed
+jp-g-0245,verb-ないで,Verb[ないで] →  ないで (Casual Request),"(Please) do not (for me), Casual request",N4,7,N4 Lesson 7,verb-form,https://bunpro.jp/grammar_points/verb-ないで,source-indexed
+jp-g-0246,てくれてありがとう,てくれてありがとう →  ～てくれてありがとう,Thank you for ~ ing,N4,7,N4 Lesson 7,general,https://bunpro.jp/grammar_points/てくれてありがとう,source-indexed
+jp-g-0247,てくれない-てもらえない,てくれない・てもらえない →  ～て + くれない,"Won't you?, Will you?, Could you?, Can you?, Would you?",N4,7,N4 Lesson 7,general,https://bunpro.jp/grammar_points/てくれない-てもらえない,source-indexed
+jp-g-0248,のだろうか,～のだろうか →  のだろうか,I wonder...,N4,7,N4 Lesson 7,general,https://bunpro.jp/grammar_points/のだろうか,source-indexed
+jp-g-0249,お-になる,お～になる  → お～になる,To do (Honorific),N4,7,N4 Lesson 7,conditional,https://bunpro.jp/grammar_points/お-になる,source-indexed
+jp-g-0250,なさる,なさる,To do (Honorific),N4,7,N4 Lesson 7,conditional,https://bunpro.jp/grammar_points/なさる,source-indexed
+jp-g-0251,お-ください,お～ください  → お～ください,Please do (Honorific),N4,7,N4 Lesson 7,conditional,https://bunpro.jp/grammar_points/お-ください,source-indexed
+jp-g-0252,いらっしゃる,いらっしゃる,"To be (Honorific), To come (Honorific), To go (Honorific)",N4,7,N4 Lesson 7,conditional,https://bunpro.jp/grammar_points/いらっしゃる,source-indexed
+jp-g-0253,ございます,ございます →  ございます,"To be, To exist (Polite)",N4,7,N4 Lesson 7,register,https://bunpro.jp/grammar_points/ございます,source-indexed
+jp-g-0254,でございます,でございます →  でございます,"To be, Polite copula",N4,7,N4 Lesson 7,register,https://bunpro.jp/grammar_points/でございます,source-indexed
+jp-g-0255,お-する,お〜する,"I humbly do, I am obliged to do, Humble speech",N4,7,N4 Lesson 7,register,https://bunpro.jp/grammar_points/お-する,source-indexed
+jp-g-0256,いたす,いたす →  いたす,"To do (Humble), To venerably do",N4,7,N4 Lesson 7,register,https://bunpro.jp/grammar_points/いたす,source-indexed
+jp-g-0257,ていただけませんか,ていただけませんか →  ～ていただけませんか,"Won't you, Could you please (Humble request)",N4,7,N4 Lesson 7,register,https://bunpro.jp/grammar_points/ていただけませんか,source-indexed
+jp-g-0258,たら,たら,"When, From when, Just when, If",N4,8,N4 Lesson 8,conditional,https://bunpro.jp/grammar_points/たら,source-indexed
+jp-g-0259,ほかにも-ほかには,ほかに(も)・ほか(に)は →  ほかに,"Other, Another, Any other, Anything else, As well as, Besides, In addition",N4,8,N4 Lesson 8,general,https://bunpro.jp/grammar_points/ほかにも-ほかには,source-indexed
+jp-g-0260,がひつよう,がひつよう →  がひつよう,"Need, Necessary",N4,8,N4 Lesson 8,general,https://bunpro.jp/grammar_points/がひつよう,source-indexed
+jp-g-0261,そんなに,そんなに,"So (much), That much, Like that",N4,8,N4 Lesson 8,general,https://bunpro.jp/grammar_points/そんなに,source-indexed
+jp-g-0262,ひつようがある,ひつようがある →  ひつようがある,It is necessary to,N4,8,N4 Lesson 8,general,https://bunpro.jp/grammar_points/ひつようがある,source-indexed
+jp-g-0263,たとえば,たとえば →  たとえば,For example,N4,8,N4 Lesson 8,general,https://bunpro.jp/grammar_points/たとえば,source-indexed
+jp-g-0264,Verb[potential],れる・られる (Potential),"To be able, Can (Potential)",N4,8,N4 Lesson 8,general,https://bunpro.jp/grammar_points/Verb[potential],source-indexed
+jp-g-0265,んだけど-んですが,んだけど・んですが →  んだけど,"But..., And...",N4,8,N4 Lesson 8,general,https://bunpro.jp/grammar_points/んだけど-んですが,source-indexed
+jp-g-0266,はずだ,はずだ →  はずだ,"Bound to (be), Expected to (be), Should be (able)",N4,8,N4 Lesson 8,general,https://bunpro.jp/grammar_points/はずだ,source-indexed
+jp-g-0267,かどうか,かどうか,"Whether or not, If...or not",N4,8,N4 Lesson 8,conditional,https://bunpro.jp/grammar_points/かどうか,source-indexed
+jp-g-0268,と-conditional,と,"If, When, Whenever, And, [Conditional]",N4,8,N4 Lesson 8,conditional,https://bunpro.jp/grammar_points/と-conditional,source-indexed
+jp-g-0269,ないと,ないと,"Must, Have to",N4,8,N4 Lesson 8,general,https://bunpro.jp/grammar_points/ないと,source-indexed
+jp-g-0270,はずがない,はずがない →  はずがない,"Hardly possible, Cannot be, Highly unlikely, Improbable",N4,8,N4 Lesson 8,general,https://bunpro.jp/grammar_points/はずがない,source-indexed
+jp-g-0271,しか-ない,しか～ない  → しか～ない,"There's only, Nothing but",N4,8,N4 Lesson 8,general,https://bunpro.jp/grammar_points/しか-ない,source-indexed
+jp-g-0272,だけでなく,だけでなく,Not only… but also,N4,8,N4 Lesson 8,general,https://bunpro.jp/grammar_points/だけでなく,source-indexed
+jp-g-0273,ことができる,ことができる →  ことができる,"Can, Be able to",N4,8,N4 Lesson 8,general,https://bunpro.jp/grammar_points/ことができる,source-indexed
+jp-g-0274,かい,かい,Question marker,N4,8,N4 Lesson 8,general,https://bunpro.jp/grammar_points/かい,source-indexed
+jp-g-0275,もし,もし,If (For emphasis),N4,8,N4 Lesson 8,conditional,https://bunpro.jp/grammar_points/もし,source-indexed
+jp-g-0276,し-し,し～し  → し (Reasons),"And, Giving reasons",N4,9,N4 Lesson 9,general,https://bunpro.jp/grammar_points/し-し,source-indexed
+jp-g-0277,でできる-からできる,でできる・からできる →  でできる,"Made of, Made from, Produced from, Come from",N4,9,N4 Lesson 9,general,https://bunpro.jp/grammar_points/でできる-からできる,source-indexed
+jp-g-0278,ながら,ながら,"While ~ing, During, As",N4,9,N4 Lesson 9,general,https://bunpro.jp/grammar_points/ながら,source-indexed
+jp-g-0279,たところだ,たところだ →  ～たところだ,"Just finished doing, Was just doing",N4,9,N4 Lesson 9,general,https://bunpro.jp/grammar_points/たところだ,source-indexed
+jp-g-0280,ているところだ,ているところだ →  ～ているところだ,In the process of doing ~ right now/at this moment,N4,9,N4 Lesson 9,general,https://bunpro.jp/grammar_points/ているところだ,source-indexed
+jp-g-0281,と-と-どちらが,と～と、どちらが,Between ~ which one,N4,9,N4 Lesson 9,general,https://bunpro.jp/grammar_points/と-と-どちらが,source-indexed
+jp-g-0282,ようにする,ようにする →  ようにする,"To try to, To make sure to, To endeavor to",N4,9,N4 Lesson 9,general,https://bunpro.jp/grammar_points/ようにする,source-indexed
+jp-g-0283,なければいけない,なければいけない,"Must do, Have to do",N4,9,N4 Lesson 9,general,https://bunpro.jp/grammar_points/なければいけない,source-indexed
+jp-g-0284,なければならない,なければならない,"Must do, Have to do",N4,9,N4 Lesson 9,general,https://bunpro.jp/grammar_points/なければならない,source-indexed
+jp-g-0285,つづける,つづける →  つづける,To continue,N4,9,N4 Lesson 9,general,https://bunpro.jp/grammar_points/つづける,source-indexed
+jp-g-0286,ようにいう,ようにいう →  ようにいう,"To tell, request, or order to do (in such a way)",N4,9,N4 Lesson 9,general,https://bunpro.jp/grammar_points/ようにいう,source-indexed
+jp-g-0287,よていだ,よていだ →  よていだ,"Plan to, Intend to",N4,9,N4 Lesson 9,general,https://bunpro.jp/grammar_points/よていだ,source-indexed
+jp-g-0288,ようにいのる,ようにいのる →  ようにいのる,"Pray that/for, Hope that/for, Keep fingers crossed that",N4,9,N4 Lesson 9,general,https://bunpro.jp/grammar_points/ようにいのる,source-indexed
+jp-g-0289,たばかり,たばかり →  ～たばかり,"Just did, Something just happened",N4,9,N4 Lesson 9,general,https://bunpro.jp/grammar_points/たばかり,source-indexed
+jp-g-0290,化する,化する →  かする,"-ification, -ization, To make something, To change, To become, Transform into",N4,9,N4 Lesson 9,conditional,https://bunpro.jp/grammar_points/化する,source-indexed
+jp-g-0291,命令形,命令形 →  めいれいけい,"(Verb)!, Do (something)!",N4,9,N4 Lesson 9,verb-form,https://bunpro.jp/grammar_points/命令形,source-indexed
+jp-g-0292,ように,ように →  ように,"So that, In order to, In such a way that",N4,10,N4 Lesson 10,general,https://bunpro.jp/grammar_points/ように,source-indexed
+jp-g-0293,かしら,かしら,I wonder,N4,10,N4 Lesson 10,general,https://bunpro.jp/grammar_points/かしら,source-indexed
+jp-g-0294,らしい2,らしい ②,"typical of, -ish・like, appropriate for, becoming of, befitting",N4,10,N4 Lesson 10,general,https://bunpro.jp/grammar_points/らしい2,source-indexed
+jp-g-0295,にみえる,にみえる,"To look, To seem, To appear",N4,10,N4 Lesson 10,modality,https://bunpro.jp/grammar_points/にみえる,source-indexed
+jp-g-0296,とみえる,とみえる →  とみえる,"It seems that, It can be deduced, One can conclude that",N4,10,N4 Lesson 10,modality,https://bunpro.jp/grammar_points/とみえる,source-indexed
+jp-g-0297,風,風 →  ふう,"-style, Way, Fashion",N4,10,N4 Lesson 10,general,https://bunpro.jp/grammar_points/風,source-indexed
+jp-g-0298,がみられる,がみられる →  がみられる,"Can see, Can be seen, Can observe, Can be observed, Be evident, Chance to see something",N4,10,N4 Lesson 10,general,https://bunpro.jp/grammar_points/がみられる,source-indexed
+jp-g-0299,にきがつく,にきがつく →  にきがつく,"To notice (that), To realize (that)",N4,10,N4 Lesson 10,general,https://bunpro.jp/grammar_points/にきがつく,source-indexed
+jp-g-0300,でも-でも,〜でも 〜でも →  でも〜でも,"Whether ~ or, Neither ~ or",N4,10,N4 Lesson 10,general,https://bunpro.jp/grammar_points/でも-でも,source-indexed
+jp-g-0301,それに,それに,"And, Besides, Moreover, In addition",N4,10,N4 Lesson 10,general,https://bunpro.jp/grammar_points/それに,source-indexed
+jp-g-0302,それで,それで,"Because of that, So?, And then?, Therefore, With that",N4,10,N4 Lesson 10,general,https://bunpro.jp/grammar_points/それで,source-indexed
+jp-g-0303,question-phrase-か,Question-phrase + か →  (Question-Phrase) + か,Including questions within sentences,N4,10,N4 Lesson 10,general,https://bunpro.jp/grammar_points/question-phrase-か,source-indexed
+jp-g-0304,それでも,それでも,"But still, And yet, Even so, Nevertheless",N4,10,N4 Lesson 10,general,https://bunpro.jp/grammar_points/それでも,source-indexed
+jp-g-0305,たらどう,たらどう,"Why don't you...?, What if you did...?",N4,10,N4 Lesson 10,conditional,https://bunpro.jp/grammar_points/たらどう,source-indexed
+jp-g-0306,とかんがえられている,とかんがえられている →  とかんがえられている,"Is considered, Is thought of as",N4,10,N4 Lesson 10,general,https://bunpro.jp/grammar_points/とかんがえられている,source-indexed
+jp-g-0307,とされている,とされている,"To be considered, To be deemed, Be regarded as, Be accepted as, To be said, To be accredited with",N4,10,N4 Lesson 10,general,https://bunpro.jp/grammar_points/とされている,source-indexed
+jp-g-0308,といわれている,といわれている →  といわれている,"It is said that, Is known as",N4,10,N4 Lesson 10,general,https://bunpro.jp/grammar_points/といわれている,source-indexed
+jp-g-0309,ばよかった,ばよかった →  ばよかった,"Should have, I wish, It would have been better to",N4,10,N4 Lesson 10,general,https://bunpro.jp/grammar_points/ばよかった,source-indexed
+jp-g-0310,ばいい,ばいい,"Can, Should, It'd be good if",N3,1,N3 Lesson 1,conditional,https://bunpro.jp/grammar_points/ばいい,source-indexed
+jp-g-0311,たらいい-といい,たらいい・といい,"It would be nice if, It would be good if, Should, I hope",N3,1,N3 Lesson 1,conditional,https://bunpro.jp/grammar_points/たらいい-といい,source-indexed
+jp-g-0312,中,中 →  ちゅう,"During, While, Throughout, In the process of",N3,1,N3 Lesson 1,general,https://bunpro.jp/grammar_points/中,source-indexed
+jp-g-0313,の間に,の間に →  のあいだに,"While, During, Between, Period",N3,1,N3 Lesson 1,general,https://bunpro.jp/grammar_points/の間に,source-indexed
+jp-g-0314,うちに,うちに →  うちに,"While, During",N3,1,N3 Lesson 1,general,https://bunpro.jp/grammar_points/うちに,source-indexed
+jp-g-0315,ないうちに,ないうちに →  ないうちに,"Before it becomes, Before ~ occurs, Without",N3,1,N3 Lesson 1,general,https://bunpro.jp/grammar_points/ないうちに,source-indexed
+jp-g-0316,べき,べき,"Must, Should , Ought to",N3,1,N3 Lesson 1,general,https://bunpro.jp/grammar_points/べき,source-indexed
+jp-g-0317,べきではない,べきではない,"Should not, Must not , Ought not to",N3,1,N3 Lesson 1,general,https://bunpro.jp/grammar_points/べきではない,source-indexed
+jp-g-0318,って-slang,って,"As for, Speaking of, Casual は (Sentence topic marker)",N3,1,N3 Lesson 1,general,https://bunpro.jp/grammar_points/って-slang,source-indexed
+jp-g-0319,なかなか,なかなか →  なかなか,"Very, Quite, Considerably",N3,1,N3 Lesson 1,general,https://bunpro.jp/grammar_points/なかなか,source-indexed
+jp-g-0320,あまり,あまり →  あまり,So much...that,N3,1,N3 Lesson 1,general,https://bunpro.jp/grammar_points/あまり,source-indexed
+jp-g-0321,なかなか-ない,なかなか～ない →  なかなか～ない,"Not really, Hardly, Not easily or readily, By no means, Far from",N3,1,N3 Lesson 1,general,https://bunpro.jp/grammar_points/なかなか-ない,source-indexed
+jp-g-0322,によると-によれば,によると・によれば →  によると,According to,N3,1,N3 Lesson 1,general,https://bunpro.jp/grammar_points/によると-によれば,source-indexed
+jp-g-0323,によって-による,によって・による →  による,"By means of, According to, Depending on, Because of, Due to",N3,1,N3 Lesson 1,general,https://bunpro.jp/grammar_points/によって-による,source-indexed
+jp-g-0324,全く-ない,全く～ない →  まったく～ない,Not~at all,N3,1,N3 Lesson 1,general,https://bunpro.jp/grammar_points/全く-ない,source-indexed
+jp-g-0325,ことだ,ことだ →  ことだ,"Should, Ought",N3,1,N3 Lesson 1,general,https://bunpro.jp/grammar_points/ことだ,source-indexed
+jp-g-0326,そうだ,そうだ,"I heard that, It is said that",N3,1,N3 Lesson 1,general,https://bunpro.jp/grammar_points/そうだ,source-indexed
+jp-g-0327,すると,すると,"Having done..., If...is done..., (And/just) then, Thereupon, If so",N3,1,N3 Lesson 1,conditional,https://bunpro.jp/grammar_points/すると,source-indexed
+jp-g-0328,そうすると,そうすると,"Having done that..., If that is done..., (And/just) then, Thereupon, If so",N3,1,N3 Lesson 1,conditional,https://bunpro.jp/grammar_points/そうすると,source-indexed
+jp-g-0329,のはxの方だ,のはXの方だ →  のは～のほうだ,"It is...that..., It is...who..., ...is the one that..., ...is the one who...",N3,1,N3 Lesson 1,general,https://bunpro.jp/grammar_points/のはxの方だ,source-indexed
+jp-g-0330,noun-型,Noun＋型 →  (Noun) + がた,"Model, Type, Pattern, Kind, Shape, Size(d)",N3,1,N3 Lesson 1,general,https://bunpro.jp/grammar_points/noun-型,source-indexed
+jp-g-0331,てごらん,てごらん →  てごらん,"(Please) try to, (Please) look",N3,1,N3 Lesson 1,general,https://bunpro.jp/grammar_points/てごらん,source-indexed
+jp-g-0332,particle-の,Particle + の →  (Particle) + の,Combined particles,N3,2,N3 Lesson 2,particle,https://bunpro.jp/grammar_points/particle-の,source-indexed
+jp-g-0333,である,である,"Formal or literary だ, Authoritative, Copula",N3,2,N3 Lesson 2,general,https://bunpro.jp/grammar_points/である,source-indexed
+jp-g-0334,ところが,ところが,"Even so, However, Even though, But",N3,2,N3 Lesson 2,general,https://bunpro.jp/grammar_points/ところが,source-indexed
+jp-g-0335,ところで,ところで,"By the way, Incidentally",N3,2,N3 Lesson 2,general,https://bunpro.jp/grammar_points/ところで,source-indexed
+jp-g-0336,ほど,ほど →  ほど,"The more, About, To the extent that, So much… that",N3,2,N3 Lesson 2,general,https://bunpro.jp/grammar_points/ほど,source-indexed
+jp-g-0337,ば-ほど,ば〜ほど →  ば～ほど,The more…the more,N3,2,N3 Lesson 2,general,https://bunpro.jp/grammar_points/ば-ほど,source-indexed
+jp-g-0338,ほど～ない,ほど～ない →  ほど～ない,"Is not as…as, Isn't... like..., Not to the extent of...",N3,2,N3 Lesson 2,general,https://bunpro.jp/grammar_points/ほど～ない,source-indexed
+jp-g-0339,では-それでは-じゃあ,では・それでは・じゃあ →  それでは,"If so, Well (then), In that case",N3,2,N3 Lesson 2,conditional,https://bunpro.jp/grammar_points/では-それでは-じゃあ,source-indexed
+jp-g-0340,のに,のに,In order to,N3,2,N3 Lesson 2,general,https://bunpro.jp/grammar_points/のに,source-indexed
+jp-g-0341,ため-に,ため(に) →  ために,"For, For the sake of, In order to",N3,2,N3 Lesson 2,general,https://bunpro.jp/grammar_points/ため-に,source-indexed
+jp-g-0342,ために,ために →  ために,"Due to, Because of, As a result of",N3,2,N3 Lesson 2,general,https://bunpro.jp/grammar_points/ために,source-indexed
+jp-g-0343,という-called,という →  という,"Called, Named, Known as, As much as",N3,2,N3 Lesson 2,general,https://bunpro.jp/grammar_points/という-called,source-indexed
+jp-g-0344,ということだ,ということだ →  ということだ,"I heard that, Rumor has it that, It is said that, It means that",N3,2,N3 Lesson 2,general,https://bunpro.jp/grammar_points/ということだ,source-indexed
+jp-g-0345,というのは,というのは →  というのは,"~ Known as ~ is, ~ Called ~ is, ~ Means ~, Because",N3,2,N3 Lesson 2,general,https://bunpro.jp/grammar_points/というのは,source-indexed
+jp-g-0346,的,的 →  てき,"~ly・~like・~al, Typical",N3,2,N3 Lesson 2,general,https://bunpro.jp/grammar_points/的,source-indexed
+jp-g-0347,もの-もん,もの・もん,"Because, Cause",N3,2,N3 Lesson 2,general,https://bunpro.jp/grammar_points/もの-もん,source-indexed
+jp-g-0348,ものだ,ものだ,"Supposed to, Should, That's the way it is",N3,2,N3 Lesson 2,general,https://bunpro.jp/grammar_points/ものだ,source-indexed
+jp-g-0349,最中に,最中に →  さいちゅうに,In the middle of,N3,2,N3 Lesson 2,general,https://bunpro.jp/grammar_points/最中に,source-indexed
+jp-g-0350,上で,上で →  うえで,"After, Upon",N3,2,N3 Lesson 2,general,https://bunpro.jp/grammar_points/上で,source-indexed
+jp-g-0351,おかげで,おかげで →  おかげで,"Thanks to, Because of",N3,2,N3 Lesson 2,general,https://bunpro.jp/grammar_points/おかげで,source-indexed
+jp-g-0352,にもとづいて,にもとづいて →  にもとづいて,"Based on, In accordance with",N3,2,N3 Lesson 2,general,https://bunpro.jp/grammar_points/にもとづいて,source-indexed
+jp-g-0353,点,点 →  てん,"Aspect, Respect, Point, Way, In terms of, In that, From the point of view",N3,2,N3 Lesson 2,general,https://bunpro.jp/grammar_points/点,source-indexed
+jp-g-0354,なぜなら-から,なぜなら〜から →  なぜなら + から,"Because, The reason is, That is because",N3,3,N3 Lesson 3,general,https://bunpro.jp/grammar_points/なぜなら-から,source-indexed
+jp-g-0355,こそ,こそ,"For sure, For certain, Even more so, Underlined or bolded text",N3,3,N3 Lesson 3,general,https://bunpro.jp/grammar_points/こそ,source-indexed
+jp-g-0356,からこそ,からこそ,"Emphasized because, Precisely because",N3,3,N3 Lesson 3,general,https://bunpro.jp/grammar_points/からこそ,source-indexed
+jp-g-0357,ばかり,ばかり,"Just, Only, Nothing but",N3,3,N3 Lesson 3,general,https://bunpro.jp/grammar_points/ばかり,source-indexed
+jp-g-0358,ばかりだ,ばかりだ,"(Only) continue to, Keep on -ing, More and more",N3,3,N3 Lesson 3,general,https://bunpro.jp/grammar_points/ばかりだ,source-indexed
+jp-g-0359,ばかりに,ばかりに,"Simply because, Only because, Just because, Simply on account of",N3,3,N3 Lesson 3,general,https://bunpro.jp/grammar_points/ばかりに,source-indexed
+jp-g-0360,ことがある,ことがある →  ことがある,"Something is possible, Sometimes, Occasionally, There are times when",N3,3,N3 Lesson 3,general,https://bunpro.jp/grammar_points/ことがある,source-indexed
+jp-g-0361,ことにする,ことにする →  ことにする,"To decide on, Have decided to",N3,3,N3 Lesson 3,general,https://bunpro.jp/grammar_points/ことにする,source-indexed
+jp-g-0362,ことなの,ことなの →  ことなの,"(A) is (Description of A), (A) means that (Description of A)",N3,3,N3 Lesson 3,general,https://bunpro.jp/grammar_points/ことなの,source-indexed
+jp-g-0363,ことになる,ことになる →  ことになる,"It will end up being, It is the result of, It has been decided that",N3,3,N3 Lesson 3,general,https://bunpro.jp/grammar_points/ことになる,source-indexed
+jp-g-0364,は-で有名,～は～で有名 →  は～でゆうめい,Is famous for,N3,3,N3 Lesson 3,general,https://bunpro.jp/grammar_points/は-で有名,source-indexed
+jp-g-0365,ことはない,ことはない →  ことはない,"There is no need to, Never happens",N3,3,N3 Lesson 3,general,https://bunpro.jp/grammar_points/ことはない,source-indexed
+jp-g-0366,と言っても,～と言っても →  といっても,Although ~ might say that ~,N3,3,N3 Lesson 3,modality,https://bunpro.jp/grammar_points/と言っても,source-indexed
+jp-g-0367,といえば,といえば,"Speaking of, If it were the case that",N3,3,N3 Lesson 3,conditional,https://bunpro.jp/grammar_points/といえば,source-indexed
+jp-g-0368,合う,合う →  あう,"To do for one another, Mutually, With",N3,3,N3 Lesson 3,general,https://bunpro.jp/grammar_points/合う,source-indexed
+jp-g-0369,に合わせて-に合った,に合わせて・に合った →  にあわせて,"In accordance with, Matching, Fitting, Suitable for, Adjust or tune to",N3,3,N3 Lesson 3,general,https://bunpro.jp/grammar_points/に合わせて-に合った,source-indexed
+jp-g-0370,について,について,"Concerning, About, Regarding",N3,3,N3 Lesson 3,general,https://bunpro.jp/grammar_points/について,source-indexed
+jp-g-0371,の姿,～(の)姿 →  のすがた,"Figure, Shape, Appearance, Looks, Wearing, Dressed in, Presence",N3,3,N3 Lesson 3,general,https://bunpro.jp/grammar_points/の姿,source-indexed
+jp-g-0372,と言える,と言える →  といえる,"Would or could say that..., Can probably say that..., Fair to say that...",N3,3,N3 Lesson 3,modality,https://bunpro.jp/grammar_points/と言える,source-indexed
+jp-g-0373,ちゃんと-きちんと,ちゃんと・きちんと →  ちゃんと,"Properly, Neatly, Orderly, Sufficiently, Decently",N3,3,N3 Lesson 3,general,https://bunpro.jp/grammar_points/ちゃんと-きちんと,source-indexed
+jp-g-0374,そのため-に,そのため(に) →  そのために,"For that reason, Because of that, To that end",N3,3,N3 Lesson 3,general,https://bunpro.jp/grammar_points/そのため-に,source-indexed
+jp-g-0375,その結果,その結果 →  そのけっか,As a result,N3,3,N3 Lesson 3,general,https://bunpro.jp/grammar_points/その結果,source-indexed
+jp-g-0376,に比べて,に比べて →  にくらべて,"Compared to, When compared to",N3,4,N3 Lesson 4,general,https://bunpro.jp/grammar_points/に比べて,source-indexed
+jp-g-0377,どんなに-ても,どんなに〜ても →  どんなに～ても,No matter how,N3,4,N3 Lesson 4,general,https://bunpro.jp/grammar_points/どんなに-ても,source-indexed
+jp-g-0378,いくら-でも,いくら〜でも →  いくら～でも,No matter how (much),N3,4,N3 Lesson 4,general,https://bunpro.jp/grammar_points/いくら-でも,source-indexed
+jp-g-0379,かは-によって違う,〜かは〜によって違う →  かは〜によってちがう,"Depends on, Changes depending on, Differ depending on",N3,4,N3 Lesson 4,conditional,https://bunpro.jp/grammar_points/かは-によって違う,source-indexed
+jp-g-0380,かなり,かなり,"Quite, Considerably, Pretty, Fairly",N3,4,N3 Lesson 4,general,https://bunpro.jp/grammar_points/かなり,source-indexed
+jp-g-0381,あまりに,あまりに →  あまりに,"So much...that, (Way) too...",N3,4,N3 Lesson 4,general,https://bunpro.jp/grammar_points/あまりに,source-indexed
+jp-g-0382,わけだ,わけだ →  わけだ,"For that reason, No wonder, As you'd expect, Naturally, Thus, This is why",N3,4,N3 Lesson 4,general,https://bunpro.jp/grammar_points/わけだ,source-indexed
+jp-g-0383,わけではない,わけではない →  わけではない,"It doesn't mean that, It is not the case, It's not like",N3,4,N3 Lesson 4,general,https://bunpro.jp/grammar_points/わけではない,source-indexed
+jp-g-0384,と同時に,と同時に →  とどうじに,"At the same time as, The instant, The moment, As well as",N3,4,N3 Lesson 4,general,https://bunpro.jp/grammar_points/と同時に,source-indexed
+jp-g-0385,ところだった1,ところだった ①,"Almost, Nearly, About to, On the verge of",N3,4,N3 Lesson 4,general,https://bunpro.jp/grammar_points/ところだった1,source-indexed
+jp-g-0386,だって,だって,"I heard/was said, Because, But, Even or also, Even if or even though",N3,4,N3 Lesson 4,conditional,https://bunpro.jp/grammar_points/だって,source-indexed
+jp-g-0387,んだって,んだって,"I heard that, He or She said that",N3,4,N3 Lesson 4,general,https://bunpro.jp/grammar_points/んだって,source-indexed
+jp-g-0388,関係がある,関係がある →  かんけいがある,"(Not) involved with, (Not) concerned with, (No) connection with, (No) relationship with, (Not) related to",N3,4,N3 Lesson 4,general,https://bunpro.jp/grammar_points/関係がある,source-indexed
+jp-g-0389,に関する-に関して,に関する・に関して →  にかんして,"Related to, About, Regarding",N3,4,N3 Lesson 4,general,https://bunpro.jp/grammar_points/に関する-に関して,source-indexed
+jp-g-0390,に対して,に対して →  にたいして,"In contrast to, While, In regard to, Whereas",N3,4,N3 Lesson 4,general,https://bunpro.jp/grammar_points/に対して,source-indexed
+jp-g-0391,くらい2,くらい ②,"To the extent that, So…that, About the only thing that...",N3,4,N3 Lesson 4,general,https://bunpro.jp/grammar_points/くらい2,source-indexed
+jp-g-0392,は-くらいです,は～くらいです,"About the only, To the extent that",N3,4,N3 Lesson 4,general,https://bunpro.jp/grammar_points/は-くらいです,source-indexed
+jp-g-0393,さ-interjection,さ - Interjection →  さ (Interjection),"All right, There we go, Now, You see, Well (I don't know, let me see)",N3,4,N3 Lesson 4,general,https://bunpro.jp/grammar_points/さ-interjection,source-indexed
+jp-g-0394,さ-filler,さ - Filler →  さ (Filler),"Like, You know, You see, Listen, Uhh",N3,4,N3 Lesson 4,general,https://bunpro.jp/grammar_points/さ-filler,source-indexed
+jp-g-0395,さ-casualよ,さ - Casual よ →  さ (Casual よ),Casual よ,N3,4,N3 Lesson 4,general,https://bunpro.jp/grammar_points/さ-casualよ,source-indexed
+jp-g-0396,それぞれ,それぞれ,"Each, Respectively",N3,4,N3 Lesson 4,general,https://bunpro.jp/grammar_points/それぞれ,source-indexed
+jp-g-0397,まま,まま(に) →  ままに (As Is),"As is, While remaining, Left in a state",N3,5,N3 Lesson 5,general,https://bunpro.jp/grammar_points/まま,source-indexed
+jp-g-0398,そこで,そこで,"Accordingly, Now, Therefore, To that end",N3,5,N3 Lesson 5,general,https://bunpro.jp/grammar_points/そこで,source-indexed
+jp-g-0399,しかない,しかない,"Have no choice but, Only, Just",N3,5,N3 Lesson 5,general,https://bunpro.jp/grammar_points/しかない,source-indexed
+jp-g-0400,てもかまわない,てもかまわない →  ～てもかまわない,"It doesn't matter if, I don't mind",N3,5,N3 Lesson 5,conditional,https://bunpro.jp/grammar_points/てもかまわない,source-indexed
+jp-g-0401,ても-なくても,～ても～なくても,Whether ~ or not,N3,5,N3 Lesson 5,general,https://bunpro.jp/grammar_points/ても-なくても,source-indexed
+jp-g-0402,んじゃない,んじゃない,"Don't, Mustn't, Shouldn't have",N3,5,N3 Lesson 5,general,https://bunpro.jp/grammar_points/んじゃない,source-indexed
+jp-g-0403,わけがない,わけがない →  わけがない,"There is no way, There is no reason, It is impossible, Cannot be",N3,5,N3 Lesson 5,general,https://bunpro.jp/grammar_points/わけがない,source-indexed
+jp-g-0404,としたら-とすれば-とすると,としたら・とすれば・とすると →  とすると,"If it were the case that, Assuming that...",N3,5,N3 Lesson 5,conditional,https://bunpro.jp/grammar_points/としたら-とすれば-とすると,source-indexed
+jp-g-0405,として,として,"As (i.e. in the role of), For",N3,5,N3 Lesson 5,general,https://bunpro.jp/grammar_points/として,source-indexed
+jp-g-0406,にしては,にしては,"(Even) considering, (Even) for",N3,5,N3 Lesson 5,general,https://bunpro.jp/grammar_points/にしては,source-indexed
+jp-g-0407,にしても,にしても,"Even though, Even if, Even when, Also",N3,5,N3 Lesson 5,conditional,https://bunpro.jp/grammar_points/にしても,source-indexed
+jp-g-0408,というのは事実だ,～というのは事実だ →  というのはじじつだ,"It is a fact that ~, There is no doubt that",N3,5,N3 Lesson 5,general,https://bunpro.jp/grammar_points/というのは事実だ,source-indexed
+jp-g-0409,から言うと,から言うと →  からいうと,"Speaking in terms of, From the point of view of",N3,5,N3 Lesson 5,general,https://bunpro.jp/grammar_points/から言うと,source-indexed
+jp-g-0410,に取って,に取って →  にとって,"To, For, Concerning",N3,5,N3 Lesson 5,general,https://bunpro.jp/grammar_points/に取って,source-indexed
+jp-g-0411,ことから,ことから →  ことから,From the fact that,N3,5,N3 Lesson 5,general,https://bunpro.jp/grammar_points/ことから,source-indexed
+jp-g-0412,というより,というより →  というより,"...is more of a... than a..., Rather than saying that...",N3,5,N3 Lesson 5,general,https://bunpro.jp/grammar_points/というより,source-indexed
+jp-g-0413,はもちろん,はもちろん,"Not only but also, Let alone, Not to mention, Of course",N3,5,N3 Lesson 5,general,https://bunpro.jp/grammar_points/はもちろん,source-indexed
+jp-g-0414,をはじめ,をはじめ →  をはじめ,"Not only...but also..., Starting with",N3,5,N3 Lesson 5,general,https://bunpro.jp/grammar_points/をはじめ,source-indexed
+jp-g-0415,て初めて,て初めて →  ～てはじめて,"For the first time, Not until, Only after, Only when, Only because",N3,5,N3 Lesson 5,general,https://bunpro.jp/grammar_points/て初めて,source-indexed
+jp-g-0416,さえ,さえ,Even,N3,5,N3 Lesson 5,general,https://bunpro.jp/grammar_points/さえ,source-indexed
+jp-g-0417,さえ-ば,さえ〜ば →  さえ～ば,"If only…then, As long as..., Provided..., Only thing ... needs for ... is ...",N3,5,N3 Lesson 5,conditional,https://bunpro.jp/grammar_points/さえ-ば,source-indexed
+jp-g-0418,たものだ,たものだ →  ～たものだ,Used to,N3,5,N3 Lesson 5,general,https://bunpro.jp/grammar_points/たものだ,source-indexed
+jp-g-0419,さて,さて,"Well, Well then",N3,6,N3 Lesson 6,general,https://bunpro.jp/grammar_points/さて,source-indexed
+jp-g-0420,むしろ,むしろ,"Rather, Instead, Over",N3,6,N3 Lesson 6,general,https://bunpro.jp/grammar_points/むしろ,source-indexed
+jp-g-0421,つまり,つまり,"In short, To sum up, In other words",N3,6,N3 Lesson 6,general,https://bunpro.jp/grammar_points/つまり,source-indexed
+jp-g-0422,即ち,即ち →  すなわち,"In other words, That is, Namely",N3,6,N3 Lesson 6,general,https://bunpro.jp/grammar_points/即ち,source-indexed
+jp-g-0423,却って,却って →  かえって,"All the more, On the contrary, Conversely",N3,6,N3 Lesson 6,general,https://bunpro.jp/grammar_points/却って,source-indexed
+jp-g-0424,まるで-ようだ,まるで…ようだ →  まるで～ようだ,"It is entirely as if, It is just as though",N3,6,N3 Lesson 6,conditional,https://bunpro.jp/grammar_points/まるで-ようだ,source-indexed
+jp-g-0425,ような気がする,ような気がする →  ようなきがする,Have a feeling that,N3,6,N3 Lesson 6,general,https://bunpro.jp/grammar_points/ような気がする,source-indexed
+jp-g-0426,とても-ない,とても～ない,"Not ~ at all, Cannot ~ at all",N3,6,N3 Lesson 6,general,https://bunpro.jp/grammar_points/とても-ない,source-indexed
+jp-g-0427,別に-ない,別に〜ない →  べつに～ない,"Not really, Not particularly, It's not like...",N3,6,N3 Lesson 6,general,https://bunpro.jp/grammar_points/別に-ない,source-indexed
+jp-g-0428,ばかりでなく,ばかりでなく,"Not only…but also, As well as",N3,6,N3 Lesson 6,general,https://bunpro.jp/grammar_points/ばかりでなく,source-indexed
+jp-g-0429,ではなくて-じゃなくて,ではなくて・じゃなくて →  ではなくて,"Not A but B, Conjunctive",N3,6,N3 Lesson 6,general,https://bunpro.jp/grammar_points/ではなくて-じゃなくて,source-indexed
+jp-g-0430,だけでなく-て-も,だけでなく(て)～も →  だけでなくて～も,"Not only ~ but ~ also, Not just ~ but ~ also",N3,6,N3 Lesson 6,general,https://bunpro.jp/grammar_points/だけでなく-て-も,source-indexed
+jp-g-0431,だけしか,だけしか →  だけしか～ない,"To emphasize '~only', Nothing but",N3,6,N3 Lesson 6,general,https://bunpro.jp/grammar_points/だけしか,source-indexed
+jp-g-0432,は言うまでもない1,は言うまでもない ① →  はいうまでもない ①,"It goes without saying (that), (It is) needless to say, I don't need to remind you",N3,6,N3 Lesson 6,general,https://bunpro.jp/grammar_points/は言うまでもない1,source-indexed
+jp-g-0433,決して-ない,決して〜ない →  けっして〜ない,"Never, By no means",N3,6,N3 Lesson 6,general,https://bunpro.jp/grammar_points/決して-ない,source-indexed
+jp-g-0434,わけにはいかない,わけにはいかない →  わけにはいかない,"Cannot afford to, No way, Impossible to do",N3,6,N3 Lesson 6,general,https://bunpro.jp/grammar_points/わけにはいかない,source-indexed
+jp-g-0435,-ようとしない,〜ようとしない →  う・よう + としない,"Not willing to, Not make an effort to, To not attempt or try to, Volitional + としない",N3,6,N3 Lesson 6,verb-form,https://bunpro.jp/grammar_points/-ようとしない,source-indexed
+jp-g-0436,もしかしたら,もしかしたら,"Perhaps, Maybe, Possibly",N3,6,N3 Lesson 6,modality,https://bunpro.jp/grammar_points/もしかしたら,source-indexed
+jp-g-0437,たとえ-ても,たとえ〜ても,"Even if…is the case, Supposing that",N3,6,N3 Lesson 6,conditional,https://bunpro.jp/grammar_points/たとえ-ても,source-indexed
+jp-g-0438,ことに,ことに,"Extremely, Especially, To my ...",N3,6,N3 Lesson 6,general,https://bunpro.jp/grammar_points/ことに,source-indexed
+jp-g-0439,ことか,ことか →  ことか,"How…, What..., God knows...",N3,6,N3 Lesson 6,general,https://bunpro.jp/grammar_points/ことか,source-indexed
+jp-g-0440,かというと1,～かというと ① →  かというと ①,"Why? Well..., Why? Because..., If you ask me why..., The reason why is..., It is because...",N3,6,N3 Lesson 6,conditional,https://bunpro.jp/grammar_points/かというと1,source-indexed
+jp-g-0441,かというと2,～かというと ② →  かというと ②,"If you ask me..., If I had to say, If I were to say, If I were to choose one, I'd rather",N3,6,N3 Lesson 6,conditional,https://bunpro.jp/grammar_points/かというと2,source-indexed
+jp-g-0442,で言うと,で言うと →  でいうと,"In, Of, According to",N3,6,N3 Lesson 6,general,https://bunpro.jp/grammar_points/で言うと,source-indexed
+jp-g-0443,ずつ,～ずつ →  ずつ,"One at a time, Per, Each, Gradually",N3,7,N3 Lesson 7,general,https://bunpro.jp/grammar_points/ずつ,source-indexed
+jp-g-0444,ずっと2,ずっと ②,"By far, Way, Far...er, Far...more",N3,7,N3 Lesson 7,general,https://bunpro.jp/grammar_points/ずっと2,source-indexed
+jp-g-0445,だらけ,だらけ,"Completely covered in, Full of",N3,7,N3 Lesson 7,general,https://bunpro.jp/grammar_points/だらけ,source-indexed
+jp-g-0446,もっとも,もっとも →  もっとも,"Although, But, However, For all that, Provided that",N3,7,N3 Lesson 7,general,https://bunpro.jp/grammar_points/もっとも,source-indexed
+jp-g-0447,再び,再び →  ふたたび,"Again, Once more, A second time",N3,7,N3 Lesson 7,general,https://bunpro.jp/grammar_points/再び,source-indexed
+jp-g-0448,み,み →  み,"~ness, Used to indicate conditions or nature",N3,7,N3 Lesson 7,general,https://bunpro.jp/grammar_points/み,source-indexed
+jp-g-0449,と同じくらい,と同じくらい →  とおなじくらい,"About the same as, About as, No less",N3,7,N3 Lesson 7,general,https://bunpro.jp/grammar_points/と同じくらい,source-indexed
+jp-g-0450,と同じで-と違って,と同じで・と違って →  とおなじで・とちがって,"Like, Similar to, Unlike, Dissimilar to",N3,7,N3 Lesson 7,general,https://bunpro.jp/grammar_points/と同じで-と違って,source-indexed
+jp-g-0451,と並んで,と並んで →  とならんで,"In line with, Comparable with, Along with, Just like, As … as",N3,7,N3 Lesson 7,general,https://bunpro.jp/grammar_points/と並んで,source-indexed
+jp-g-0452,に違いない,に違いない →  にちがいない,"There is no doubt that, I'm sure",N3,7,N3 Lesson 7,general,https://bunpro.jp/grammar_points/に違いない,source-indexed
+jp-g-0453,当たり,当たり →  あたり,"Per~, A~, Apiece, Each",N3,7,N3 Lesson 7,general,https://bunpro.jp/grammar_points/当たり,source-indexed
+jp-g-0454,に当たる,に当たる →  にあたる,"Correspond to, Amounts to, Equals to, Is appropriate",N3,7,N3 Lesson 7,general,https://bunpro.jp/grammar_points/に当たる,source-indexed
+jp-g-0455,に限る,に限る →  にかぎる,"Nothing better than, There's nothing like, Limited to",N3,7,N3 Lesson 7,general,https://bunpro.jp/grammar_points/に限る,source-indexed
+jp-g-0456,とは限らない,とは限らない →  とはかぎらない,"Not necessarily so, Is not always true, There is no guarantee that",N3,7,N3 Lesson 7,general,https://bunpro.jp/grammar_points/とは限らない,source-indexed
+jp-g-0457,めったに-ない,めったに〜ない →  めったに〜ない,"Hardly, Rarely, Seldom",N3,7,N3 Lesson 7,general,https://bunpro.jp/grammar_points/めったに-ない,source-indexed
+jp-g-0458,わりに,割に →  わりに,"Although, Despite, Rather...for, Unexpectedly, Comparatively, Considering",N3,7,N3 Lesson 7,general,https://bunpro.jp/grammar_points/わりに,source-indexed
+jp-g-0459,verb-volitionalとする,Verb[volitional]とする →  う・よう + とする,"Try to, Attempt to, To be about to",N3,7,N3 Lesson 7,verb-form,https://bunpro.jp/grammar_points/verb-volitionalとする,source-indexed
+jp-g-0460,verb-volitional-としたが,Verb[volitional] + としたが →  う・よう + としたが,"Tried to ~ but ~, Was about to ~ but ~, Was going to ~ but ~",N3,7,N3 Lesson 7,verb-form,https://bunpro.jp/grammar_points/verb-volitional-としたが,source-indexed
+jp-g-0461,言うまでもない2,言うまでもない ② →  いうまでもない ②,"It goes without saying, It is needless to say, Of course, Obviously",N3,7,N3 Lesson 7,general,https://bunpro.jp/grammar_points/言うまでもない2,source-indexed
+jp-g-0462,そうもない,そうもない,"Very unlikely to, Does not seem that, Does not appear that",N3,7,N3 Lesson 7,modality,https://bunpro.jp/grammar_points/そうもない,source-indexed
+jp-g-0463,ないことはない,ないことはない →  ないことはない,"Is not impossible, It doesn't mean that it isn't",N3,7,N3 Lesson 7,general,https://bunpro.jp/grammar_points/ないことはない,source-indexed
+jp-g-0464,なんか-なんて,なんか・なんて →  なんて,"Such as, Things like, Emphasis",N3,8,N3 Lesson 8,general,https://bunpro.jp/grammar_points/なんか-なんて,source-indexed
+jp-g-0465,又-も,又〜も →  また〜も,"Moreover, Additionally, And also, In addition, Furthermore, Or",N3,8,N3 Lesson 8,general,https://bunpro.jp/grammar_points/又-も,source-indexed
+jp-g-0466,ついでに,ついでに →  ついでに,"While you are at it, On the occasion",N3,8,N3 Lesson 8,general,https://bunpro.jp/grammar_points/ついでに,source-indexed
+jp-g-0467,と共に,と共に →  とともに,"Together with, At the same time, As well as",N3,8,N3 Lesson 8,general,https://bunpro.jp/grammar_points/と共に,source-indexed
+jp-g-0468,につれて,につれて →  につれて,"As…then, In proportion to, (Along) with",N3,8,N3 Lesson 8,general,https://bunpro.jp/grammar_points/につれて,source-indexed
+jp-g-0469,直ちに,直ちに →  ただちに,"At once, Immediately, As soon as",N3,8,N3 Lesson 8,general,https://bunpro.jp/grammar_points/直ちに,source-indexed
+jp-g-0470,たとたんに,たとたんに →  たとたんに,"The instant or moment, As soon as, Just as",N3,8,N3 Lesson 8,general,https://bunpro.jp/grammar_points/たとたんに,source-indexed
+jp-g-0471,おきに,おきに →  おきに,"Repeated at intervals, Every other, Every, At intervals of",N3,8,N3 Lesson 8,general,https://bunpro.jp/grammar_points/おきに,source-indexed
+jp-g-0472,たびに,たびに →  たびに,"Each time, Every time, Whenever",N3,8,N3 Lesson 8,general,https://bunpro.jp/grammar_points/たびに,source-indexed
+jp-g-0473,あるいは,あるいは →  あるいは,"Or, Possibly, Maybe, Perhaps, Or possibly",N3,8,N3 Lesson 8,modality,https://bunpro.jp/grammar_points/あるいは,source-indexed
+jp-g-0474,ながらも,ながらも,"But, Even while, Even though, Despite, Although",N3,8,N3 Lesson 8,general,https://bunpro.jp/grammar_points/ながらも,source-indexed
+jp-g-0475,において-における,において・における →  において,"In, On, At, Regarding, In terms of",N3,8,N3 Lesson 8,general,https://bunpro.jp/grammar_points/において-における,source-indexed
+jp-g-0476,第一,第一 →  だいいち,"Start, First (point), Foremost, To begin with",N3,8,N3 Lesson 8,general,https://bunpro.jp/grammar_points/第一,source-indexed
+jp-g-0477,ますます,ますます →  ますます,"Increasingly, More and more, Decreasingly, Less and less, Keep -ing",N3,8,N3 Lesson 8,general,https://bunpro.jp/grammar_points/ますます,source-indexed
+jp-g-0478,一方だ,一方だ →  いっぽうだ,"More and more, Continue to, Keep on, -er and -er",N3,8,N3 Lesson 8,general,https://bunpro.jp/grammar_points/一方だ,source-indexed
+jp-g-0479,一方で,一方で →  いっぽうで,"On the other hand, At the same time, While",N3,8,N3 Lesson 8,general,https://bunpro.jp/grammar_points/一方で,source-indexed
+jp-g-0480,遂に,遂に →  ついに,"Finally, At last",N3,8,N3 Lesson 8,general,https://bunpro.jp/grammar_points/遂に,source-indexed
+jp-g-0481,すでに,すでに →  すでに,"Already, Too late",N3,8,N3 Lesson 8,general,https://bunpro.jp/grammar_points/すでに,source-indexed
+jp-g-0482,ずに,ずに,Without doing,N3,8,N3 Lesson 8,general,https://bunpro.jp/grammar_points/ずに,source-indexed
+jp-g-0483,ずにはいられない,ずにはいられない →  ずにはいられない,"Cannot help doing something, Cannot resist doing something",N3,8,N3 Lesson 8,general,https://bunpro.jp/grammar_points/ずにはいられない,source-indexed
+jp-g-0484,なし,なし →  なし,"Without, No",N3,8,N3 Lesson 8,general,https://bunpro.jp/grammar_points/なし,source-indexed
+jp-g-0485,あり,あり,"Possibility, To have, With",N3,8,N3 Lesson 8,general,https://bunpro.jp/grammar_points/あり,source-indexed
+jp-g-0486,考えられない,考えられない →  かんがえられない,"Unthinkable, Inconceivable, Unimaginable, Cannot think",N3,8,N3 Lesson 8,general,https://bunpro.jp/grammar_points/考えられない,source-indexed
+jp-g-0487,必ずしも,必ずしも  → かならずしも,"Not always, Not entirely, Not necessarily",N3,9,N3 Lesson 9,general,https://bunpro.jp/grammar_points/必ずしも,source-indexed
+jp-g-0488,連用形,連用形 →  れんようけい,Formal Conjunctive,N3,9,N3 Lesson 9,general,https://bunpro.jp/grammar_points/連用形,source-indexed
+jp-g-0489,向き,向き →  むき,"Suitable for, Facing",N3,9,N3 Lesson 9,general,https://bunpro.jp/grammar_points/向き,source-indexed
+jp-g-0490,向け,向け →  むけ,"Intended for, Aimed at",N3,9,N3 Lesson 9,general,https://bunpro.jp/grammar_points/向け,source-indexed
+jp-g-0491,上がる-上げる,上がる・上げる →  あがる,"Something is finished, To finish something, Something has come to an end, To do something completely, To do something through",N3,9,N3 Lesson 9,general,https://bunpro.jp/grammar_points/上がる-上げる,source-indexed
+jp-g-0492,切る,切る →  きる,"To do something completely to the end, Utterly, Resolutely",N3,9,N3 Lesson 9,general,https://bunpro.jp/grammar_points/切る,source-indexed
+jp-g-0493,切れない,切れない →  きれない,Being unable to finish or complete,N3,9,N3 Lesson 9,general,https://bunpro.jp/grammar_points/切れない,source-indexed
+jp-g-0494,きり,きり,"Only, Just, Since",N3,9,N3 Lesson 9,general,https://bunpro.jp/grammar_points/きり,source-indexed
+jp-g-0495,かけ,かけ →  かけ,"Half-, Not yet finished, About to, Begin to",N3,9,N3 Lesson 9,general,https://bunpro.jp/grammar_points/かけ,source-indexed
+jp-g-0496,にかけて,にかけて →  にかけて,"Over (a period), From ~ until, Through",N3,9,N3 Lesson 9,general,https://bunpro.jp/grammar_points/にかけて,source-indexed
+jp-g-0497,たて,たて →  たて,"Freshly ~ed, Just ~ed",N3,9,N3 Lesson 9,general,https://bunpro.jp/grammar_points/たて,source-indexed
+jp-g-0498,込む1,込む ① →  こむ ①,"To go into, To put into",N3,9,N3 Lesson 9,general,https://bunpro.jp/grammar_points/込む1,source-indexed
+jp-g-0499,込む2,込む ② →  こむ ②,"Remain, To do thoroughly, Deeply, Intensely",N3,9,N3 Lesson 9,general,https://bunpro.jp/grammar_points/込む2,source-indexed
+jp-g-0500,ふりをする,ふりをする →  ふりをする,"To pretend, To act as if",N3,9,N3 Lesson 9,conditional,https://bunpro.jp/grammar_points/ふりをする,source-indexed
+jp-g-0501,できれば-できたら,できれば・できたら →  できれば,If possible,N3,9,N3 Lesson 9,conditional,https://bunpro.jp/grammar_points/できれば-できたら,source-indexed
+jp-g-0502,でよければ,でよければ →  でよければ,"If it is alright, If you don't mind, If you would like, If possible",N3,9,N3 Lesson 9,conditional,https://bunpro.jp/grammar_points/でよければ,source-indexed
+jp-g-0503,次第,次第 →  しだい,As soon as,N3,9,N3 Lesson 9,general,https://bunpro.jp/grammar_points/次第,source-indexed
+jp-g-0504,とおり,とおり →  とおり,"In that way, Exactly, Precisely, Just as",N3,9,N3 Lesson 9,general,https://bunpro.jp/grammar_points/とおり,source-indexed
+jp-g-0505,でもある,でもある,"Be also, It also is",N3,9,N3 Lesson 9,general,https://bunpro.jp/grammar_points/でもある,source-indexed
+jp-g-0506,どうしても,どうしても,"Regardless of, No matter what",N3,9,N3 Lesson 9,general,https://bunpro.jp/grammar_points/どうしても,source-indexed
+jp-g-0507,もしも～なら・もしも～でも,もしも～なら・もしも～でも →  もしも～なら,"If, Supposing",N3,9,N3 Lesson 9,conditional,https://bunpro.jp/grammar_points/もしも～なら・もしも～でも,source-indexed
+jp-g-0508,同士,同士 →  どうし,"Fellow, With each other, Mutually, Between, Among, Together, With",N3,9,N3 Lesson 9,general,https://bunpro.jp/grammar_points/同士,source-indexed
+jp-g-0509,がたい,がたい,"Hard to, Difficult to",N3,10,N3 Lesson 10,conditional,https://bunpro.jp/grammar_points/がたい,source-indexed
+jp-g-0510,まさか,まさか,"I never dreamed, Never, No way, Don't tell me, You don't say",N3,10,N3 Lesson 10,general,https://bunpro.jp/grammar_points/まさか,source-indexed
+jp-g-0511,前者は-後者は,前者は・後者は →  ぜんしゃは～こうしゃは,"The former ~ the latter, The first ~ the second",N3,10,N3 Lesson 10,general,https://bunpro.jp/grammar_points/前者は-後者は,source-indexed
+jp-g-0512,つい,つい,"Accidentally, Unconsciously, Against one's better judgement",N3,10,N3 Lesson 10,general,https://bunpro.jp/grammar_points/つい,source-indexed
+jp-g-0513,せいで,せいで,"Because of, Due to, Blame",N3,10,N3 Lesson 10,general,https://bunpro.jp/grammar_points/せいで,source-indexed
+jp-g-0514,くせに,くせに →  くせに,"Even though, And yet, Despite",N3,10,N3 Lesson 10,general,https://bunpro.jp/grammar_points/くせに,source-indexed
+jp-g-0515,がち,がち,"Apt to do, Tend to do, Prone to do",N3,10,N3 Lesson 10,general,https://bunpro.jp/grammar_points/がち,source-indexed
+jp-g-0516,ぎみ,ぎみ →  ぎみ,"Looking, Feeling a little, Touch of, Tending to, Slightly",N3,10,N3 Lesson 10,general,https://bunpro.jp/grammar_points/ぎみ,source-indexed
+jp-g-0517,っぽい,っぽい,"-ish, -like, Characteristic of, Typical of, Tendency to",N3,10,N3 Lesson 10,general,https://bunpro.jp/grammar_points/っぽい,source-indexed
+jp-g-0518,っぱなし,っぱなし,"Leaving something in a certain state, Left as is, Keep on -ing",N3,10,N3 Lesson 10,general,https://bunpro.jp/grammar_points/っぱなし,source-indexed
+jp-g-0519,わざわざ,わざわざ,"Expressly, Especially, Go out of one's way, Take the trouble to",N3,10,N3 Lesson 10,general,https://bunpro.jp/grammar_points/わざわざ,source-indexed
+jp-g-0520,一体,一体 →  いったい,"(What) the heck?, (Who) in the world?, (Where) on earth?, (How many) f*ing...",N3,10,N3 Lesson 10,general,https://bunpro.jp/grammar_points/一体,source-indexed
+jp-g-0521,せっかく,折角 →  せっかく,"With trouble, At great pains, Take the trouble, Might as well..., Rare/long-awaited occasion",N3,10,N3 Lesson 10,modality,https://bunpro.jp/grammar_points/せっかく,source-indexed
+jp-g-0522,っけ,っけ,"What is…again?, Was it... that... ?, Did you say...?",N3,10,N3 Lesson 10,general,https://bunpro.jp/grammar_points/っけ,source-indexed
+jp-g-0523,代わりに,代わりに →  かわりに,"Instead of, In place of, In exchange for",N3,10,N3 Lesson 10,general,https://bunpro.jp/grammar_points/代わりに,source-indexed
+jp-g-0524,に代わって,に代わって →  にかわって,"In place of, On behalf of, To succeed",N3,10,N3 Lesson 10,general,https://bunpro.jp/grammar_points/に代わって,source-indexed
+jp-g-0525,どころか,どころか,"Far from, Anything but",N3,10,N3 Lesson 10,general,https://bunpro.jp/grammar_points/どころか,source-indexed
+jp-g-0526,という理由で,という理由で →  というりゆうで,"For (that) reason; on the grounds of (that), With the reasoning, Under the pretext of, Due to",N3,10,N3 Lesson 10,general,https://bunpro.jp/grammar_points/という理由で,source-indexed
+jp-g-0527,は-となっている,～は～となっている →  は～となっている,"It is (has been), Have/has become, Happen to be, Has been established",N3,10,N3 Lesson 10,general,https://bunpro.jp/grammar_points/は-となっている,source-indexed
+jp-g-0528,左右する,左右する →  さゆうする,"Influence, Impact, Control",N3,10,N3 Lesson 10,general,https://bunpro.jp/grammar_points/左右する,source-indexed
+jp-g-0529,得る-得る,得る・得る →  える,"Is able to, Can, Possible",N2,1,N2 Lesson 1,general,https://bunpro.jp/grammar_points/得る-得る,source-indexed
+jp-g-0530,得ない,〜得ない →  えない,"Unable to, Cannot",N2,1,N2 Lesson 1,general,https://bunpro.jp/grammar_points/得ない,source-indexed
+jp-g-0531,ざるを得ない,ざるを得ない →  ざるをえない,"Can't help doing, Have no choice but",N2,1,N2 Lesson 1,general,https://bunpro.jp/grammar_points/ざるを得ない,source-indexed
+jp-g-0532,ざる,～ざる,"To not ~, Un~",N2,1,N2 Lesson 1,general,https://bunpro.jp/grammar_points/ざる,source-indexed
+jp-g-0533,つもりで,つもりで,"With the intention of doing, Instead of..., Act as if or pretend, Believing that..., Thinking that...",N2,1,N2 Lesson 1,conditional,https://bunpro.jp/grammar_points/つもりで,source-indexed
+jp-g-0534,どうせ,どうせ,"Anyhow, At any rate, In any case, I have no doubt that, Probably",N2,1,N2 Lesson 1,modality,https://bunpro.jp/grammar_points/どうせ,source-indexed
+jp-g-0535,せめて,せめて,At least,N2,1,N2 Lesson 1,general,https://bunpro.jp/grammar_points/せめて,source-indexed
+jp-g-0536,どうやら,どうやら,"Apparently, Looks Like, Seems like",N2,1,N2 Lesson 1,modality,https://bunpro.jp/grammar_points/どうやら,source-indexed
+jp-g-0537,なにやら,なにやら,"Something (or other), Some kind of",N2,1,N2 Lesson 1,general,https://bunpro.jp/grammar_points/なにやら,source-indexed
+jp-g-0538,よりほかない,よりほかない →  よりほかない,"To have no choice but, No other way than, Have to",N2,1,N2 Lesson 1,general,https://bunpro.jp/grammar_points/よりほかない,source-indexed
+jp-g-0539,確かに,確かに →  たしかに,"Surely, Certainly",N2,1,N2 Lesson 1,general,https://bunpro.jp/grammar_points/確かに,source-indexed
+jp-g-0540,一応1,一応 ① →  いちおう ①,"Just in case, Just to be sure",N2,1,N2 Lesson 1,general,https://bunpro.jp/grammar_points/一応1,source-indexed
+jp-g-0541,一応2,一応 ② →  いちおう ②,"more or less, for the time being, tentatively, roughly",N2,1,N2 Lesson 1,general,https://bunpro.jp/grammar_points/一応2,source-indexed
+jp-g-0542,に相違ない,に相違ない →  にそういない,"Without a doubt, Certainly, Surely, Not mistaken",N2,1,N2 Lesson 1,general,https://bunpro.jp/grammar_points/に相違ない,source-indexed
+jp-g-0543,万が一,万が一 →  まんがいち,"Just in case, In the worst-case scenario, In the unlikely event, By any chance",N2,1,N2 Lesson 1,general,https://bunpro.jp/grammar_points/万が一,source-indexed
+jp-g-0544,ようがない・ようもない,ようがない・ようもない →  ようがない,"There's no way to, It's impossible to",N2,1,N2 Lesson 1,general,https://bunpro.jp/grammar_points/ようがない・ようもない,source-indexed
+jp-g-0545,にほかならない,にほかならない →  にほかならない,"Nothing but, None other than, Simply",N2,1,N2 Lesson 1,general,https://bunpro.jp/grammar_points/にほかならない,source-indexed
+jp-g-0546,っこない,っこない,"There is no chance of, There is no way of, Impossible",N2,1,N2 Lesson 1,general,https://bunpro.jp/grammar_points/っこない,source-indexed
+jp-g-0547,それなら,それなら,"Then, If that's the case",N2,1,N2 Lesson 1,conditional,https://bunpro.jp/grammar_points/それなら,source-indexed
+jp-g-0548,ものなら①,ものなら① →  ものなら ①,"If, If one could, If something would be possible",N2,1,N2 Lesson 1,conditional,https://bunpro.jp/grammar_points/ものなら①,source-indexed
+jp-g-0549,を-に任せる,～を～に任せる →  にまかせる,"Leave 〜 up to, Entrust 〜 to",N2,1,N2 Lesson 1,general,https://bunpro.jp/grammar_points/を-に任せる,source-indexed
+jp-g-0550,活かす,活かす →  いかす,"To make use of (something), To take full advantage of, To capitalize on, To leverage (skills), Bring out (the quality of)",N2,1,N2 Lesson 1,general,https://bunpro.jp/grammar_points/活かす,source-indexed
+jp-g-0551,おおよそ,おおよそ,"Approximately, Roughly, About, Outline, Gist",N2,1,N2 Lesson 1,general,https://bunpro.jp/grammar_points/おおよそ,source-indexed
+jp-g-0552,まい,まい,"Won't, Intend not to, Probably not",N2,1,N2 Lesson 1,modality,https://bunpro.jp/grammar_points/まい,source-indexed
+jp-g-0553,上,上 →  じょう,From the standpoint of,N2,2,N2 Lesson 2,general,https://bunpro.jp/grammar_points/上,source-indexed
+jp-g-0554,上に,上に →  うえに,"As well, Besides, In addition to",N2,2,N2 Lesson 2,general,https://bunpro.jp/grammar_points/上に,source-indexed
+jp-g-0555,以上2,以上 ② →  いじょう ②,"Since, Now that, As long as, If",N2,2,N2 Lesson 2,conditional,https://bunpro.jp/grammar_points/以上2,source-indexed
+jp-g-0556,以上に,以上に →  いじょうに,"More than, No less than, Even more",N2,2,N2 Lesson 2,general,https://bunpro.jp/grammar_points/以上に,source-indexed
+jp-g-0557,途中に・途中で,途中に・途中で →  とちゅうに,"On the way, Partway, In the middle of",N2,2,N2 Lesson 2,general,https://bunpro.jp/grammar_points/途中に・途中で,source-indexed
+jp-g-0558,中を,中を →  なかを,"In, On, Into, Inside of",N2,2,N2 Lesson 2,general,https://bunpro.jp/grammar_points/中を,source-indexed
+jp-g-0559,を中心に,を中心に →  をちゅうしんに,"Focused on, Centered on or around, Mainly, Most notably",N2,2,N2 Lesson 2,general,https://bunpro.jp/grammar_points/を中心に,source-indexed
+jp-g-0560,その上,その上 →  そのうえ,"Besides, In addition, Furthermore",N2,2,N2 Lesson 2,general,https://bunpro.jp/grammar_points/その上,source-indexed
+jp-g-0561,上は,上は →  うえは,"Once, Since, Now that, As long as",N2,2,N2 Lesson 2,general,https://bunpro.jp/grammar_points/上は,source-indexed
+jp-g-0562,の下で,の下で →  のもとで,"Under, Under the supervision of, On the basis of",N2,2,N2 Lesson 2,general,https://bunpro.jp/grammar_points/の下で,source-indexed
+jp-g-0563,後-のnoun,後(の) Noun →  あとの + (Noun),"…left, Rest, Remaining, In, …to, …else",N2,2,N2 Lesson 2,general,https://bunpro.jp/grammar_points/後-のnoun,source-indexed
+jp-g-0564,手前,手前 →  てまえ,"Before, In front of, From one's standpoint or side",N2,2,N2 Lesson 2,general,https://bunpro.jp/grammar_points/手前,source-indexed
+jp-g-0565,を巡って,を巡って →  をめぐって,"Concerning, In regard to, About, (Split) over",N2,2,N2 Lesson 2,general,https://bunpro.jp/grammar_points/を巡って,source-indexed
+jp-g-0566,にわたって,にわたって →  にわたって,"Across, Throughout, Extends, Over (a period of time or range)",N2,2,N2 Lesson 2,general,https://bunpro.jp/grammar_points/にわたって,source-indexed
+jp-g-0567,に沿って,に沿って →  にそって,"Along, In accordance with, In line with",N2,2,N2 Lesson 2,general,https://bunpro.jp/grammar_points/に沿って,source-indexed
+jp-g-0568,た末-の末,た末・の末 →  ～たすえ,"After, As a conclusion of",N2,2,N2 Lesson 2,general,https://bunpro.jp/grammar_points/た末-の末,source-indexed
+jp-g-0569,にしたがって,にしたがって →  にしたがって,"As, Following, As then, According to, In accordance with",N2,2,N2 Lesson 2,general,https://bunpro.jp/grammar_points/にしたがって,source-indexed
+jp-g-0570,に伴って-に伴い,に伴って・に伴い →  にともなって,"As, Due, Along with, Hand-in-hand with, Resulted in, Be consequent upon",N2,2,N2 Lesson 2,general,https://bunpro.jp/grammar_points/に伴って-に伴い,source-indexed
+jp-g-0571,につき,につき →  につき,"Due to, On account of, Each or every",N2,2,N2 Lesson 2,general,https://bunpro.jp/grammar_points/につき,source-indexed
+jp-g-0572,につけ,につけ →  につけ,"Whenever, Every time something happens",N2,2,N2 Lesson 2,general,https://bunpro.jp/grammar_points/につけ,source-indexed
+jp-g-0573,にかかわる,にかかわる →  にかかわる,"To relate to, To have to do with, Concerning, Depends on",N2,2,N2 Lesson 2,general,https://bunpro.jp/grammar_points/にかかわる,source-indexed
+jp-g-0574,に向かって-に向けて,に向かって・に向けて →  にむかって,"Towards, To face, To head to",N2,2,N2 Lesson 2,general,https://bunpro.jp/grammar_points/に向かって-に向けて,source-indexed
+jp-g-0575,が気になる,が気になる →  がきになる,"To be interested in, To be concerned about",N2,2,N2 Lesson 2,general,https://bunpro.jp/grammar_points/が気になる,source-indexed
+jp-g-0576,に気をつける,に気をつける →  にきをつける,"Take care, Be careful, Pay attention, Make sure, Watch out",N2,2,N2 Lesson 2,general,https://bunpro.jp/grammar_points/に気をつける,source-indexed
+jp-g-0577,もかまわず,も構わず →  もかまわず,Without worrying about,N2,3,N2 Lesson 3,general,https://bunpro.jp/grammar_points/もかまわず,source-indexed
+jp-g-0578,かねる,かねる →  かねる,"Cannot, Be unable to, Hard to, Hesitant to",N2,3,N2 Lesson 3,general,https://bunpro.jp/grammar_points/かねる,source-indexed
+jp-g-0579,かねない,かねない →  かねない,"Might, Could be, Capable of, Possible",N2,3,N2 Lesson 3,modality,https://bunpro.jp/grammar_points/かねない,source-indexed
+jp-g-0580,を除いて,を除いて →  をのぞいて,"Except, With the exception of, Unless",N2,3,N2 Lesson 3,conditional,https://bunpro.jp/grammar_points/を除いて,source-indexed
+jp-g-0581,にかかわらず,にかかわらず →  にかかわらず,"Regardless of, Whether or, No matter, With or without",N2,3,N2 Lesson 3,general,https://bunpro.jp/grammar_points/にかかわらず,source-indexed
+jp-g-0582,にもかかわらず,にもかかわらず →  にもかかわらず,"Despite, In spite of, Regardless, Nevertheless",N2,3,N2 Lesson 3,general,https://bunpro.jp/grammar_points/にもかかわらず,source-indexed
+jp-g-0583,に限って,に限って →  にかぎって,"Particularly when, Those who, Only when",N2,3,N2 Lesson 3,general,https://bunpro.jp/grammar_points/に限って,source-indexed
+jp-g-0584,に限らず,に限らず →  にかぎらず,"Not just, Not only… but also",N2,3,N2 Lesson 3,general,https://bunpro.jp/grammar_points/に限らず,source-indexed
+jp-g-0585,なお1,なお① →  なお ①,"Still, Even, Yet",N2,3,N2 Lesson 3,general,https://bunpro.jp/grammar_points/なお1,source-indexed
+jp-g-0586,なお2,なお② →  なお ②,"In addition, Incidentally, Furthermore, Moreover",N2,3,N2 Lesson 3,general,https://bunpro.jp/grammar_points/なお2,source-indexed
+jp-g-0587,限り,限り →  かぎり,"As long as, While… is the case, Limited to",N2,3,N2 Lesson 3,general,https://bunpro.jp/grammar_points/限り,source-indexed
+jp-g-0588,次第だ-次第で,次第だ・次第で →  しだいだ,"Depending on, So",N2,3,N2 Lesson 3,general,https://bunpro.jp/grammar_points/次第だ-次第で,source-indexed
+jp-g-0589,次第に,次第に →  しだいに,Gradually,N2,3,N2 Lesson 3,general,https://bunpro.jp/grammar_points/次第に,source-indexed
+jp-g-0590,-てこそ,～てこそ,"Only if, Because, By, Unless, Until",N2,3,N2 Lesson 3,conditional,https://bunpro.jp/grammar_points/-てこそ,source-indexed
+jp-g-0591,を問わず,を問わず →  をとわず,"Regardless of, Whether or not, No matter, With or without",N2,3,N2 Lesson 3,general,https://bunpro.jp/grammar_points/を問わず,source-indexed
+jp-g-0592,よりしかたがない,よりしかたがない →  よりしかたがない,"There is no choice but, Can't be helped, Inevitable",N2,3,N2 Lesson 3,general,https://bunpro.jp/grammar_points/よりしかたがない,source-indexed
+jp-g-0593,に越したことはない,に越したことはない →  にこしたことはない,"There is nothing better than, It is the best, Would be the best",N2,3,N2 Lesson 3,general,https://bunpro.jp/grammar_points/に越したことはない,source-indexed
+jp-g-0594,要するに,要するに →  ようするに,"To sum up, In summary, In short",N2,3,N2 Lesson 3,general,https://bunpro.jp/grammar_points/要するに,source-indexed
+jp-g-0595,てからでないと,てからでないと,"(Not) unless ~ cannot, (Not) until ~ cannot",N2,3,N2 Lesson 3,conditional,https://bunpro.jp/grammar_points/てからでないと,source-indexed
+jp-g-0596,なくはない,なくはない,"It's not that…, Kind of, might, Slightly, Somewhat, In some respects",N2,3,N2 Lesson 3,modality,https://bunpro.jp/grammar_points/なくはない,source-indexed
+jp-g-0597,ないことには-ない,ないことには～ない →  ないことには～ない,Unless you do something,N2,3,N2 Lesson 3,conditional,https://bunpro.jp/grammar_points/ないことには-ない,source-indexed
+jp-g-0598,ないではいられない,ないではいられない,"Cannot help doing something, Cannot resist doing something",N2,3,N2 Lesson 3,general,https://bunpro.jp/grammar_points/ないではいられない,source-indexed
+jp-g-0599,ねばならない,ねばならない →  ねばなら + ぬ,"Must, Have to, Should",N2,3,N2 Lesson 3,general,https://bunpro.jp/grammar_points/ねばならない,source-indexed
+jp-g-0600,たまえ,たまえ →  たまえ,"(Please) do!, Ask to, Beg to, (Order somebody to do something)",N2,3,N2 Lesson 3,general,https://bunpro.jp/grammar_points/たまえ,source-indexed
+jp-g-0601,-のうち-で,～のうち(で) →  のうちで,"Of the, Among(st)",N2,4,N2 Lesson 4,general,https://bunpro.jp/grammar_points/-のうち-で,source-indexed
+jp-g-0602,つつ,つつ,"While, And",N2,4,N2 Lesson 4,general,https://bunpro.jp/grammar_points/つつ,source-indexed
+jp-g-0603,つつ-も,つつ(も) →  つつも,"Even while ~ing, Even though ~ing, Despite ~ing, Although ~ing",N2,4,N2 Lesson 4,general,https://bunpro.jp/grammar_points/つつ-も,source-indexed
+jp-g-0604,に際して,に際して →  にさいして,"On the occasion of, At the time of",N2,4,N2 Lesson 4,general,https://bunpro.jp/grammar_points/に際して,source-indexed
+jp-g-0605,際に,際に →  さいに,"When, At the time of, In case of, On the occasion of",N2,4,N2 Lesson 4,general,https://bunpro.jp/grammar_points/際に,source-indexed
+jp-g-0606,にあたり-にあたって,にあたり・にあたって →  にあたって,"When, When doing something, On the occasion, At the time",N2,4,N2 Lesson 4,general,https://bunpro.jp/grammar_points/にあたり-にあたって,source-indexed
+jp-g-0607,を契機に,を契機に →  をけいきに,"Lead to, As a good opportunity to, As a result of, As a trigger",N2,4,N2 Lesson 4,general,https://bunpro.jp/grammar_points/を契機に,source-indexed
+jp-g-0608,つつある,つつある,"-ing, Be -ing",N2,4,N2 Lesson 4,general,https://bunpro.jp/grammar_points/つつある,source-indexed
+jp-g-0609,～ところに・～ところへ,～ところに・～ところへ →  ～ところに,"At the time, When, While, Timing",N2,4,N2 Lesson 4,general,https://bunpro.jp/grammar_points/～ところに・～ところへ,source-indexed
+jp-g-0610,か-ないかのうちに,か〜ないかのうちに →  か〜ないかのうちに,"Right after, As soon as, Just when, Barely",N2,4,N2 Lesson 4,general,https://bunpro.jp/grammar_points/か-ないかのうちに,source-indexed
+jp-g-0611,がけに,がけに →  がけに,"On the way to, As you go",N2,4,N2 Lesson 4,general,https://bunpro.jp/grammar_points/がけに,source-indexed
+jp-g-0612,ていては,ていては,"If one keeps doing something, When, If something is...",N2,4,N2 Lesson 4,conditional,https://bunpro.jp/grammar_points/ていては,source-indexed
+jp-g-0613,ところだった2,ところだった ②,"Was just about to do something, Was in the middle of...",N2,4,N2 Lesson 4,general,https://bunpro.jp/grammar_points/ところだった2,source-indexed
+jp-g-0614,どころではない,どころではない,"This is not the time for…, Far from, Out of the question",N2,4,N2 Lesson 4,general,https://bunpro.jp/grammar_points/どころではない,source-indexed
+jp-g-0615,ぶりに,ぶりに →  ぶりに,"For the first time in, Haven't done for some time",N2,4,N2 Lesson 4,general,https://bunpro.jp/grammar_points/ぶりに,source-indexed
+jp-g-0616,ては,ては →  ～ては,"If, With, Since, Because",N2,4,N2 Lesson 4,conditional,https://bunpro.jp/grammar_points/ては,source-indexed
+jp-g-0617,ては-ては,ては〜ては →  ～ては〜ては,"Repeating action, If, Since",N2,4,N2 Lesson 4,conditional,https://bunpro.jp/grammar_points/ては-ては,source-indexed
+jp-g-0618,も又,も又 →  もまた,"Too, Also (with more emphasis than も alone), Again",N2,4,N2 Lesson 4,general,https://bunpro.jp/grammar_points/も又,source-indexed
+jp-g-0619,結果・の結果,結果・の結果 →  けっか,As a result of,N2,5,N2 Lesson 5,general,https://bunpro.jp/grammar_points/結果・の結果,source-indexed
+jp-g-0620,以来,以来 →  いらい,"Since, Henceforth",N2,5,N2 Lesson 5,general,https://bunpro.jp/grammar_points/以来,source-indexed
+jp-g-0621,に先立ち,に先立ち →  にさきだち,"Before, Prior to, In preference over",N2,5,N2 Lesson 5,general,https://bunpro.jp/grammar_points/に先立ち,source-indexed
+jp-g-0622,はたして,はたして →  はたして,"Wonder if ~ (really)?, Wonder how ~ (actually)?, Sure enough, As expected",N2,5,N2 Lesson 5,conditional,https://bunpro.jp/grammar_points/はたして,source-indexed
+jp-g-0623,甲斐がある,甲斐がある →  かいがある,"To be (not) worth, To (not) pay off",N2,5,N2 Lesson 5,general,https://bunpro.jp/grammar_points/甲斐がある,source-indexed
+jp-g-0624,やがて,やがて,"Before long, All too soon, In the end, Eventually",N2,5,N2 Lesson 5,general,https://bunpro.jp/grammar_points/やがて,source-indexed
+jp-g-0625,したがって,したがって →  したがって,"Therefore, Thus, As a result",N2,5,N2 Lesson 5,general,https://bunpro.jp/grammar_points/したがって,source-indexed
+jp-g-0626,あげく,あげく →  あげく,"After, In the end, After all, Eventually",N2,5,N2 Lesson 5,general,https://bunpro.jp/grammar_points/あげく,source-indexed
+jp-g-0627,きっかけ,きっかけ →  きっかけ,"Lead to, Because of, As a start or trigger of, An opportunity",N2,5,N2 Lesson 5,general,https://bunpro.jp/grammar_points/きっかけ,source-indexed
+jp-g-0628,にかけては,にかけては,"When it comes to, Regarding, Concerning",N2,5,N2 Lesson 5,general,https://bunpro.jp/grammar_points/にかけては,source-indexed
+jp-g-0629,とっくに,とっくに →  とっくに,"Already, A long time ago, Long ago",N2,5,N2 Lesson 5,general,https://bunpro.jp/grammar_points/とっくに,source-indexed
+jp-g-0630,未だに,未だに →  いまだに,"Still, Not yet, Even now",N2,5,N2 Lesson 5,general,https://bunpro.jp/grammar_points/未だに,source-indexed
+jp-g-0631,をもとに,をもとに →  をもとに,"Based on, From, According to",N2,5,N2 Lesson 5,general,https://bunpro.jp/grammar_points/をもとに,source-indexed
+jp-g-0632,からには,からには,"As long as, Since, Given",N2,5,N2 Lesson 5,general,https://bunpro.jp/grammar_points/からには,source-indexed
+jp-g-0633,いつの間にか,いつの間にか →  いつのまにか,"Suddenly, Unnoticed, Without noticing, Too soon",N2,5,N2 Lesson 5,general,https://bunpro.jp/grammar_points/いつの間にか,source-indexed
+jp-g-0634,一旦,一旦 →  いったん,"Once …, If … for a short time, Temporarily (stop), For now or the time being",N2,5,N2 Lesson 5,conditional,https://bunpro.jp/grammar_points/一旦,source-indexed
+jp-g-0635,はもとより,はもとより →  はもとより,"Not only... but also, Let alone, Of course",N2,5,N2 Lesson 5,general,https://bunpro.jp/grammar_points/はもとより,source-indexed
+jp-g-0636,そうにない,そうにない,"Unlikely to, Showing no signs of",N2,5,N2 Lesson 5,general,https://bunpro.jp/grammar_points/そうにない,source-indexed
+jp-g-0637,に反して,に反して →  にはんして,"Go against, Contrary to",N2,6,N2 Lesson 6,general,https://bunpro.jp/grammar_points/に反して,source-indexed
+jp-g-0638,逆に,逆に →  ぎゃくに,On the contrary,N2,6,N2 Lesson 6,general,https://bunpro.jp/grammar_points/逆に,source-indexed
+jp-g-0639,反面,反面 →  はんめん,"While, On the other hand, Although, However, On the flip side",N2,6,N2 Lesson 6,general,https://bunpro.jp/grammar_points/反面,source-indexed
+jp-g-0640,抜く,抜く →  ぬく,"All~, Completely, See through, Overcome, To the bitter end",N2,6,N2 Lesson 6,general,https://bunpro.jp/grammar_points/抜く,source-indexed
+jp-g-0641,抜きで,抜きで →  ぬきで,"Without, Unless",N2,6,N2 Lesson 6,conditional,https://bunpro.jp/grammar_points/抜きで,source-indexed
+jp-g-0642,いよいよ,いよいよ →  いよいよ,"At last, Finally, More and more",N2,6,N2 Lesson 6,general,https://bunpro.jp/grammar_points/いよいよ,source-indexed
+jp-g-0643,ずに済む,ずに済む →  ずにすむ,"Get by without doing something, To get away with",N2,6,N2 Lesson 6,general,https://bunpro.jp/grammar_points/ずに済む,source-indexed
+jp-g-0644,に応じて,に応じて →  におうじて,"Depending or based on, According to, In response to, Suitable for or to",N2,6,N2 Lesson 6,general,https://bunpro.jp/grammar_points/に応じて,source-indexed
+jp-g-0645,を通じて-を通して,を通じて・を通して →  をつうじて,"Through, Via, Throughout",N2,6,N2 Lesson 6,general,https://bunpro.jp/grammar_points/を通じて-を通して,source-indexed
+jp-g-0646,に応えて,に応えて →  にこたえて,"In response to, Meet",N2,6,N2 Lesson 6,general,https://bunpro.jp/grammar_points/に応えて,source-indexed
+jp-g-0647,それとも,それとも,"Or, Or else, Rather",N2,6,N2 Lesson 6,general,https://bunpro.jp/grammar_points/それとも,source-indexed
+jp-g-0648,にしたら,にしたら,From the point of view of,N2,6,N2 Lesson 6,general,https://bunpro.jp/grammar_points/にしたら,source-indexed
+jp-g-0649,にしても-にしても,にしても～にしても,Regardless of whether,N2,6,N2 Lesson 6,general,https://bunpro.jp/grammar_points/にしても-にしても,source-indexed
+jp-g-0650,としては,としては,"As a, For a, As for",N2,6,N2 Lesson 6,general,https://bunpro.jp/grammar_points/としては,source-indexed
+jp-g-0651,としても,としても,"Even if (we assume), Assuming, Also as",N2,6,N2 Lesson 6,conditional,https://bunpro.jp/grammar_points/としても,source-indexed
+jp-g-0652,それにしても,それにしても,"Nevertheless, Even so",N2,6,N2 Lesson 6,general,https://bunpro.jp/grammar_points/それにしても,source-indexed
+jp-g-0653,ぬ,ぬ,"Classical negative, Classical verb [ない]",N2,6,N2 Lesson 6,verb-form,https://bunpro.jp/grammar_points/ぬ,source-indexed
+jp-g-0654,ことなく,ことなく →  ことなく,Without ~ing,N2,6,N2 Lesson 6,general,https://bunpro.jp/grammar_points/ことなく,source-indexed
+jp-g-0655,にて,にて,"In, At, With, Using, By",N2,6,N2 Lesson 6,general,https://bunpro.jp/grammar_points/にて,source-indexed
+jp-g-0656,には,には,"In order to, In regard to, For",N2,6,N2 Lesson 6,general,https://bunpro.jp/grammar_points/には,source-indexed
+jp-g-0657,思うように,思うように →  おもうように,"As one hopes, As desired, As one thought",N2,7,N2 Lesson 7,general,https://bunpro.jp/grammar_points/思うように,source-indexed
+jp-g-0658,かと思ったら-かと思うと,かと思ったら・かと思うと →  かとおもうと,"Then again, Just when I thought, No sooner than",N2,7,N2 Lesson 7,general,https://bunpro.jp/grammar_points/かと思ったら-かと思うと,source-indexed
+jp-g-0659,～ばと思います,～ばと思います →  ～ばとおもいます,"I would appreciate it if, If you could, I would like to think that",N2,7,N2 Lesson 7,conditional,https://bunpro.jp/grammar_points/～ばと思います,source-indexed
+jp-g-0660,というものでもない,というものでもない →  というものでもない,"There is no guarantee that…, Not necessarily",N2,7,N2 Lesson 7,general,https://bunpro.jp/grammar_points/というものでもない,source-indexed
+jp-g-0661,と考えられる,と考えられる →  とかんがえられる,"Can be considered as, Is thought to be, One can think that, It is conceivable that",N2,7,N2 Lesson 7,general,https://bunpro.jp/grammar_points/と考えられる,source-indexed
+jp-g-0662,という点から考えると,という点から考えると →  というてんからかんがえると,"From the standpoint of, From the perspective of, From the viewpoint of, Think in terms of, Viewed from the angle of",N2,7,N2 Lesson 7,general,https://bunpro.jp/grammar_points/という点から考えると,source-indexed
+jp-g-0663,ということは,ということは →  ということは,"That means, That is to say",N2,7,N2 Lesson 7,general,https://bunpro.jp/grammar_points/ということは,source-indexed
+jp-g-0664,ふうに,ふうに →  ふうに,"~ way, In a way that suggests, Like ~",N2,7,N2 Lesson 7,general,https://bunpro.jp/grammar_points/ふうに,source-indexed
+jp-g-0665,という風に,という風に →  というふうに,"As if to say, As if to suggest that, In such a way that, Things like",N2,7,N2 Lesson 7,conditional,https://bunpro.jp/grammar_points/という風に,source-indexed
+jp-g-0666,ものの,ものの,"Although, But, Even Though",N2,7,N2 Lesson 7,general,https://bunpro.jp/grammar_points/ものの,source-indexed
+jp-g-0667,というものだ,というものだ →  というものだ,"Speaker's impression, Criticism or conclusion",N2,7,N2 Lesson 7,general,https://bunpro.jp/grammar_points/というものだ,source-indexed
+jp-g-0668,から見ると,から見ると →  からみると,"From the point of view of, By the look of",N2,7,N2 Lesson 7,general,https://bunpro.jp/grammar_points/から見ると,source-indexed
+jp-g-0669,ところを見ると,ところを見ると →  ところをみると,"Judging from, Seeing that",N2,7,N2 Lesson 7,general,https://bunpro.jp/grammar_points/ところを見ると,source-indexed
+jp-g-0670,からすると-からすれば,からすると・からすれば →  からすると,"Judging from, Considering",N2,7,N2 Lesson 7,general,https://bunpro.jp/grammar_points/からすると-からすれば,source-indexed
+jp-g-0671,からして,からして,"Even..., Judging from, Based on",N2,7,N2 Lesson 7,general,https://bunpro.jp/grammar_points/からして,source-indexed
+jp-g-0672,からといって,からといって,Just because,N2,7,N2 Lesson 7,general,https://bunpro.jp/grammar_points/からといって,source-indexed
+jp-g-0673,そういえば,そういえば,"Speaking of which, By the way, Come to think of it",N2,7,N2 Lesson 7,general,https://bunpro.jp/grammar_points/そういえば,source-indexed
+jp-g-0674,お-願う,お～願う →  お～ねがう,"Please, Could you please",N2,7,N2 Lesson 7,general,https://bunpro.jp/grammar_points/お-願う,source-indexed
+jp-g-0675,て頂戴,～て頂戴 →  ～てちょうだい,Please do,N2,7,N2 Lesson 7,general,https://bunpro.jp/grammar_points/て頂戴,source-indexed
+jp-g-0676,とか,とか,"I heard that… something like, They said ... or something",N2,7,N2 Lesson 7,general,https://bunpro.jp/grammar_points/とか,source-indexed
+jp-g-0677,ようではないか,〜ようではないか →  う・よう + ではないか,"Let's do something, Why don't we",N2,7,N2 Lesson 7,general,https://bunpro.jp/grammar_points/ようではないか,source-indexed
+jp-g-0678,かのようだ,かのようだ →  かのようだ,"As if, Just like",N2,7,N2 Lesson 7,conditional,https://bunpro.jp/grammar_points/かのようだ,source-indexed
+jp-g-0679,のではないだろうか,のではないだろうか →  のではないでしょうか,"I think ... isn't it?, It might be that..., Don't you agree?",N2,7,N2 Lesson 7,modality,https://bunpro.jp/grammar_points/のではないだろうか,source-indexed
+jp-g-0680,て当然だ,て当然だ →  ～てとうぜんだ,"Natural, As a matter of course",N2,8,N2 Lesson 8,general,https://bunpro.jp/grammar_points/て当然だ,source-indexed
+jp-g-0681,のも当然だ,のも当然だ →  のもとうぜんだ,"It is only natural that, It is no wonder",N2,8,N2 Lesson 8,general,https://bunpro.jp/grammar_points/のも当然だ,source-indexed
+jp-g-0682,たった-の,たった(の) →  たったの,"Only, Just, No more than",N2,8,N2 Lesson 8,general,https://bunpro.jp/grammar_points/たった-の,source-indexed
+jp-g-0683,恐れがある,恐れがある →  おそれがある,"There is a risk or fear that, Be in danger of, Possibility of",N2,8,N2 Lesson 8,general,https://bunpro.jp/grammar_points/恐れがある,source-indexed
+jp-g-0684,おそらく,おそらく →  おそらく,"Probably, Perhaps, (Most) likely, (I) fear that",N2,8,N2 Lesson 8,modality,https://bunpro.jp/grammar_points/おそらく,source-indexed
+jp-g-0685,ものか,ものか,"Definitely not, Absolutely not, Impossible, Do you really think~?",N2,8,N2 Lesson 8,general,https://bunpro.jp/grammar_points/ものか,source-indexed
+jp-g-0686,おまけに,おまけに →  おまけに,"In addition, On top of that, What is more, To make matters worse",N2,8,N2 Lesson 8,general,https://bunpro.jp/grammar_points/おまけに,source-indexed
+jp-g-0687,に決まっている,に決まっている →  にきまっている,"Surely, Bound to, Certainly, Be decided",N2,8,N2 Lesson 8,general,https://bunpro.jp/grammar_points/に決まっている,source-indexed
+jp-g-0688,ことになっている,ことになっている →  ことになっている,"To be expected to, To be scheduled to",N2,8,N2 Lesson 8,general,https://bunpro.jp/grammar_points/ことになっている,source-indexed
+jp-g-0689,気,気 →  き,"Feel like ~, Spirit",N2,8,N2 Lesson 8,general,https://bunpro.jp/grammar_points/気,source-indexed
+jp-g-0690,げ,げ →  げ,"Seemingly, Giving appearance of, [Expresses emotions or feelings]",N2,8,N2 Lesson 8,modality,https://bunpro.jp/grammar_points/げ,source-indexed
+jp-g-0691,ことだから,ことだから →  ことだから,It is exactly because,N2,8,N2 Lesson 8,general,https://bunpro.jp/grammar_points/ことだから,source-indexed
+jp-g-0692,ものだから,ものだから,"Because, The reason is",N2,8,N2 Lesson 8,general,https://bunpro.jp/grammar_points/ものだから,source-indexed
+jp-g-0693,ものですから-もので,ものですから・もので →  ものですから,"Because, My excuse is, My explanation is",N2,8,N2 Lesson 8,general,https://bunpro.jp/grammar_points/ものですから-もので,source-indexed
+jp-g-0694,ものがある,ものがある,"Strong judgement, There is something, Feel strongly that",N2,8,N2 Lesson 8,general,https://bunpro.jp/grammar_points/ものがある,source-indexed
+jp-g-0695,傾向がある,傾向がある →  けいこうがある,"Tendency, Trend, Inclination",N2,8,N2 Lesson 8,general,https://bunpro.jp/grammar_points/傾向がある,source-indexed
+jp-g-0696,に値する,～に値する →  ～にあたいする,"Be worthy of, Deserving of, Amounts to",N2,8,N2 Lesson 8,general,https://bunpro.jp/grammar_points/に値する,source-indexed
+jp-g-0697,てしょうがない,てしょうがない →  ～てしょうがない,"Extremely, Very, Really, It can't be helped",N2,8,N2 Lesson 8,general,https://bunpro.jp/grammar_points/てしょうがない,source-indexed
+jp-g-0698,だけましだ,だけましだ,"At least, It's better than..., One should feel grateful for",N2,8,N2 Lesson 8,general,https://bunpro.jp/grammar_points/だけましだ,source-indexed
+jp-g-0699,幸い-幸いなことに,幸い・幸いなことに →  さいわいなことに,"Luckily, Fortunately",N2,8,N2 Lesson 8,general,https://bunpro.jp/grammar_points/幸い-幸いなことに,source-indexed
+jp-g-0700,ようでは-ようじゃ,ようでは・ようじゃ →  ようでは,"If, If it is true that",N2,8,N2 Lesson 8,conditional,https://bunpro.jp/grammar_points/ようでは-ようじゃ,source-indexed
+jp-g-0701,さすが,さすが →  さすが,"as one would expect, only natural, that is just like..., even",N2,8,N2 Lesson 8,general,https://bunpro.jp/grammar_points/さすが,source-indexed
+jp-g-0702,ことは-が,ことは〜が,"It is true...but, although, but",N2,8,N2 Lesson 8,general,https://bunpro.jp/grammar_points/ことは-が,source-indexed
+jp-g-0703,さらに,更に →  さらに,"Even more or further, Again, More and more",N2,9,N2 Lesson 9,general,https://bunpro.jp/grammar_points/さらに,source-indexed
+jp-g-0704,精々,精々 →  せいぜい,"(At) most , (At) best, No more than, Barely",N2,9,N2 Lesson 9,general,https://bunpro.jp/grammar_points/精々,source-indexed
+jp-g-0705,僅かに,僅かに →  わずかに,"Only, Slightly, A little, Barely, Merely",N2,9,N2 Lesson 9,general,https://bunpro.jp/grammar_points/僅かに,source-indexed
+jp-g-0706,および,および →  および,"And, As well as",N2,9,N2 Lesson 9,general,https://bunpro.jp/grammar_points/および,source-indexed
+jp-g-0707,たちまち,たちまち →  たちまち,"Immediately, Quickly, Suddenly, In a moment or flash",N2,9,N2 Lesson 9,general,https://bunpro.jp/grammar_points/たちまち,source-indexed
+jp-g-0708,いきなり,いきなり,"For no reason, Suddenly, All of a sudden",N2,9,N2 Lesson 9,general,https://bunpro.jp/grammar_points/いきなり,source-indexed
+jp-g-0709,といった,といった,"Such as, Like, So much as",N2,9,N2 Lesson 9,general,https://bunpro.jp/grammar_points/といった,source-indexed
+jp-g-0710,を込めて,を込めて →  をこめて,"Full of, Filled with, With ～",N2,9,N2 Lesson 9,general,https://bunpro.jp/grammar_points/を込めて,source-indexed
+jp-g-0711,に加えて,に加えて →  にくわえて,"Not only...but also, In addition, Not to mention",N2,9,N2 Lesson 9,general,https://bunpro.jp/grammar_points/に加えて,source-indexed
+jp-g-0712,何から何まで,何から何まで →  なにからなにまで,"Everything and anything, From A to Z, From head to toe, Everything",N2,9,N2 Lesson 9,general,https://bunpro.jp/grammar_points/何から何まで,source-indexed
+jp-g-0713,は別として,は別として →  はべつとして,"Apart from, (Setting) aside, Whether or, Except for, Save for",N2,9,N2 Lesson 9,general,https://bunpro.jp/grammar_points/は別として,source-indexed
+jp-g-0714,だけに,だけに,"As might be expected, Because, All the more because, It's only natural",N2,9,N2 Lesson 9,modality,https://bunpro.jp/grammar_points/だけに,source-indexed
+jp-g-0715,だけは,だけは,"To do all that one can, As much or many ~ as one could",N2,9,N2 Lesson 9,general,https://bunpro.jp/grammar_points/だけは,source-indexed
+jp-g-0716,だけあって,だけあって,"Is only natural, …Being the case, Because, As might be expected",N2,9,N2 Lesson 9,modality,https://bunpro.jp/grammar_points/だけあって,source-indexed
+jp-g-0717,何より,何より →  なにより,"Be glad, Be relieved, Most, Best, Above all else, More than anything",N2,9,N2 Lesson 9,general,https://bunpro.jp/grammar_points/何より,source-indexed
+jp-g-0718,何といっても,何といっても →  なんといっても,"By any account, All the same, No doubt",N2,9,N2 Lesson 9,general,https://bunpro.jp/grammar_points/何といっても,source-indexed
+jp-g-0719,か何か,か何か →  かなにか,"Or something, Or something like that",N2,9,N2 Lesson 9,general,https://bunpro.jp/grammar_points/か何か,source-indexed
+jp-g-0720,てならない,てならない →  ～てならない,"Very, Extremely, Can't help but do",N2,9,N2 Lesson 9,general,https://bunpro.jp/grammar_points/てならない,source-indexed
+jp-g-0721,のみならず,のみならず,"Not only...but, Not just...but, What is more",N2,9,N2 Lesson 9,general,https://bunpro.jp/grammar_points/のみならず,source-indexed
+jp-g-0722,それなのに,それなのに,"And yet, Despite this",N2,9,N2 Lesson 9,general,https://bunpro.jp/grammar_points/それなのに,source-indexed
+jp-g-0723,いわゆる,いわゆる,"What is called, So-called, Generally known",N2,9,N2 Lesson 9,general,https://bunpro.jp/grammar_points/いわゆる,source-indexed
+jp-g-0724,にすぎない,にすぎない →  にすぎない,"No more than, Just, Merely",N2,9,N2 Lesson 9,general,https://bunpro.jp/grammar_points/にすぎない,source-indexed
+jp-g-0725,も-ば-も,も～ば～も,"…And…, Both ... and ..., ... And ... as well",N2,9,N2 Lesson 9,general,https://bunpro.jp/grammar_points/も-ば-も,source-indexed
+jp-g-0726,でしかない,でしかない,"Merely, Nothing but, No more than",N2,10,N2 Lesson 10,general,https://bunpro.jp/grammar_points/でしかない,source-indexed
+jp-g-0727,てたまらない,てたまらない →  ～てたまらない,"Can't help but want to, Very, Extremely",N2,10,N2 Lesson 10,general,https://bunpro.jp/grammar_points/てたまらない,source-indexed
+jp-g-0728,にせよ-にしろ,にせよ・にしろ →  にせよ,"Even if, Even though, No matter, Whether… or",N2,10,N2 Lesson 10,conditional,https://bunpro.jp/grammar_points/にせよ-にしろ,source-indexed
+jp-g-0729,何しろ,何しろ →  なにしろ,"No wonder, After all, In fact, Because, At any rate",N2,10,N2 Lesson 10,general,https://bunpro.jp/grammar_points/何しろ,source-indexed
+jp-g-0730,にしろ-にしろ,にしろ～にしろ →  にしろ〜にしろ,Whether… or,N2,10,N2 Lesson 10,general,https://bunpro.jp/grammar_points/にしろ-にしろ,source-indexed
+jp-g-0731,はともかく,はともかく →  はともかく,"Setting aside, Apart from",N2,10,N2 Lesson 10,general,https://bunpro.jp/grammar_points/はともかく,source-indexed
+jp-g-0732,ならともかく,ならともかく,"If it's (A), sure, but (B), Putting aside (A), (B)",N2,10,N2 Lesson 10,conditional,https://bunpro.jp/grammar_points/ならともかく,source-indexed
+jp-g-0733,やら-やら,やら～やら →  やら〜やら,"Whether or, Things like, And … so on",N2,10,N2 Lesson 10,general,https://bunpro.jp/grammar_points/やら-やら,source-indexed
+jp-g-0734,しかしながら,しかしながら,"However, Nevertheless, But",N2,10,N2 Lesson 10,general,https://bunpro.jp/grammar_points/しかしながら,source-indexed
+jp-g-0735,ことにはならない,ことにはならない →  ことにはならない,Just because… doesn't mean…,N2,10,N2 Lesson 10,general,https://bunpro.jp/grammar_points/ことにはならない,source-indexed
+jp-g-0736,だけのことはある,だけのことはある,"No wonder, Not surprising that, As expected",N2,10,N2 Lesson 10,general,https://bunpro.jp/grammar_points/だけのことはある,source-indexed
+jp-g-0737,てはならない,てはならない →  ～てはならない,"Must not, Cannot, Should not",N2,10,N2 Lesson 10,general,https://bunpro.jp/grammar_points/てはならない,source-indexed
+jp-g-0738,てはいられない,てはいられない →  ～てはいられない,"Can't afford to, Unable to",N2,10,N2 Lesson 10,general,https://bunpro.jp/grammar_points/てはいられない,source-indexed
+jp-g-0739,陸に-ない,陸に～ない →  ろくに～ない,"Not well or properly, Not much or enough, Barely, Hardly",N2,10,N2 Lesson 10,general,https://bunpro.jp/grammar_points/陸に-ない,source-indexed
+jp-g-0740,しかも,しかも,"Moreover, Furthermore",N2,10,N2 Lesson 10,general,https://bunpro.jp/grammar_points/しかも,source-indexed
+jp-g-0741,てでも,てでも →  ～てでも,"Even if I have to, By any or all means, No matter what",N2,10,N2 Lesson 10,conditional,https://bunpro.jp/grammar_points/てでも,source-indexed
+jp-g-0742,とも,とも,"Even if, No matter",N2,10,N2 Lesson 10,conditional,https://bunpro.jp/grammar_points/とも,source-indexed
+jp-g-0743,ないわけにはいかない,ないわけにはいかない →  ないわけにはいかない,"Can't not, No way to avoid",N2,10,N2 Lesson 10,general,https://bunpro.jp/grammar_points/ないわけにはいかない,source-indexed
+jp-g-0744,というわけではない,というわけではない →  というわけではない,"It is not that, It doesn't mean that, It is not always the case",N2,10,N2 Lesson 10,general,https://bunpro.jp/grammar_points/というわけではない,source-indexed
+jp-g-0745,のももっともだ,のももっともだ →  のももっともだ,"May well, Have or has good reason for, No wonder, … Is only natural",N2,10,N2 Lesson 10,general,https://bunpro.jp/grammar_points/のももっともだ,source-indexed
+jp-g-0746,たって,たって,"Even if, Even though, No matter how",N2,10,N2 Lesson 10,conditional,https://bunpro.jp/grammar_points/たって,source-indexed
+jp-g-0747,に至るまで,に至るまで →  にいたるまで,"(Everything) from...to..., From…up until..., Starting with...ending with...",N1,1,N1 Lesson 1,general,https://bunpro.jp/grammar_points/に至るまで,source-indexed
+jp-g-0748,たところで,たところで →  ～たところで,"Even if ~ cannot or will not, Even though ~ not",N1,1,N1 Lesson 1,conditional,https://bunpro.jp/grammar_points/たところで,source-indexed
+jp-g-0749,如く-如き-如し,如く・如き・如し →  ごとく,"Like, Similar to, As if, The same as",N1,1,N1 Lesson 1,conditional,https://bunpro.jp/grammar_points/如く-如き-如し,source-indexed
+jp-g-0750,に足る,に足る →  にたる,"To be worthy of, To be enough, To be sufficient",N1,1,N1 Lesson 1,general,https://bunpro.jp/grammar_points/に足る,source-indexed
+jp-g-0751,極まりない-極まる,極まりない・極まる →  きわまりない,"Extreme, Extremely",N1,1,N1 Lesson 1,general,https://bunpro.jp/grammar_points/極まりない-極まる,source-indexed
+jp-g-0752,といえども,といえども,"Even (if), Although, Even though",N1,1,N1 Lesson 1,conditional,https://bunpro.jp/grammar_points/といえども,source-indexed
+jp-g-0753,を以て,を以て →  をもって,"By means of, With, By, Via, In view of",N1,1,N1 Lesson 1,general,https://bunpro.jp/grammar_points/を以て,source-indexed
+jp-g-0754,きらいがある,きらいがある →  きらいがある,"Have a tendency to, Tend to, Be slightly~",N1,1,N1 Lesson 1,general,https://bunpro.jp/grammar_points/きらいがある,source-indexed
+jp-g-0755,ならまだしも,ならまだしも,"A is fine...but B is not, If it's ~ then it is ok...but ~ is not, It's different when...but, It's not so bad when...but",N1,1,N1 Lesson 1,conditional,https://bunpro.jp/grammar_points/ならまだしも,source-indexed
+jp-g-0756,までもない,までもない,"There is no need to, Do not have to, It is not necessary to, Needless to",N1,1,N1 Lesson 1,general,https://bunpro.jp/grammar_points/までもない,source-indexed
+jp-g-0757,ともなると-にもなると,ともなると・にもなると →  となると,"When, If, Once, As",N1,1,N1 Lesson 1,conditional,https://bunpro.jp/grammar_points/ともなると-にもなると,source-indexed
+jp-g-0758,をいいことに,をいいことに →  をいいことに,To take advantage of,N1,1,N1 Lesson 1,general,https://bunpro.jp/grammar_points/をいいことに,source-indexed
+jp-g-0759,如何,如何 →  いかん,Depending on,N1,1,N1 Lesson 1,general,https://bunpro.jp/grammar_points/如何,source-indexed
+jp-g-0760,～るまでだ,～るまでだ,"Just, Merely, Simply, Only",N1,1,N1 Lesson 1,general,https://bunpro.jp/grammar_points/～るまでだ,source-indexed
+jp-g-0761,にあって,にあって,"At, In the (place or situation), Under ~ conditions or circumstances, During, Suited to",N1,1,N1 Lesson 1,general,https://bunpro.jp/grammar_points/にあって,source-indexed
+jp-g-0762,を余儀なくされる,を余儀なくされる →  をよぎなくされる,To be forced to do something,N1,1,N1 Lesson 1,general,https://bunpro.jp/grammar_points/を余儀なくされる,source-indexed
+jp-g-0763,とは,とは,"That..., (Surprised) that..., (Never expected) that..., (Shocked) that...",N1,1,N1 Lesson 1,general,https://bunpro.jp/grammar_points/とは,source-indexed
+jp-g-0764,じゃあるまいし,じゃあるまいし,"You are not ~ so..., it isn't ~ so...",N1,2,N1 Lesson 2,general,https://bunpro.jp/grammar_points/じゃあるまいし,source-indexed
+jp-g-0765,てからというもの,てからというもの →  ～てからというもの,"After, Since, Ever since then",N1,2,N1 Lesson 2,general,https://bunpro.jp/grammar_points/てからというもの,source-indexed
+jp-g-0766,かたわら,かたわら →  かたわら,"While, Besides, In addition to",N1,2,N1 Lesson 2,general,https://bunpro.jp/grammar_points/かたわら,source-indexed
+jp-g-0767,を皮切りに,を皮切りに →  をかわきりに,"Beginning of, Starting with",N1,2,N1 Lesson 2,general,https://bunpro.jp/grammar_points/を皮切りに,source-indexed
+jp-g-0768,に至っては,に至っては →  にいたっては,"When it comes to, As for, In particular, What is worse or more",N1,2,N1 Lesson 2,general,https://bunpro.jp/grammar_points/に至っては,source-indexed
+jp-g-0769,なり,なり,"As soon as, The moment, When",N1,2,N1 Lesson 2,general,https://bunpro.jp/grammar_points/なり,source-indexed
+jp-g-0770,ともなく-ともなしに,ともなく・ともなしに →  ともなく,"Absentmindedly, Mindlessly, Unconsciously, Without paying attention",N1,2,N1 Lesson 2,general,https://bunpro.jp/grammar_points/ともなく-ともなしに,source-indexed
+jp-g-0771,塗れ,塗れ →  まみれ,"Stained, Covered in, Smeared, Dirty with, Soaked in",N1,2,N1 Lesson 2,general,https://bunpro.jp/grammar_points/塗れ,source-indexed
+jp-g-0772,-よう--う-まい-が-と,ようが～まいが →  う・よう + が～まいが,"Even if, No matter what, Whether or not, [Emphatic], Volitional + が",N1,2,N1 Lesson 2,verb-form,https://bunpro.jp/grammar_points/-よう--う-まい-が-と,source-indexed
+jp-g-0773,からする,からする,"About, Or more, Over, Starts at",N1,2,N1 Lesson 2,general,https://bunpro.jp/grammar_points/からする,source-indexed
+jp-g-0774,にして1,にして① →  にして ①,"At, Over, In, Only (after, when, or because)",N1,2,N1 Lesson 2,general,https://bunpro.jp/grammar_points/にして1,source-indexed
+jp-g-0775,ものを,ものを,"But, Although, If only, I wish I had",N1,2,N1 Lesson 2,conditional,https://bunpro.jp/grammar_points/ものを,source-indexed
+jp-g-0776,であれ,であれ,"Even if, Even, No matter",N1,2,N1 Lesson 2,conditional,https://bunpro.jp/grammar_points/であれ,source-indexed
+jp-g-0777,をおいてほかに-ない,をおいてほかに〜ない →  をおいてほかに〜ない,"No...but, Nothing else but, None other than",N1,2,N1 Lesson 2,general,https://bunpro.jp/grammar_points/をおいてほかに-ない,source-indexed
+jp-g-0778,をもって,をもって,"As of, With, Effective from",N1,2,N1 Lesson 2,general,https://bunpro.jp/grammar_points/をもって,source-indexed
+jp-g-0779,とはいえ,とはいえ →  とはいえ,"Though, Although (I admit that), Be that as it may, Nonetheless",N1,2,N1 Lesson 2,general,https://bunpro.jp/grammar_points/とはいえ,source-indexed
+jp-g-0780,ならでは,ならでは,"Unique to, Only, Impossible if not, Expected only of",N1,2,N1 Lesson 2,conditional,https://bunpro.jp/grammar_points/ならでは,source-indexed
+jp-g-0781,すら,すら,Even,N1,3,N1 Lesson 3,general,https://bunpro.jp/grammar_points/すら,source-indexed
+jp-g-0782,あっての,あっての,"Exist only because of or due to, Owe everything to",N1,3,N1 Lesson 3,general,https://bunpro.jp/grammar_points/あっての,source-indexed
+jp-g-0783,たまでだ,～たまでだ →  ～たまで + だ,"Just, Merely, Simply, Only",N1,3,N1 Lesson 3,general,https://bunpro.jp/grammar_points/たまでだ,source-indexed
+jp-g-0784,を経て,を経て →  をへて,"Via, Through, After (experience at job, university, etc.), Pass through",N1,3,N1 Lesson 3,general,https://bunpro.jp/grammar_points/を経て,source-indexed
+jp-g-0785,ながらに,ながらに →  ながら + に,"While being, Born (with), Traditional (old-fashioned, as it was long ago), As always, While crying or in tears, (Burned) alive",N1,3,N1 Lesson 3,general,https://bunpro.jp/grammar_points/ながらに,source-indexed
+jp-g-0786,たなり-なり,たなり・なり →  ～たなり,"While... ~ing, Remaining, Not or ever since, Keep or leave",N1,3,N1 Lesson 3,general,https://bunpro.jp/grammar_points/たなり-なり,source-indexed
+jp-g-0787,の極み,の極み →  のきわみ,"Ultimate, Extreme, Utter, Epitome, Peak",N1,3,N1 Lesson 3,general,https://bunpro.jp/grammar_points/の極み,source-indexed
+jp-g-0788,にしてみれば,にしてみれば →  にして + みれば,"For (A), In the case of (A), From (A)'s point of view, In the eyes of (A)",N1,3,N1 Lesson 3,general,https://bunpro.jp/grammar_points/にしてみれば,source-indexed
+jp-g-0789,だの,だの,"Things like, And so on, Or something, And whatnot",N1,3,N1 Lesson 3,general,https://bunpro.jp/grammar_points/だの,source-indexed
+jp-g-0790,あくまでも,あくまでも →  あくまでも,"To the (bitter) end, Stubbornly, Persistently",N1,3,N1 Lesson 3,general,https://bunpro.jp/grammar_points/あくまでも,source-indexed
+jp-g-0791,べく,べく,"For the purpose of, In order to, To ensure",N1,3,N1 Lesson 3,general,https://bunpro.jp/grammar_points/べく,source-indexed
+jp-g-0792,ところを,ところを,"When, While, In spite of (the circumstances), Regardless of (the circumstances)",N1,3,N1 Lesson 3,general,https://bunpro.jp/grammar_points/ところを,source-indexed
+jp-g-0793,からある,からある,"As much as, As many as, At least",N1,3,N1 Lesson 3,general,https://bunpro.jp/grammar_points/からある,source-indexed
+jp-g-0794,にして2,にして② →  にして ②,"To be ~ and ~, To be ~ as well as ~, Both ~ and ~",N1,3,N1 Lesson 3,general,https://bunpro.jp/grammar_points/にして2,source-indexed
+jp-g-0795,つ-つ,つ〜つ →  つ (Conjunctive),two contrasting actions,N1,3,N1 Lesson 3,general,https://bunpro.jp/grammar_points/つ-つ,source-indexed
+jp-g-0796,飽くまで-も,飽くまで(も) →  あくまで,"Just, Only, Merely, Strictly",N1,3,N1 Lesson 3,general,https://bunpro.jp/grammar_points/飽くまで-も,source-indexed
+jp-g-0797,であれ-であれ,であれ〜であれ,"Whether or, Or, No matter which, In either case",N1,3,N1 Lesson 3,general,https://bunpro.jp/grammar_points/であれ-であれ,source-indexed
+jp-g-0798,たら最後,たら最後 →  たらさいご,"Once, Now that, As soon as",N1,4,N1 Lesson 4,general,https://bunpro.jp/grammar_points/たら最後,source-indexed
+jp-g-0799,いかなる,いかなる →  いかなる,"What kind of, No matter what kind of, No … (with a negative verb), Any... (with a negative verb)",N1,4,N1 Lesson 4,verb-form,https://bunpro.jp/grammar_points/いかなる,source-indexed
+jp-g-0800,なりに,なりに,"In one's own way, Of someone's own, Do one's best in one's own way, As much as one can",N1,4,N1 Lesson 4,general,https://bunpro.jp/grammar_points/なりに,source-indexed
+jp-g-0801,verb-passive-ままに,れる・られる + ままに,"Do as (one is told or ordered…), In accordance with, In compliance with, Just like",N1,4,N1 Lesson 4,general,https://bunpro.jp/grammar_points/verb-passive-ままに,source-indexed
+jp-g-0802,にまつわる,にまつわる →  にまつわる,"Surrounding, Related or relating to, Associated with, Connected to",N1,4,N1 Lesson 4,general,https://bunpro.jp/grammar_points/にまつわる,source-indexed
+jp-g-0803,たる,たる →  たるに,"To be (in a position of), As a, For",N1,4,N1 Lesson 4,general,https://bunpro.jp/grammar_points/たる,source-indexed
+jp-g-0804,なら-で,なら〜で,"If ~ should, Before ~ should",N1,4,N1 Lesson 4,conditional,https://bunpro.jp/grammar_points/なら-で,source-indexed
+jp-g-0805,をものともせず,をものともせず,"Making nothing of, Ignoring, In defiance of, Regardless of, Disregarding",N1,4,N1 Lesson 4,general,https://bunpro.jp/grammar_points/をものともせず,source-indexed
+jp-g-0806,には当たらない,には当たらない →  にはあたらない,"No need to/for, Cannot, Not worth it to, Not suitable",N1,4,N1 Lesson 4,general,https://bunpro.jp/grammar_points/には当たらない,source-indexed
+jp-g-0807,ものと思う,ものと思う →  ものとおもう,"Think that, Believe that, Expect that, Have confidence that, Absolutely",N1,4,N1 Lesson 4,general,https://bunpro.jp/grammar_points/ものと思う,source-indexed
+jp-g-0808,を踏まえて,を踏まえて →  をふまえて,"Based on, Considering, Keeping in mind, Taking into account, Therefore",N1,4,N1 Lesson 4,general,https://bunpro.jp/grammar_points/を踏まえて,source-indexed
+jp-g-0809,ゆえに,ゆえに →  ゆえに,"Because, The reason is, Due to, Therefore, So",N1,4,N1 Lesson 4,general,https://bunpro.jp/grammar_points/ゆえに,source-indexed
+jp-g-0810,という,という →  という,"Every single, Each and every, Emphasis, Everything that could be called",N1,4,N1 Lesson 4,general,https://bunpro.jp/grammar_points/という,source-indexed
+jp-g-0811,にとどまらず,にとどまらず →  にとどまらず,"Not limited to, Not only...but also, Not stopping at",N1,4,N1 Lesson 4,general,https://bunpro.jp/grammar_points/にとどまらず,source-indexed
+jp-g-0812,と思いきや,と思いきや →  とおもいきや,"Thought...but, When...thought that...but, Despite having thought...",N1,4,N1 Lesson 4,general,https://bunpro.jp/grammar_points/と思いきや,source-indexed
+jp-g-0813,どうにも,どうにも,"Cannot, There is no way one can, Nothing one can do, Cannot possibly not by any means, Cannot do no matter how hard one tries, Nothing will come out, It is meaningless to",N1,4,N1 Lesson 4,general,https://bunpro.jp/grammar_points/どうにも,source-indexed
+jp-g-0814,ことだし,ことだし,"(And) so, Because, Since",N1,4,N1 Lesson 4,general,https://bunpro.jp/grammar_points/ことだし,source-indexed
+jp-g-0815,がん-totally,がん～,"Totally, Seriously, Completely, Furiously, Majorly",N1,4,N1 Lesson 4,general,https://bunpro.jp/grammar_points/がん-totally,source-indexed
+jp-g-0816,か否か,か否か →  かいなか,Whether or not,N1,5,N1 Lesson 5,general,https://bunpro.jp/grammar_points/か否か,source-indexed
+jp-g-0817,たら-で,たら〜で,"Even if, If",N1,5,N1 Lesson 5,conditional,https://bunpro.jp/grammar_points/たら-で,source-indexed
+jp-g-0818,べくして,べくして,"As expected, Meant to, Supposed to, Destined to, Sure to",N1,5,N1 Lesson 5,general,https://bunpro.jp/grammar_points/べくして,source-indexed
+jp-g-0819,ままに,まま(に) →  ままに (As Desired),"As (one likes, feels or pleases), Spur of the moment, Wherever one fancies, Spontaneously, On a whim",N1,5,N1 Lesson 5,general,https://bunpro.jp/grammar_points/ままに,source-indexed
+jp-g-0820,かれ-かれ,かれ〜かれ,"Or, Either or",N1,5,N1 Lesson 5,general,https://bunpro.jp/grammar_points/かれ-かれ,source-indexed
+jp-g-0821,-に-ない,〜に〜ない →  ～に〜ない,"Cannot even...if wants, Would like to...but cannot, Wants to...but cannot",N1,5,N1 Lesson 5,conditional,https://bunpro.jp/grammar_points/-に-ない,source-indexed
+jp-g-0822,なくして-は,なくして(は) →  なくしては,"Without, If not for",N1,5,N1 Lesson 5,conditional,https://bunpro.jp/grammar_points/なくして-は,source-indexed
+jp-g-0823,のなんのって,のなんのって,"So much that, Extremely, Very",N1,5,N1 Lesson 5,general,https://bunpro.jp/grammar_points/のなんのって,source-indexed
+jp-g-0824,にかかっている,にかかっている,To depend on,N1,5,N1 Lesson 5,general,https://bunpro.jp/grammar_points/にかかっている,source-indexed
+jp-g-0825,てやまない,てやまない →  ～てやまない,"Never cease to, Always, Sincerely, Greatly, From the bottom of one's heart",N1,5,N1 Lesson 5,general,https://bunpro.jp/grammar_points/てやまない,source-indexed
+jp-g-0826,ぐらいなら,ぐらいなら →  くらいなら,"Would rather...than, Rather than, Better off",N1,5,N1 Lesson 5,general,https://bunpro.jp/grammar_points/ぐらいなら,source-indexed
+jp-g-0827,ってば-ったら,ってば・ったら →  ってば,"I said...!, I told you...!, !",N1,5,N1 Lesson 5,general,https://bunpro.jp/grammar_points/ってば-ったら,source-indexed
+jp-g-0828,ずとも,ずとも,"Even if not, Without, Don't have to",N1,5,N1 Lesson 5,conditional,https://bunpro.jp/grammar_points/ずとも,source-indexed
+jp-g-0829,とあって,とあって,"Since...(it is no wonder that), Because...(it is no wonder that), Due to...(it is no wonder that)",N1,5,N1 Lesson 5,general,https://bunpro.jp/grammar_points/とあって,source-indexed
+jp-g-0830,でもなんでもない,でもなんでもない,"Not at all, By no means, Definitely not, Nothing like that, Not really",N1,5,N1 Lesson 5,general,https://bunpro.jp/grammar_points/でもなんでもない,source-indexed
+jp-g-0831,ぐるみで,ぐるみで →  ぐるみで,"Whole, -wide, Across the, Entire, All of, With … altogether",N1,5,N1 Lesson 5,general,https://bunpro.jp/grammar_points/ぐるみで,source-indexed
+jp-g-0832,そばから,そばから,"As soon as, Right after, Even if … still",N1,5,N1 Lesson 5,conditional,https://bunpro.jp/grammar_points/そばから,source-indexed
+jp-g-0833,訳あり,訳あり(訳あって) →  わけあり(わけあって),"～ with reasons, Due to reasons, Defective, Problematic, Unique",N1,5,N1 Lesson 5,general,https://bunpro.jp/grammar_points/訳あり,source-indexed
+jp-g-0834,に至って-に至り,に至って・に至り →  にいたって,"When it came to, Only when, Only after, Go as far as",N1,6,N1 Lesson 6,general,https://bunpro.jp/grammar_points/に至って-に至り,source-indexed
+jp-g-0835,だに-しない,だに + しない,"Not even, Not at all, Never could have",N1,6,N1 Lesson 6,general,https://bunpro.jp/grammar_points/だに-しない,source-indexed
+jp-g-0836,がてら,がてら,"On the occasion of, While … as well, While … (one is) at it, During, Along the way",N1,6,N1 Lesson 6,general,https://bunpro.jp/grammar_points/がてら,source-indexed
+jp-g-0837,んがため-に,んがため(に) →  んがために,"In order to, To, For the purpose of",N1,6,N1 Lesson 6,general,https://bunpro.jp/grammar_points/んがため-に,source-indexed
+jp-g-0838,いかん-ず,いかん〜ず,"Regardless of (whatever … is), Irrespective of (whatever … is)",N1,6,N1 Lesson 6,general,https://bunpro.jp/grammar_points/いかん-ず,source-indexed
+jp-g-0839,にも-ない,にも～ない →  う・よう + にも～ない,"Cannot... even if one wants or tries, Would like but cannot, Wants or tries but cannot",N1,6,N1 Lesson 6,conditional,https://bunpro.jp/grammar_points/にも-ない,source-indexed
+jp-g-0840,い-adj-く-もなんともない,い-Adj[く] + もなんともない →  く + もなんともない,"Not... or anything, Not at all, Not, By no means, Definitely not, Nothing like that",N1,6,N1 Lesson 6,general,https://bunpro.jp/grammar_points/い-adj-く-もなんともない,source-indexed
+jp-g-0841,verb-だに,Verb + だに →  (Verb) + だに,"Just, Even just, Even merely",N1,6,N1 Lesson 6,verb-form,https://bunpro.jp/grammar_points/verb-だに,source-indexed
+jp-g-0842,-なり-なり,～なり～なり,"Or, Either or",N1,6,N1 Lesson 6,general,https://bunpro.jp/grammar_points/-なり-なり,source-indexed
+jp-g-0843,ないでもない,ないでもない,"Kind of, Might, Slightly, It’s not (impossible) that, Somewhat, In some respects",N1,6,N1 Lesson 6,modality,https://bunpro.jp/grammar_points/ないでもない,source-indexed
+jp-g-0844,もさることながら,もさることながら,"It is a fact that, But, Even more than, It goes without saying, Not only but also,",N1,6,N1 Lesson 6,general,https://bunpro.jp/grammar_points/もさることながら,source-indexed
+jp-g-0845,ものと思っていた,ものと思っていた →  ものとおもっていた,"Was under the impression that, (Always) the thought used to think",N1,6,N1 Lesson 6,general,https://bunpro.jp/grammar_points/ものと思っていた,source-indexed
+jp-g-0846,でなくてなんだろう,でなくてなんだろう,If … is not … then what is?,N1,6,N1 Lesson 6,conditional,https://bunpro.jp/grammar_points/でなくてなんだろう,source-indexed
+jp-g-0847,はさておき-はさておいて,はさておき・はさておいて →  はさておき,"(Leaving or putting) aside, Apart",N1,6,N1 Lesson 6,general,https://bunpro.jp/grammar_points/はさておき-はさておいて,source-indexed
+jp-g-0848,折には,折には →  おりには,"When, Occasion, Opportunity, Time",N1,6,N1 Lesson 6,general,https://bunpro.jp/grammar_points/折には,source-indexed
+jp-g-0849,とばかり,とばかり（に） →  とばかりに,"As if (to say), Seeming that",N1,6,N1 Lesson 6,conditional,https://bunpro.jp/grammar_points/とばかり,source-indexed
+jp-g-0850,わ-わ,わ〜わ,"~and ~and, Keep ~ing, One after another, So much, So many, One after the other",N1,6,N1 Lesson 6,general,https://bunpro.jp/grammar_points/わ-わ,source-indexed
+jp-g-0851,なりとも,なりとも,"Even (a little), At least",N1,6,N1 Lesson 6,general,https://bunpro.jp/grammar_points/なりとも,source-indexed
+jp-g-0852,に至っても,に至っても →  にいたっても,Even when,N1,7,N1 Lesson 7,general,https://bunpro.jp/grammar_points/に至っても,source-indexed
+jp-g-0853,を兼ねて,を兼ねて →  をかねて,"And also, Also (partly) to, Also (partly) for (the purpose of), At the same time, To double as, When … also, While … as well, And as",N1,7,N1 Lesson 7,general,https://bunpro.jp/grammar_points/を兼ねて,source-indexed
+jp-g-0854,verb-ないもの-だろうか,Verb[ない]もの(だろう)か →  ないものだろうか,"(Why) can’t, Isn’t there, Wish that, If only",N1,7,N1 Lesson 7,verb-form,https://bunpro.jp/grammar_points/verb-ないもの-だろうか,source-indexed
+jp-g-0855,verb-て-みせる,Verb[て] + みせる →  ～てみせる,"I will definitely, I will certainly, Just watch, Whatever it takes, I swear, for sure",N1,7,N1 Lesson 7,verb-form,https://bunpro.jp/grammar_points/verb-て-みせる,source-indexed
+jp-g-0856,相まって,相まって →  あいまって,"Combined with, Coupled with, Together with",N1,7,N1 Lesson 7,general,https://bunpro.jp/grammar_points/相まって,source-indexed
+jp-g-0857,に足りない,に足りない →  にたりない,"To not be worthy, To not be enough, To not be sufficient, To lack",N1,7,N1 Lesson 7,general,https://bunpro.jp/grammar_points/に足りない,source-indexed
+jp-g-0858,べからず,べからず,"Do not, Must not, Should not, Cannot (べからざる)",N1,7,N1 Lesson 7,general,https://bunpro.jp/grammar_points/べからず,source-indexed
+jp-g-0859,んばかりに,んばかりに,"As if, As if it were about to, About to",N1,7,N1 Lesson 7,conditional,https://bunpro.jp/grammar_points/んばかりに,source-indexed
+jp-g-0860,に則って-に則り,に則って・に則り →  にのっとって,"According to, In accordance with, Based on, In line with",N1,7,N1 Lesson 7,general,https://bunpro.jp/grammar_points/に則って-に則り,source-indexed
+jp-g-0861,adj限りだ,Adj限りだ →  (Adjective) + かぎりだ,"Extremely, Really, Very, As ... as one can be",N1,7,N1 Lesson 7,general,https://bunpro.jp/grammar_points/adj限りだ,source-indexed
+jp-g-0862,はおろか,はおろか →  はおろか,"Let alone, Much less, Needless to say, Not to mention, Not only but also",N1,7,N1 Lesson 7,general,https://bunpro.jp/grammar_points/はおろか,source-indexed
+jp-g-0863,めく-めいた,めく・めいた →  めく,"Like, To show signs of, To have the appearance of, To come to a (state) similar to, Somewhat, An air of, Feels almost like",N1,7,N1 Lesson 7,general,https://bunpro.jp/grammar_points/めく-めいた,source-indexed
+jp-g-0864,といわず,といわず →  といわず,"Not only A or B but every-; A, B and every-; Not only A or B but all over; A, B both, whether A or B",N1,7,N1 Lesson 7,general,https://bunpro.jp/grammar_points/といわず,source-indexed
+jp-g-0865,にもほどがある,にもほどがある →  にもほどがある,"There is a limit to, You are too ..., How …!, How … one can be!",N1,7,N1 Lesson 7,general,https://bunpro.jp/grammar_points/にもほどがある,source-indexed
+jp-g-0866,にもまして,にもまして,"Even -er than, Even more than, More than anything, More than anybody, More than ever",N1,7,N1 Lesson 7,general,https://bunpro.jp/grammar_points/にもまして,source-indexed
+jp-g-0867,まくる,まくる →  まくる,"Like crazy, Keep doing (without a second thought), Nothing but, On and on, Do … all around, To do a lot of, One after another, All over, Keep, Everything, Constantly, All the time",N1,7,N1 Lesson 7,general,https://bunpro.jp/grammar_points/まくる,source-indexed
+jp-g-0868,わ-わで,わ〜わ（で） →  わ〜わで,"And...so, And...because, Since",N1,7,N1 Lesson 7,general,https://bunpro.jp/grammar_points/わ-わで,source-indexed
+jp-g-0869,どうにか,どうにか,Somehow (or other),N1,7,N1 Lesson 7,general,https://bunpro.jp/grammar_points/どうにか,source-indexed
+jp-g-0870,や否や,や否や →  やいなや,"As soon as, No sooner than, The minute",N1,8,N1 Lesson 8,general,https://bunpro.jp/grammar_points/や否や,source-indexed
+jp-g-0871,次第です,次第です →  しだいです,"Because the reason is, Therefore, The present situation is like this, This is how (it is), Those are the circumstances, This is why",N1,8,N1 Lesson 8,general,https://bunpro.jp/grammar_points/次第です,source-indexed
+jp-g-0872,というところ,というところ →  というところ,"I would say (about), I guess (about), It could be said that, About, At best",N1,8,N1 Lesson 8,general,https://bunpro.jp/grammar_points/というところ,source-indexed
+jp-g-0873,１-りとも-ない,１～たりとも～ない,"Not even one, Not a single, No (at all)",N1,8,N1 Lesson 8,general,https://bunpro.jp/grammar_points/１-りとも-ない,source-indexed
+jp-g-0874,ったらない・といったらない,ったらない・といったらない →  といっ + たらない,"Cannot tell, describe, say or express how, Words cannot express, Too … for words, Extremely",N1,8,N1 Lesson 8,general,https://bunpro.jp/grammar_points/ったらない・といったらない,source-indexed
+jp-g-0875,に照らして・に照らすと,に照らして・に照らすと →  にてらして,"In light of, Based on, According to, Referencing, Comparing against, In view of",N1,8,N1 Lesson 8,general,https://bunpro.jp/grammar_points/に照らして・に照らすと,source-indexed
+jp-g-0876,とあれば,とあれば,"(Emphatic) if, If it is the case that, As (you wish)",N1,8,N1 Lesson 8,conditional,https://bunpro.jp/grammar_points/とあれば,source-indexed
+jp-g-0877,さぞ,さぞ,"You must be very, How … you must be, I dare to say, I am sure or certain that you must be very",N1,8,N1 Lesson 8,general,https://bunpro.jp/grammar_points/さぞ,source-indexed
+jp-g-0878,ときたら1,ときたら →  ときたら ①,"When it comes to, That or this … of mine, That or this darn …, That or this blasted …",N1,8,N1 Lesson 8,general,https://bunpro.jp/grammar_points/ときたら1,source-indexed
+jp-g-0879,びる,びる,"-like, Looking, Feeling, With an air of, To become",N1,8,N1 Lesson 8,general,https://bunpro.jp/grammar_points/びる,source-indexed
+jp-g-0880,にしたところで,にしたところで,"Even, Even for, Even from the perspective of, Even in the case of",N1,8,N1 Lesson 8,general,https://bunpro.jp/grammar_points/にしたところで,source-indexed
+jp-g-0881,ばこそ,～ばこそ →  ばこそ,"Precisely because, Only because, Because, Due to, Only if",N1,8,N1 Lesson 8,conditional,https://bunpro.jp/grammar_points/ばこそ,source-indexed
+jp-g-0882,ても差し支えない,ても差し支えない →  てもさしつかえない,"May, Is it a bother if, Do you mind if, Is it a problem if",N1,8,N1 Lesson 8,conditional,https://bunpro.jp/grammar_points/ても差し支えない,source-indexed
+jp-g-0883,には及ばない1,には及ばない① →  にはおよばない ①,"There is no need to, It is fine if you don’t, Unnecessary",N1,8,N1 Lesson 8,conditional,https://bunpro.jp/grammar_points/には及ばない1,source-indexed
+jp-g-0884,に即して,に即して →  にそくして,"In line with, Based on, In accordance with",N1,8,N1 Lesson 8,general,https://bunpro.jp/grammar_points/に即して,source-indexed
+jp-g-0885,ないまでも,ないまでも,"May not … but (at least), Even though not, Even if not",N1,8,N1 Lesson 8,conditional,https://bunpro.jp/grammar_points/ないまでも,source-indexed
+jp-g-0886,をよそに,をよそに →  をよそに,"Ignoring, Disregarding, Despite",N1,8,N1 Lesson 8,general,https://bunpro.jp/grammar_points/をよそに,source-indexed
+jp-g-0887,に限ったことではない,に限ったことではない →  にかぎったことではない,"Not limited to, Not restricted to, Not only",N1,8,N1 Lesson 8,general,https://bunpro.jp/grammar_points/に限ったことではない,source-indexed
+jp-g-0888,とは比べものにならない,とは比べものにならない →  とはくらべものにならない,"Nothing compared to, Cannot be compared to, Much more, Way better, Above comparison (beyond comparison), Far greater than",N1,8,N1 Lesson 8,general,https://bunpro.jp/grammar_points/とは比べものにならない,source-indexed
+jp-g-0889,まじき,まじき,"Unbecoming of, Unworthy of, Not proper for, Should not, Must not, Cannot",N1,9,N1 Lesson 9,general,https://bunpro.jp/grammar_points/まじき,source-indexed
+jp-g-0890,の至り,の至り →  のいたり,"Utmost, Height of, Extreme, Heartiest, Such a, Very, really, Completely, Deeply",N1,9,N1 Lesson 9,general,https://bunpro.jp/grammar_points/の至り,source-indexed
+jp-g-0891,に恥じない,に恥じない →  にはじない,"Lives up to, Truly to …’s name, Worthy of, Not dishonor, Not putting to shame, Measure to",N1,9,N1 Lesson 9,general,https://bunpro.jp/grammar_points/に恥じない,source-indexed
+jp-g-0892,ずじまい,ずじまい,"Ended up not, Did not (in the end), Never did",N1,9,N1 Lesson 9,general,https://bunpro.jp/grammar_points/ずじまい,source-indexed
+jp-g-0893,に言わせれば,に言わせれば・に言わせると・に言わせたら →  にいわせると,"If you ask, In … opinion, According to",N1,9,N1 Lesson 9,conditional,https://bunpro.jp/grammar_points/に言わせれば,source-indexed
+jp-g-0894,ったら-といったら,ったら・といったら →  ったら,"Cannot tell, describe, say, express or find words for how, Words cannot express, Too … for words, Extremely",N1,9,N1 Lesson 9,general,https://bunpro.jp/grammar_points/ったら-といったら,source-indexed
+jp-g-0895,こととて,こととて,"Due to, Since, On account of, Because",N1,9,N1 Lesson 9,general,https://bunpro.jp/grammar_points/こととて,source-indexed
+jp-g-0896,ずくめ,ずくめ,"Completely, Entirely, All in, Nothing but, A real streak of, Without exception, Jet",N1,9,N1 Lesson 9,general,https://bunpro.jp/grammar_points/ずくめ,source-indexed
+jp-g-0897,には及ばない②,には及ばない② →  にはおよばない ②,"To be no match (for), To not compare (with), To fall short (of), To not reach, Cannot win with, To be out of reach (for), To not be on par (with)",N1,9,N1 Lesson 9,general,https://bunpro.jp/grammar_points/には及ばない②,source-indexed
+jp-g-0898,とは言うものの,とは言うものの →  とはいうものの,"Although, But, Although I say, Although it is said, Having said that",N1,9,N1 Lesson 9,general,https://bunpro.jp/grammar_points/とは言うものの,source-indexed
+jp-g-0899,が早いか,が早いか →  がはやいか,"As soon as, No sooner than, The instant that, No sooner had",N1,9,N1 Lesson 9,general,https://bunpro.jp/grammar_points/が早いか,source-indexed
+jp-g-0900,に難くない,に難くない →  にかたくない,"Not hard to, Not difficult to, Easy to, Is obvious that",N1,9,N1 Lesson 9,conditional,https://bunpro.jp/grammar_points/に難くない,source-indexed
+jp-g-0901,ならばいざ知らず,ならいざ知らず →  ならいざしらず,"Don’t know about it, Maybe it would or might be possible for",N1,9,N1 Lesson 9,modality,https://bunpro.jp/grammar_points/ならばいざ知らず,source-indexed
+jp-g-0902,を禁じ得ない,を禁じ得ない →  をきんじえない,"Cannot help feeling, Cannot but, Cannot hold back",N1,9,N1 Lesson 9,general,https://bunpro.jp/grammar_points/を禁じ得ない,source-indexed
+jp-g-0903,にかこつけて,にかこつけて →  にかこつけて,"In the name of, Using the excuse of, To use as a pretext of, Under the guise or pretense of",N1,9,N1 Lesson 9,general,https://bunpro.jp/grammar_points/にかこつけて,source-indexed
+jp-g-0904,ようによっては,ようによっては →  ようによっては,"Depending on the way, Depending on how",N1,9,N1 Lesson 9,general,https://bunpro.jp/grammar_points/ようによっては,source-indexed
+jp-g-0905,べくもない,べくもない,"No (doubt or hope), There is no way, It is impossible, Not a hope in hell",N1,9,N1 Lesson 9,general,https://bunpro.jp/grammar_points/べくもない,source-indexed
+jp-g-0906,ときたら2,と来たら →  ときたら ②,"For …(is the best), When it comes to, Concerning",N1,9,N1 Lesson 9,general,https://bunpro.jp/grammar_points/ときたら2,source-indexed
+jp-g-0907,ものとして,ものとして,"Assuming, Supposing, (Interpret) as, On the assumption, Regarding, Considering",N1,9,N1 Lesson 9,conditional,https://bunpro.jp/grammar_points/ものとして,source-indexed
+jp-g-0908,を前提に,を前提に →  をぜんていに,On the premise of,N1,9,N1 Lesson 9,general,https://bunpro.jp/grammar_points/を前提に,source-indexed
+jp-g-0909,ずにはすまない,ずにはすまない,"Won't get away without, Won't get off without, Have to, Have no choice but to, Can’t not",N1,10,N1 Lesson 10,general,https://bunpro.jp/grammar_points/ずにはすまない,source-indexed
+jp-g-0910,に堪えない,に堪えない →  にたえない,"Cannot bear to, Cannot stand to, Too much to, Cannot go on doing, Cannot tolerate",N1,10,N1 Lesson 10,general,https://bunpro.jp/grammar_points/に堪えない,source-indexed
+jp-g-0911,始末だ,始末だ →  しまつだ,"Ends up, Finally, In the end, (Unfortunately) As a result, This is what happened, To come about, To wind up",N1,10,N1 Lesson 10,general,https://bunpro.jp/grammar_points/始末だ,source-indexed
+jp-g-0912,ものなら②,ものなら② →  ものなら ②,"If you were to do, If you try to, If … happens, Should there be",N1,10,N1 Lesson 10,conditional,https://bunpro.jp/grammar_points/ものなら②,source-indexed
+jp-g-0913,にひきかえ,にひきかえ →  にひきかえ,"In stark contrast, In comparison, On the other hand, While, In sharp contrast",N1,10,N1 Lesson 10,general,https://bunpro.jp/grammar_points/にひきかえ,source-indexed
+jp-g-0914,それまでだ,それまでだ,"If… then it is all in vain, It's done, It is useless, No point, It is a waste, That's it, It is all gone,",N1,10,N1 Lesson 10,conditional,https://bunpro.jp/grammar_points/それまでだ,source-indexed
+jp-g-0915,といおうか,といおうか →  といおうか,"How to put it, How shall I put it, How should I put it, Or perhaps, Or maybe, Call it … or",N1,10,N1 Lesson 10,modality,https://bunpro.jp/grammar_points/といおうか,source-indexed
+jp-g-0916,ずにはおかない,ずにはおかない →  ずにはおかない,"Will definitely, Will certainly, Bound to, Not fail to",N1,10,N1 Lesson 10,general,https://bunpro.jp/grammar_points/ずにはおかない,source-indexed
+jp-g-0917,を限りに,を限りに →  をかぎりに,"As of (the end of), (Starting) from, (No longer) after, By (the), Ending with",N1,10,N1 Lesson 10,general,https://bunpro.jp/grammar_points/を限りに,source-indexed
+jp-g-0918,てはかなわない,てはかなわない →  てはかなわない,"It's unbearable when, It'd be unbearable if, I can't stand it when, I couldn’t stand it if",N1,10,N1 Lesson 10,conditional,https://bunpro.jp/grammar_points/てはかなわない,source-indexed
+jp-g-0919,かたがた,かたがた →  かたがた,"Partly for (the purpose of), In addition to, Along with, By the way, And also to, Incidentally, While",N1,10,N1 Lesson 10,general,https://bunpro.jp/grammar_points/かたがた,source-indexed
+jp-g-0920,を余儀なくさせる,を余儀なくさせる →  をよぎなくさせる,"Force to, To compel, Make unavoidable",N1,10,N1 Lesson 10,general,https://bunpro.jp/grammar_points/を余儀なくさせる,source-indexed
+jp-g-0921,てやる,～てやる,"Just wait and see, Just you wait, To do a favor, For you, Definitely, For sure",N1,10,N1 Lesson 10,general,https://bunpro.jp/grammar_points/てやる,source-indexed
+jp-g-0922,ただ-のみ,ただ〜のみ,"Nothing but, Should, Have to, Only, All that remains,",N1,10,N1 Lesson 10,general,https://bunpro.jp/grammar_points/ただ-のみ,source-indexed
+jp-g-0923,ものとする,ものとする,"Shall, To assume, To suppose, To consider",N1,10,N1 Lesson 10,general,https://bunpro.jp/grammar_points/ものとする,source-indexed
+jp-g-0924,との,との,"That, To",N1,10,N1 Lesson 10,general,https://bunpro.jp/grammar_points/との,source-indexed
+jp-g-0925,以前,以前 →  いぜん,"Before, Not even, Before even, Precede, Far from",N1,10,N1 Lesson 10,general,https://bunpro.jp/grammar_points/以前,source-indexed
+jp-g-0926,ともあろう,ともあろう,"Of all people, Such,",N1,10,N1 Lesson 10,general,https://bunpro.jp/grammar_points/ともあろう,source-indexed
+jp-g-0927,こそすれ-ない,こそすれ〜ない,"And certainly not, But certainly not, But, Although, Even though",N1,10,N1 Lesson 10,general,https://bunpro.jp/grammar_points/こそすれ-ない,source-indexed
+jp-g-0928,並み,並み →  なみ,"As, On par with, Worthy of",N1,10,N1 Lesson 10,general,https://bunpro.jp/grammar_points/並み,source-indexed
+jp-g-0929,に先駆けて,に先駆けて →  にさきがけて,"First, Prior to, Pioneer, Ahead of",N1,10,N1 Lesson 10,general,https://bunpro.jp/grammar_points/に先駆けて,source-indexed
+jp-g-0930,を機に,を機に →  をきに,"Opportunity, Occasion",N1,10,N1 Lesson 10,general,https://bunpro.jp/grammar_points/を機に,source-indexed
+jp-g-0931,ぞ,ぞ,"Strong emphasis (toward anyone), !",Non-JLPT,1,Non-JLPT Lesson 1: 1/13,general,https://bunpro.jp/grammar_points/ぞ,source-indexed
+jp-g-0932,ぜ,ぜ,"Strong emphasis (friendly or familiar), !",Non-JLPT,1,Non-JLPT Lesson 1: 2/13,general,https://bunpro.jp/grammar_points/ぜ,source-indexed
+jp-g-0933,わ,わ,"You know?, Oh?, Ever so, Oh how I ever (emphasis)",Non-JLPT,1,Non-JLPT Lesson 1: 3/13,general,https://bunpro.jp/grammar_points/わ,source-indexed
+jp-g-0934,い,い,"So?, Well? (friendly or familiar)",Non-JLPT,1,Non-JLPT Lesson 1: 4/13,general,https://bunpro.jp/grammar_points/い,source-indexed
+jp-g-0935,ん-slang,ん (Slang),Slang abbreviation,Non-JLPT,1,Non-JLPT Lesson 1: 5/13,general,https://bunpro.jp/grammar_points/ん-slang,source-indexed
+jp-g-0936,つ-slang,つ (Slang),"Called, Said that (slang abbreviation)",Non-JLPT,1,Non-JLPT Lesson 1: 6/13,general,https://bunpro.jp/grammar_points/つ-slang,source-indexed
+jp-g-0937,やがる,～やがる,"To have the nerve to (A), To have the gall to (A), To freaking (A)",Non-JLPT,1,Non-JLPT Lesson 1: 7/13,general,https://bunpro.jp/grammar_points/やがる,source-indexed
+jp-g-0938,がいい,がいい,"You should, It would be good to",Non-JLPT,1,Non-JLPT Lesson 1: 8/13,general,https://bunpro.jp/grammar_points/がいい,source-indexed
+jp-g-0939,かろう,かろう,"Probably, Right?",Non-JLPT,1,Non-JLPT Lesson 1: 9/13,modality,https://bunpro.jp/grammar_points/かろう,source-indexed
+jp-g-0940,やや,やや,"A little bit, Marginally, Slightly",Non-JLPT,1,Non-JLPT Lesson 1: 10/13,general,https://bunpro.jp/grammar_points/やや,source-indexed
+jp-g-0941,いずれも,いずれも,"All (positive), None (negative), Both, Whatever, Whatsoever",Non-JLPT,1,Non-JLPT Lesson 1: 11/13,general,https://bunpro.jp/grammar_points/いずれも,source-indexed
+jp-g-0942,あわよくば,あわよくば,"If luck is on my side, If the time is right, If possible, all going well",Non-JLPT,1,Non-JLPT Lesson 1: 12/13,conditional,https://bunpro.jp/grammar_points/あわよくば,source-indexed
+jp-g-0943,むず,むず,"Shall, Isn't it?, I wonder",Non-JLPT,1,Non-JLPT Lesson 1: 13/13,general,https://bunpro.jp/grammar_points/むず,source-indexed
+jp-g-0944,だ-kansai,だ ⇒ や,"To be, Am, Are, Is",Kansai,,関西弁2,general,https://bunpro.jp/grammar_points/だ-kansai,source-indexed
+jp-g-0945,よ-kansai,よ ⇒ で・わ,Emphasis (sentence ending particle),Kansai,,関西弁2,particle,https://bunpro.jp/grammar_points/よ-kansai,source-indexed
+jp-g-0946,でしょう-kansai,だよね・でしょう ⇒ やん,"Right?, Don't you think?",Kansai,,関西弁2,general,https://bunpro.jp/grammar_points/でしょう-kansai,source-indexed
+jp-g-0947,ちがう-kansai,じゃないか ⇒ やんか,"Isn't it?, Doesn't it?, Don't you?",Kansai,,関西弁2,general,https://bunpro.jp/grammar_points/ちがう-kansai,source-indexed
+jp-g-0948,のだ-kansai,のだ ⇒ ねん →  たんだ ⇒ てん,Explanatory,Kansai,,関西弁2,general,https://bunpro.jp/grammar_points/のだ-kansai,source-indexed
+jp-g-0949,ね-kansai,ね ⇒ な,"Right?, Okay?, Isn't it?",Kansai,,関西弁2,general,https://bunpro.jp/grammar_points/ね-kansai,source-indexed
+jp-g-0950,ない-kansai,ない ⇒ へん →  なかった ⇒ へんかった,"Not, Will not, Did not, Has not",Kansai,,関西弁2,general,https://bunpro.jp/grammar_points/ない-kansai,source-indexed
+jp-g-0951,じゃない-kansai,じゃない ⇒ ちゃう,"To be not, Am not, Are not, Is not",Kansai,,関西弁2,general,https://bunpro.jp/grammar_points/じゃない-kansai,source-indexed
+jp-g-0952,くない-kansai,くない ⇒ ない,Is not,Kansai,,関西弁2,general,https://bunpro.jp/grammar_points/くない-kansai,source-indexed
+jp-g-0953,ている-kansai,ている ⇒ てる →  ている ⇒ とる,"Does, Is doing",Kansai,,関西弁2,general,https://bunpro.jp/grammar_points/ている-kansai,source-indexed
+jp-g-0954,ているの-kansai,ているの ⇒ てん →  ているん ⇒ てん,Explanatory,Kansai,,関西弁2,general,https://bunpro.jp/grammar_points/ているの-kansai,source-indexed
+jp-g-0955,ておく-kansai,とく・たる・てまう →  ておく・てあげる・てしまう,"To do in advance, To do for, To unfortunately do",Kansai,,関西弁2,general,https://bunpro.jp/grammar_points/ておく-kansai,source-indexed
+jp-g-0956,命令形-kansai,命令形 ⇒ ます形 + 長音 →  めいれいけい ⇒ ますけい + ちょうおん,Do (something)! (imperative),Kansai,,関西弁2,general,https://bunpro.jp/grammar_points/命令形-kansai,source-indexed
+jp-g-0957,ないでください-kansai,ないで ⇒ んといて,"Don't (please), Please do not",Kansai,,関西弁2,general,https://bunpro.jp/grammar_points/ないでください-kansai,source-indexed
+jp-g-0958,な-kansai,辞書形 + な ⇒ ます形 + な →  じしょけい + な ⇒ ますけい + な,"Do not, Don't (prohibitive)",Kansai,,関西弁2,general,https://bunpro.jp/grammar_points/な-kansai,source-indexed
+jp-g-0959,ないで-kansai,ないで・な ⇒ なさんな,"(Please) do not, Do not, Don't (prohibitive)",Kansai,,関西弁2,general,https://bunpro.jp/grammar_points/ないで-kansai,source-indexed
+jp-g-0960,よう-おう-kansai,Verb よう・う ⇒ Verb よ・お →  う・よう ⇒ お・よ,"Will, Let's, Shall?",Kansai,,関西弁2,verb-form,https://bunpro.jp/grammar_points/よう-おう-kansai,source-indexed
+jp-g-0961,とおもう-kansai,と思う ⇒ 思う →  とおもう ⇒ おもう,Think (that),Kansai,,関西弁2,general,https://bunpro.jp/grammar_points/とおもう-kansai,source-indexed
+jp-g-0962,させる-kansai,させる ⇒ さす,To make someone do something (causative),Kansai,,関西弁2,verb-form,https://bunpro.jp/grammar_points/させる-kansai,source-indexed
+jp-g-0963,いadjectiveく-kansai,[い] Adjective - [く] change →  い-Adjective (く Change),And (adverb),Kansai,,関西弁2,verb-form,https://bunpro.jp/grammar_points/いadjectiveく-kansai,source-indexed
+jp-g-0964,ないといけない-kansai,ないといけない ⇒ なあかん,"Have to, Must, Should, Have no choice but to",Kansai,,関西弁2,general,https://bunpro.jp/grammar_points/ないといけない-kansai,source-indexed

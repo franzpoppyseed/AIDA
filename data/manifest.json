@@ -1,0 +1,22 @@
+{
+  "generated_on": "2026-07-11",
+  "notes": [
+    "Japanese grammar contains the full grammar-library index captured from Bunpro's public grammar list metadata; it does not copy premium example sentences or full lesson prose.",
+    "Cantonese grammar is a structured teaching index synthesized from Jason Tang's Guide to Cantonese Grammar and CUHK's Cantonese Grammar multimedia chapter structure, with concise original summaries.",
+    "Vocabulary files are normalized from the two CSV files supplied by the user."
+  ],
+  "sources": {
+    "japanese_grammar_primary": "https://bunpro.jp/grammar_points",
+    "japanese_grammar_index_snapshot": "https://raw.githubusercontent.com/fasiha/obsidian-japanese-quizzer/refs/heads/main/grammar/grammar-bunpro.tsv",
+    "cantonese_grammar_primary": "https://www.cuhk.edu.hk/lin/cbrc/CantoneseGrammar/multimedia.htm",
+    "cantonese_grammar_secondary": "https://ywjt2.user.srcf.net/cantonese/guide_to_cantonese_grammar.pdf",
+    "japanese_vocabulary_source": "user-supplied all.csv",
+    "cantonese_vocabulary_source": "user-supplied Most Common Cantonese Words (Frequency List) - 40kExport.csv.csv"
+  },
+  "counts": {
+    "japanese_grammar": 964,
+    "cantonese_grammar": 102,
+    "japanese_vocabulary": 7972,
+    "cantonese_vocabulary": 44435
+  }
+}

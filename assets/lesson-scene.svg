@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 540">
+<defs>
+  <linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#1b3a56"/><stop offset=".55" stop-color="#53334a"/><stop offset="1" stop-color="#101a26"/></linearGradient>
+  <radialGradient id="lantern" cx=".5" cy=".5" r=".5"><stop stop-color="#ffca76"/><stop offset="1" stop-color="#ff703d" stop-opacity="0"/></radialGradient>
+</defs>
+<rect width="420" height="540" fill="url(#g)"/>
+<path d="M0 250 L130 145 L210 250 L350 125 L420 175 L420 540 L0 540Z" fill="#0b1720" opacity=".72"/>
+<path d="M0 380 L90 320 L180 355 L280 300 L420 345 L420 540 L0 540Z" fill="#09131c"/>
+<g fill="#5d2630">
+  <rect x="25" y="260" width="94" height="215"/><rect x="140" y="300" width="76" height="175"/><rect x="298" y="244" width="96" height="231"/>
+</g>
+<g fill="#f2bf62">
+  <rect x="47" y="300" width="18" height="30" rx="6"/><rect x="79" y="326" width="15" height="27" rx="6"/>
+  <rect x="323" y="290" width="18" height="30" rx="6"/><rect x="356" y="320" width="15" height="27" rx="6"/>
+</g>
+<g opacity=".7">
+  <circle cx="56" cy="315" r="32" fill="url(#lantern)"/><circle cx="332" cy="306" r="35" fill="url(#lantern)"/>
+</g>
+<path d="M205 540 L235 350 L285 540Z" fill="#b15742" opacity=".18"/>
+<path d="M237 352 L249 287 L260 352Z" fill="#09121a"/>
+<rect x="243" y="248" width="7" height="46" fill="#09121a"/>
+</svg>
