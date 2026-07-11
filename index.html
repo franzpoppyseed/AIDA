@@ -3,28 +3,35 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <meta name="theme-color" content="#080808"/>
+  <meta name="theme-color" content="#050505"/>
   <meta name="color-scheme" content="dark"/>
-  <title>AIDA / 間 — Japanese × Cantonese</title>
+  <title>AIDA / 間 — Japanese & Cantonese</title>
   <link rel="stylesheet" href="styles.css"/>
 </head>
 <body>
   <header class="topbar">
-    <button class="brand" data-scroll="top" aria-label="Go to top">
+    <button class="brand" data-action="home" aria-label="Go to home">
       <span class="brand-mark">間</span>
-      <span class="brand-name">AIDA</span>
-      <span class="brand-sub">日本語 × 廣東話</span>
+      <span class="brand-lockup">
+        <strong>AIDA</strong>
+        <small>日本語 / 廣東話</small>
+      </span>
     </button>
 
     <nav class="primary-nav" aria-label="Primary navigation">
       <button data-action="open-study">Study</button>
       <button data-action="review">Review</button>
-      <button data-scroll="usage-lab">Analyze</button>
-      <button data-action="data-library">Library</button>
+      <button data-action="usage-lab">Usage Lab</button>
+      <button data-action="data-library">Source Library</button>
     </nav>
 
     <div class="top-actions">
-      <button class="streak-chip" title="Today's learning activity">
+      <div class="xp-strip" aria-label="Language XP">
+        <span>日本語 <strong id="jpXpTop">0 XP</strong></span>
+        <i></i>
+        <span>廣東話 <strong id="yueXpTop">0 XP</strong></span>
+      </div>
+      <button class="streak-chip" id="streakButton" title="Today's activity">
         <span class="streak-dot" aria-hidden="true"></span>
         <span><strong id="streak">0</strong> day streak</span>
       </button>
@@ -32,7 +39,7 @@
         <span class="avatar" id="avatarTop">間</span>
         <span class="profile-text">
           <strong id="profileNameTop">Learner</strong>
-          <small id="profileLevelTop">Level 1</small>
+          <small>Local profile</small>
         </span>
       </button>
     </div>
@@ -41,192 +48,152 @@
   <main id="top" class="shell">
     <section class="intro" aria-labelledby="intro-title">
       <div class="intro-copy">
-        <p class="eyebrow">JAPANESE × CANTONESE</p>
-        <h1 id="intro-title">Learn both.<br/><span>See the connection.</span></h1>
-        <p class="intro-text">A local study workspace built around parallel learning, active recall, spaced repetition, and searchable source data.</p>
+        <p class="eyebrow">TWO LANGUAGES · TWO SEPARATE TRACKS</p>
+        <h1 id="intro-title">One workspace.<br/><span>Study them separately.</span></h1>
+        <p class="intro-text">Japanese and Cantonese share the same site, but not the same lesson. Each language has its own target, XP, daily goal, study history, and review progress.</p>
       </div>
-      <div class="intro-actions">
-        <button class="btn primary" data-action="continue">Start a study session <span aria-hidden="true">↗</span></button>
-        <button class="btn secondary" data-action="review">Review due items <span id="reviewDueCount">0</span></button>
+      <div class="intro-actions split-actions">
+        <button class="btn primary" data-study-language="jp">Study Japanese <span aria-hidden="true">↗</span></button>
+        <button class="btn secondary" data-study-language="yue">Study Cantonese <span aria-hidden="true">↗</span></button>
       </div>
     </section>
 
-    <section class="workspace-grid" aria-label="Learning workspace">
-      <article class="panel progress-card">
+    <section class="track-grid" aria-label="Language tracks">
+      <article class="panel track-card" data-track="jp">
         <div class="panel-head">
           <div>
-            <span class="section-index">01</span>
-            <h2>Progress</h2>
+            <span class="section-index">01 / 日本語</span>
+            <h2>Japanese</h2>
           </div>
-          <button class="text-button" data-action="progress">Details ↗</button>
+          <button class="text-button" data-study-language="jp">Study ↗</button>
         </div>
-
-        <div class="overall-progress">
-          <div>
-            <span class="metric-label">Overall mastery</span>
-            <strong id="overallProgressValue">0%</strong>
-          </div>
-          <p id="weeklyProgressText">Start your first session</p>
+        <div class="track-stat-row">
+          <div><span>Target</span><strong id="jpTargetCard">N5</strong></div>
+          <div><span>XP</span><strong id="jpXpCard">0</strong></div>
+          <div><span>Mastery</span><strong id="jpProgressValue">0%</strong></div>
         </div>
-
-        <div class="language-progress-grid">
-          <div class="language-progress-item">
-            <div class="ring" id="jpProgressRing" style="--value:0">
-              <span id="jpProgressValue">0%</span>
-            </div>
-            <div>
-              <strong>日本語</strong>
-              <small>Mastery of learned items</small>
-            </div>
-          </div>
-          <div class="language-progress-item">
-            <div class="ring" id="yueProgressRing" style="--value:0">
-              <span id="yueProgressValue">0%</span>
-            </div>
-            <div>
-              <strong>廣東話</strong>
-              <small>Mastery of learned items</small>
-            </div>
-          </div>
+        <div class="goal-block">
+          <div class="goal-copy"><span>Today</span><strong id="jpGoalText">0 / 30 items</strong></div>
+          <div class="goal-rail"><i id="jpGoalBar"></i></div>
         </div>
-
-        <div class="activity-block">
-          <div class="activity-labels">
-            <span>Last 7 days</span>
-            <span>Learning activity</span>
-          </div>
-          <div class="week-chart" id="weekChart" aria-label="Seven day activity chart"></div>
+        <div class="track-footer">
+          <span id="jpScopeText">N5 material only</span>
+          <button data-library-dataset="japaneseVocabulary">Open Japanese library</button>
         </div>
       </article>
 
+      <article class="panel track-card" data-track="yue">
+        <div class="panel-head">
+          <div>
+            <span class="section-index">02 / 廣東話</span>
+            <h2>Cantonese</h2>
+          </div>
+          <button class="text-button" data-study-language="yue">Study ↗</button>
+        </div>
+        <div class="track-stat-row">
+          <div><span>Target</span><strong id="yueTargetCard">Beginner</strong></div>
+          <div><span>XP</span><strong id="yueXpCard">0</strong></div>
+          <div><span>Mastery</span><strong id="yueProgressValue">0%</strong></div>
+        </div>
+        <div class="goal-block">
+          <div class="goal-copy"><span>Today</span><strong id="yueGoalText">0 / 30 items</strong></div>
+          <div class="goal-rail"><i id="yueGoalBar"></i></div>
+        </div>
+        <div class="track-footer">
+          <span id="yueScopeText">Beginner material only</span>
+          <button data-library-dataset="cantoneseVocabulary">Open Cantonese library</button>
+        </div>
+      </article>
+    </section>
+
+    <section class="workspace-grid" aria-label="Learning workspace">
       <article class="panel review-card">
         <div class="panel-head">
           <div>
-            <span class="section-index">02</span>
-            <h2>Review queue</h2>
+            <span class="section-index">03</span>
+            <h2>Full review queue</h2>
           </div>
-          <button class="text-button" data-action="review">Open ↗</button>
+          <button class="text-button" data-action="review">Open queue ↗</button>
         </div>
-        <p class="panel-description">Due and weak items from your local spaced-repetition history.</p>
+        <p class="panel-description">Every item you have studied stays available for review. Due items are prioritized, but hard, good, and easy cards all remain in the queue.</p>
+        <div class="review-summary">
+          <div><strong id="reviewAllCount">0</strong><span>learned</span></div>
+          <div><strong id="reviewDueCount">0</strong><span>due now</span></div>
+          <div><strong id="reviewJpCount">0</strong><span>Japanese</span></div>
+          <div><strong id="reviewYueCount">0</strong><span>Cantonese</span></div>
+        </div>
         <div class="review-list" id="reviewList"></div>
       </article>
 
-      <article class="panel library-card">
+      <article class="panel activity-card">
         <div class="panel-head">
           <div>
-            <span class="section-index">03</span>
-            <h2>Source library</h2>
+            <span class="section-index">04</span>
+            <h2>Last 7 days</h2>
           </div>
-          <button class="text-button" data-action="data-library">Search ↗</button>
+          <button class="text-button" data-action="progress">Details ↗</button>
         </div>
-        <p class="panel-description">Browse the grammar and vocabulary pools that power study sessions and local analysis.</p>
+        <div class="activity-legend"><span><i class="legend-solid"></i>Japanese</span><span><i class="legend-outline"></i>Cantonese</span></div>
+        <div class="week-chart" id="weekChart" aria-label="Seven day activity chart"></div>
+        <p class="panel-description" id="weeklyProgressText">Start your first study session.</p>
+      </article>
 
-        <div class="library-shortcuts">
-          <button class="library-shortcut" data-curriculum="Grammar">
-            <span>
-              <small>GRAMMAR</small>
-              <strong>日本語 + 廣東話</strong>
-            </span>
-            <span id="grammarPoolCount">Loading…</span>
-          </button>
-          <button class="library-shortcut" data-curriculum="Vocabulary">
-            <span>
-              <small>VOCABULARY</small>
-              <strong>日本語 + 廣東話</strong>
-            </span>
-            <span id="vocabPoolCount">Loading…</span>
-          </button>
+      <article class="panel tools-card">
+        <div class="panel-head">
+          <div>
+            <span class="section-index">05</span>
+            <h2>Tools</h2>
+          </div>
+        </div>
+        <div class="tool-links">
+          <button data-action="usage-lab"><span><strong>Usage Lab</strong><small>Check a Japanese or Cantonese sentence against the local data.</small></span><em>↗</em></button>
+          <button data-action="data-library"><span><strong>Source Library</strong><small>Search, filter, and sort grammar and vocabulary.</small></span><em>↗</em></button>
+          <button data-action="profile"><span><strong>Profile & backup</strong><small>Targets, daily goals, and local progress export.</small></span><em>↗</em></button>
         </div>
       </article>
-    </section>
-
-    <section id="usage-lab" class="usage-section" aria-labelledby="usage-title">
-      <div class="usage-intro">
-        <span class="section-index">04</span>
-        <h2 id="usage-title">Usage Lab</h2>
-        <p>Inspect a sentence against the bundled grammar and vocabulary data. Results are local, heuristic, and source-backed where links exist.</p>
-      </div>
-
-      <div class="usage-workspace">
-        <div class="usage-input-panel">
-          <div class="lab-tabs" role="tablist" aria-label="Usage Lab language mode">
-            <button class="active" data-lab="ja">Japanese</button>
-            <button data-lab="yue">Cantonese</button>
-            <button data-lab="compare">Auto detect</button>
-          </div>
-
-          <div class="lab-input-wrap">
-            <textarea id="usageInput" maxlength="200" placeholder="日本語の文を入力…"></textarea>
-            <div class="input-meta">
-              <span id="charCount">0/200</span>
-              <button id="sendUsage" class="analyze-button">Analyze sentence ↗</button>
-            </div>
-          </div>
-
-          <div class="try-examples">
-            <span>Examples</span>
-            <div>
-              <button data-example="丁寧にお願いする">Polite request</button>
-              <button data-example="朋友に誘う">Invite a friend</button>
-              <button data-example="相手を気遣う">Show consideration</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="usage-results-panel">
-          <div class="evidence-grid" aria-label="Analysis evidence scores">
-            <div class="verify-row" data-verify="Structure">
-              <span>Structure</span>
-              <strong class="verify-check">—</strong>
-            </div>
-            <div class="verify-row" data-verify="Meaning">
-              <span>Meaning</span>
-              <strong class="verify-check">—</strong>
-            </div>
-            <div class="verify-row" data-verify="Register">
-              <span>Register</span>
-              <strong class="verify-check">—</strong>
-            </div>
-          </div>
-
-          <div id="labAnalysis" class="lab-analysis" aria-live="polite">
-            <div class="analysis-empty">Analysis will appear here after you enter a sentence.</div>
-          </div>
-        </div>
-      </div>
     </section>
   </main>
 
   <footer class="site-footer">
     <span>AIDA / 間</span>
-    <span>Local-first learning workspace</span>
+    <span>Local-first Japanese & Cantonese learning</span>
   </footer>
-
-  <dialog id="modal" class="base-dialog small-dialog">
-    <button class="modal-close" data-action="close-modal" aria-label="Close">×</button>
-    <div id="modalBody"></div>
-  </dialog>
 
   <dialog id="dataLibrary" class="base-dialog library-dialog">
     <div class="dialog-header">
       <div>
         <div class="modal-kicker">SOURCE LIBRARY</div>
         <h2>Grammar & vocabulary</h2>
-        <p>Search the bundled source data used by AIDA.</p>
+        <p>Search one language dataset at a time. Filter by level and category, then sort the results.</p>
       </div>
-      <button class="modal-close static-close" data-action="close-library" aria-label="Close">×</button>
+      <button class="modal-close static-close" data-action="close-library" aria-label="Close"><span class="close-icon" aria-hidden="true"></span></button>
     </div>
 
-    <div class="library-tabs" role="tablist">
+    <div class="library-tabs" role="tablist" aria-label="Library datasets">
       <button class="active" data-dataset="japaneseGrammar">日本語 Grammar <span id="countJpGrammar"></span></button>
-      <button data-dataset="cantoneseGrammar">廣東話 Grammar <span id="countYueGrammar"></span></button>
       <button data-dataset="japaneseVocabulary">日本語 Vocab <span id="countJpVocab"></span></button>
+      <button data-dataset="cantoneseGrammar">廣東話 Grammar <span id="countYueGrammar"></span></button>
       <button data-dataset="cantoneseVocabulary">廣東話 Vocab <span id="countYueVocab"></span></button>
     </div>
 
-    <div class="library-searchbar">
-      <input id="librarySearch" type="search" autocomplete="off" placeholder="Search pattern, word, reading, Jyutping, meaning…"/>
-      <button id="randomLibraryItem">Random</button>
+    <div class="library-controls">
+      <label class="search-control">
+        <span>Search</span>
+        <input id="librarySearch" type="search" autocomplete="off" placeholder="Word, reading, Jyutping, meaning…"/>
+      </label>
+      <label>
+        <span>Level</span>
+        <select id="libraryLevel"><option value="all">All levels</option></select>
+      </label>
+      <label>
+        <span id="libraryCategoryLabel">Category</span>
+        <select id="libraryCategory"><option value="all">All categories</option></select>
+      </label>
+      <label>
+        <span>Sort</span>
+        <select id="librarySort"></select>
+      </label>
+      <button id="randomLibraryItem" class="control-button">Random</button>
     </div>
 
     <div class="library-meta">
@@ -234,30 +201,35 @@
       <span id="libraryResultCount"></span>
     </div>
     <div id="libraryResults" class="library-results"></div>
-    <div class="library-footnote">Results are limited on screen for speed. The bundled data files contain the full pools.</div>
+    <div class="library-footnote">The screen renders up to 120 matching items at once for performance. Search and filters still apply to the full bundled dataset.</div>
   </dialog>
 
   <dialog id="studyStudio" class="base-dialog studio-dialog">
     <div class="studio-shell">
       <header class="dialog-header studio-header">
         <div>
-          <div class="modal-kicker">LEARNING ENGINE</div>
-          <h2>Parallel study</h2>
+          <div class="modal-kicker" id="studyLanguageKicker">JAPANESE TRACK</div>
+          <h2 id="studyDialogTitle">Study Japanese</h2>
         </div>
         <div class="studio-header-actions">
           <span id="studySessionProgress">Ready</span>
-          <button class="modal-close static-close" data-action="close-study" aria-label="Close">×</button>
+          <button class="modal-close static-close" data-action="close-study" aria-label="Close"><span class="close-icon" aria-hidden="true"></span></button>
         </div>
       </header>
 
       <div id="studySetup" class="study-setup">
         <section class="setup-copy">
           <span class="eyebrow">BUILD A SESSION</span>
-          <h3>Study around shared meaning, not isolated lists.</h3>
-          <p>Sessions sample the local grammar and vocabulary pools, pair items using English-gloss overlap, and schedule both items with spaced repetition after you rate recall difficulty.</p>
+          <h3 id="studySetupHeading">Study Japanese at your target level.</h3>
+          <p id="studySetupDescription">Your target controls the material pool. Higher targets include every lower level, never material above your target.</p>
+          <div class="scope-callout" id="studyScopeCallout"></div>
         </section>
 
         <section class="setup-controls panel-lite">
+          <div class="language-switch" role="group" aria-label="Study language">
+            <button class="active" data-study-switch="jp">Japanese</button>
+            <button data-study-switch="yue">Cantonese</button>
+          </div>
           <label>Session focus
             <select id="studyFocus">
               <option value="mixed">Mixed grammar + vocabulary</option>
@@ -265,21 +237,10 @@
               <option value="vocabulary">Vocabulary only</option>
             </select>
           </label>
-          <label>Japanese level
-            <select id="studyLevel">
-              <option value="all">All JLPT levels</option>
-              <option>N5</option><option>N4</option><option>N3</option><option>N2</option><option>N1</option>
-            </select>
-          </label>
           <label>Session length
-            <select id="studyLength">
-              <option value="6">6 pairs · quick</option>
-              <option value="10" selected>10 pairs · standard</option>
-              <option value="16">16 pairs · deep</option>
-            </select>
+            <input id="studyLength" type="number" min="1" max="100" step="1" value="10" inputmode="numeric"/>
           </label>
-          <label class="check-label"><input id="preferCommonCantonese" type="checkbox" checked/> Favor high-frequency Cantonese vocabulary</label>
-          <button class="btn primary wide-btn" id="generateSession">Generate session ↗</button>
+          <button class="btn primary wide-btn" id="generateSession">Start session ↗</button>
         </section>
       </div>
 
@@ -287,33 +248,20 @@
         <div class="session-rail"><div id="sessionProgressBar"></div></div>
         <article class="study-card panel-lite">
           <div class="study-card-top">
-            <span id="studyItemType">GRAMMAR PAIR</span>
-            <span id="studyPairScore">Meaning match</span>
+            <span id="studyItemType">VOCABULARY</span>
+            <span id="studyItemLevel">N5</span>
           </div>
 
-          <div class="study-pair-grid">
-            <section class="study-language jp-study">
-              <div class="study-lang-label">日本語 · JAPANESE</div>
-              <h3 id="studyJpMain"></h3>
-              <div id="studyJpReading" class="study-reading"></div>
-              <p id="studyJpMeaning"></p>
-              <div id="studyJpMeta" class="study-meta"></div>
-              <button class="speak-btn" id="speakJapanese">Listen</button>
-            </section>
+          <section class="single-study-card" id="singleStudyCard">
+            <div class="study-lang-label" id="studyLanguageLabel">日本語 · JAPANESE</div>
+            <h3 id="studyMain"></h3>
+            <div id="studyReading" class="study-reading"></div>
+            <p id="studyMeaning"></p>
+            <div id="studyGuide" class="study-guide hidden"></div>
+            <div id="studyMeta" class="study-meta"></div>
+            <button class="speak-btn" id="speakCurrent">Play pronunciation</button>
+          </section>
 
-            <div class="pair-link" aria-hidden="true">↔</div>
-
-            <section class="study-language yue-study">
-              <div class="study-lang-label">廣東話 · CANTONESE</div>
-              <h3 id="studyYueMain"></h3>
-              <div id="studyYueReading" class="study-reading"></div>
-              <p id="studyYueMeaning"></p>
-              <div id="studyYueMeta" class="study-meta"></div>
-              <button class="speak-btn" id="speakCantonese">Listen</button>
-            </section>
-          </div>
-
-          <div id="studyCultureNote" class="culture-note-box"></div>
           <div id="quizArea" class="quiz-area hidden"></div>
 
           <div class="study-actions" id="studyActions">
@@ -331,75 +279,144 @@
         <p id="studyCompleteSummary"></p>
         <div class="complete-stats">
           <div><strong id="completeXp">0</strong><span>XP earned</span></div>
-          <div><strong id="completeReviewed">0</strong><span>pairs studied</span></div>
-          <div><strong id="completeDue">0</strong><span>reviews due</span></div>
+          <div><strong id="completeReviewed">0</strong><span>items studied</span></div>
+          <div><strong id="completeDue">0</strong><span>items due now</span></div>
         </div>
         <button class="btn primary" data-action="new-session">Start another session ↗</button>
       </div>
     </div>
   </dialog>
 
-  <dialog id="reviewStudio" class="base-dialog studio-dialog compact-studio">
+  <dialog id="reviewStudio" class="base-dialog review-dialog">
     <div class="studio-shell">
       <header class="dialog-header studio-header">
         <div>
-          <div class="modal-kicker">SPACED REPETITION</div>
-          <h2>Review queue</h2>
+          <div class="modal-kicker">FULL REVIEW</div>
+          <h2>Review everything you have studied</h2>
+          <p>Due cards come first by default. Drag cards to change the order.</p>
         </div>
-        <button class="modal-close static-close" data-action="close-review" aria-label="Close">×</button>
+        <button class="modal-close static-close" data-action="close-review" aria-label="Close"><span class="close-icon" aria-hidden="true"></span></button>
       </header>
 
       <div id="reviewEmpty" class="review-empty hidden">
         <div class="complete-orb">✓</div>
-        <h3>Nothing is due.</h3>
-        <p>Study a few items first, or review your weakest learned item.</p>
+        <h3>No learned items yet.</h3>
+        <p>Study a few Japanese or Cantonese items first.</p>
         <button class="btn primary" data-action="open-study">Start a session</button>
       </div>
 
-      <div id="reviewSession" class="review-session hidden">
-        <div class="review-session-meta">
-          <span id="reviewSessionCount"></span>
-          <span id="reviewSessionDue"></span>
+      <div id="reviewWorkspace" class="review-workspace hidden">
+        <aside class="review-queue-panel">
+          <div class="review-filter-row" role="group" aria-label="Review language filter">
+            <button class="active" data-review-filter="all">All</button>
+            <button data-review-filter="jp">Japanese</button>
+            <button data-review-filter="yue">Cantonese</button>
+          </div>
+          <div class="queue-heading">
+            <span id="reviewQueueCount">0 cards</span>
+            <small>Drag to reorder</small>
+          </div>
+          <div id="reviewQueueList" class="review-queue-list"></div>
+        </aside>
+
+        <section class="review-card-panel">
+          <div class="review-session-meta">
+            <span id="reviewSessionCount"></span>
+            <span id="reviewSessionDue"></span>
+          </div>
+          <article class="review-flashcard panel-lite" id="reviewFlashcard">
+            <div id="reviewSideLabel" class="modal-kicker"></div>
+            <h3 id="reviewPrompt"></h3>
+            <p id="reviewPromptSub"></p>
+            <button class="speak-btn review-audio" id="speakReview">Play pronunciation</button>
+            <div id="reviewReveal" class="review-reveal hidden"></div>
+            <div id="reviewControls"><button class="btn primary" id="revealReview">Reveal answer</button></div>
+          </article>
+        </section>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog id="usageLabDialog" class="base-dialog usage-dialog">
+    <div class="dialog-header">
+      <div>
+        <div class="modal-kicker">USAGE LAB</div>
+        <h2>Inspect one language at a time</h2>
+        <p>Local heuristic analysis against the bundled grammar and vocabulary data.</p>
+      </div>
+      <button class="modal-close static-close" data-action="close-usage" aria-label="Close"><span class="close-icon" aria-hidden="true"></span></button>
+    </div>
+    <div class="usage-dialog-body">
+      <div class="lab-tabs" role="tablist" aria-label="Usage Lab language mode">
+        <button class="active" data-lab="ja">Japanese</button>
+        <button data-lab="yue">Cantonese</button>
+      </div>
+      <div class="usage-workspace">
+        <div class="usage-input-panel">
+          <div class="lab-input-wrap">
+            <textarea id="usageInput" maxlength="300" placeholder="日本語の文を入力…"></textarea>
+            <div class="input-meta">
+              <span id="charCount">0/300</span>
+              <button id="sendUsage" class="analyze-button">Analyze sentence ↗</button>
+            </div>
+          </div>
+          <div class="try-examples">
+            <span>Examples</span>
+            <div id="usageExamples"></div>
+          </div>
         </div>
-        <article class="review-flashcard panel-lite" id="reviewFlashcard">
-          <div id="reviewSideLabel" class="modal-kicker"></div>
-          <h3 id="reviewPrompt"></h3>
-          <p id="reviewPromptSub"></p>
-          <div id="reviewReveal" class="review-reveal hidden"></div>
-          <div id="reviewControls"><button class="btn primary" id="revealReview">Reveal answer</button></div>
-        </article>
+        <div class="usage-results-panel">
+          <div class="evidence-grid" aria-label="Analysis evidence scores">
+            <div class="verify-row"><span>Grammar evidence</span><strong class="verify-check">—</strong></div>
+            <div class="verify-row"><span>Vocabulary evidence</span><strong class="verify-check">—</strong></div>
+            <div class="verify-row"><span>Register confidence</span><strong class="verify-check">—</strong></div>
+          </div>
+          <div id="labAnalysis" class="lab-analysis" aria-live="polite">
+            <div class="analysis-empty">Analysis will appear here after you enter a sentence.</div>
+          </div>
+        </div>
       </div>
     </div>
   </dialog>
 
   <dialog id="profileDialog" class="base-dialog profile-dialog">
-    <button class="modal-close" data-action="close-profile" aria-label="Close">×</button>
+    <button class="modal-close" data-action="close-profile" aria-label="Close"><span class="close-icon" aria-hidden="true"></span></button>
     <div class="modal-kicker">LOCAL PROFILE</div>
-    <h2>Your profile</h2>
-    <p class="modal-copy">Stored only in this browser with localStorage. Export a JSON backup whenever you need one.</p>
+    <h2>Your settings</h2>
+    <p class="modal-copy">This static site stores progress in this browser. Export a JSON backup to move or restore your progress.</p>
 
-    <div class="profile-form">
-      <label>Name<input id="profileNameInput" maxlength="24"/></label>
-      <label>Daily goal
-        <select id="dailyGoalInput">
-          <option value="5">5 items</option><option value="10">10 items</option><option value="20">20 items</option><option value="30">30 items</option>
-        </select>
-      </label>
-      <label>Japanese target
-        <select id="jpTargetInput"><option>N5</option><option>N4</option><option>N3</option><option>N2</option><option>N1</option></select>
-      </label>
+    <div class="profile-form profile-grid">
+      <label class="full-row">Name<input id="profileNameInput" maxlength="24"/></label>
+      <fieldset>
+        <legend>Japanese</legend>
+        <label>Target
+          <select id="jpTargetInput"><option>N5</option><option>N4</option><option>N3</option><option>N2</option><option>N1</option></select>
+        </label>
+        <label>Daily goal
+          <input id="jpDailyGoalInput" type="number" min="1" step="1" inputmode="numeric"/>
+        </label>
+      </fieldset>
+      <fieldset>
+        <legend>Cantonese</legend>
+        <label>Target
+          <select id="yueTargetInput"><option>Beginner</option><option>Intermediate</option><option>Advanced</option></select>
+        </label>
+        <label>Daily goal
+          <input id="yueDailyGoalInput" type="number" min="1" step="1" inputmode="numeric"/>
+        </label>
+      </fieldset>
     </div>
 
     <div class="profile-stats" id="profileStats"></div>
     <div class="profile-actions">
-      <button class="btn primary" id="saveProfile">Save profile</button>
+      <button class="btn primary" id="saveProfile">Save settings</button>
       <button class="btn secondary" id="exportProgress">Export progress</button>
       <label class="btn secondary import-label">Import progress<input type="file" id="importProgress" accept="application/json" hidden/></label>
     </div>
   </dialog>
 
   <dialog id="progressDialog" class="base-dialog progress-dialog">
-    <button class="modal-close" data-action="close-progress" aria-label="Close">×</button>
+    <button class="modal-close" data-action="close-progress" aria-label="Close"><span class="close-icon" aria-hidden="true"></span></button>
     <div class="modal-kicker">LEARNING ANALYTICS</div>
     <h2>Progress dashboard</h2>
     <div id="progressDashboard"></div>
