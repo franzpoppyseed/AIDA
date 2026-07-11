@@ -254,28 +254,79 @@
             <span id="studyItemLevel">N5</span>
           </div>
 
-          <section class="single-study-card" id="singleStudyCard" tabindex="0" role="button" aria-label="Reveal answer">
-            <div class="study-card-front">
-              <div class="study-lang-label" id="studyLanguageLabel">日本語 · JAPANESE</div>
-              <h3 id="studyMain"></h3>
-              <p id="studyQuestion" class="study-question"></p>
-              <button class="speak-btn" id="speakCurrent">Play pronunciation</button>
-              <div id="studyRevealHint" class="reveal-hint"><span>Click card to reveal</span><i>↘</i></div>
+          <div id="standardStudyExperience">
+            <section class="single-study-card" id="singleStudyCard" tabindex="0" role="button" aria-label="Reveal answer">
+              <div class="study-card-front">
+                <div class="study-lang-label" id="studyLanguageLabel">日本語 · JAPANESE</div>
+                <h3 id="studyMain"></h3>
+                <p id="studyQuestion" class="study-question"></p>
+                <button class="speak-btn" id="speakCurrent">Play pronunciation</button>
+                <div id="studyRevealHint" class="reveal-hint"><span>Click card to reveal</span><i>↘</i></div>
+              </div>
+              <div id="studyAnswer" class="study-card-answer hidden">
+                <div id="studyReading" class="study-reading"></div>
+                <p id="studyMeaning"></p>
+                <div id="studyGuide" class="study-guide hidden"></div>
+                <div id="studyMeta" class="study-meta"></div>
+              </div>
+            </section>
+
+            <div class="study-actions hidden" id="studyActions">
+              <button class="rating-btn again" data-rating="1">Again</button>
+              <button class="rating-btn hard" data-rating="2">Hard</button>
+              <button class="rating-btn good" data-rating="4">Good</button>
+              <button class="rating-btn easy" data-rating="5">Easy</button>
             </div>
-            <div id="studyAnswer" class="study-card-answer hidden">
-              <div id="studyReading" class="study-reading"></div>
-              <p id="studyMeaning"></p>
-              <div id="studyGuide" class="study-guide hidden"></div>
-              <div id="studyMeta" class="study-meta"></div>
+          </div>
+
+          <section id="passageStudyExperience" class="passage-assessment hidden" aria-live="polite">
+            <div class="passage-reading-stage" id="passageReadingStage">
+              <div class="passage-test-kicker">READ FIRST · NO TRANSLATION</div>
+              <p id="passageText" class="passage-test-text"></p>
+              <div class="passage-read-actions">
+                <button class="speak-btn" id="speakPassage">Play passage audio</button>
+                <button class="btn primary" id="startPassageQuestions">Begin comprehension test ↗</button>
+              </div>
+              <p class="passage-test-note">The passage stays available during the questions. Reading and translation appear only after the assessment.</p>
+            </div>
+
+            <div class="passage-question-stage hidden" id="passageQuestionStage">
+              <details class="passage-reference" open>
+                <summary>Passage</summary>
+                <p id="passageReferenceText"></p>
+              </details>
+              <div class="passage-question-progress">
+                <span id="passageQuestionCount">Question 1 of 3</span>
+                <div class="passage-question-rail"><i id="passageQuestionRail"></i></div>
+              </div>
+              <div class="passage-question-card">
+                <span id="passageQuestionType" class="passage-question-type">DETAIL</span>
+                <h4 id="passageQuestionPrompt"></h4>
+                <textarea id="passageResponse" rows="4" placeholder="Answer in your own words…"></textarea>
+                <button class="btn primary" id="checkPassageAnswer">Check answer</button>
+              </div>
+              <div id="passageFeedback" class="passage-feedback hidden">
+                <div class="passage-match-row"><span>Local match estimate</span><strong id="passageMatchScore">—</strong></div>
+                <p class="passage-match-note">The match estimate is only a hint. You make the final call after comparing your response with the reference answer.</p>
+                <div class="passage-reference-answer"><span>Reference answer</span><p id="passageReferenceAnswer"></p></div>
+                <div class="passage-self-grade">
+                  <button class="btn secondary" id="markPassageWrong">I missed it</button>
+                  <button class="btn primary" id="markPassageCorrect">I got it</button>
+                </div>
+              </div>
+            </div>
+
+            <div id="passageResultStage" class="passage-result-stage hidden">
+              <div class="passage-score-orb" id="passageScoreOrb">0%</div>
+              <h4>Passage complete</h4>
+              <p id="passageResultSummary"></p>
+              <div class="passage-review-reveal">
+                <div><span>Reading</span><p id="passageResultReading"></p></div>
+                <div><span>Translation</span><p id="passageResultTranslation"></p></div>
+              </div>
+              <button class="btn primary" id="continueAfterPassage">Continue ↗</button>
             </div>
           </section>
-
-          <div class="study-actions hidden" id="studyActions">
-            <button class="rating-btn again" data-rating="1">Again</button>
-            <button class="rating-btn hard" data-rating="2">Hard</button>
-            <button class="rating-btn good" data-rating="4">Good</button>
-            <button class="rating-btn easy" data-rating="5">Easy</button>
-          </div>
         </article>
       </div>
 
@@ -431,6 +482,21 @@
       <button class="btn primary" id="saveProfile">Save settings</button>
       <button class="btn secondary" id="exportProgress">Export progress</button>
       <label class="btn secondary import-label">Import progress<input type="file" id="importProgress" accept="application/json" hidden/></label>
+      <button class="btn danger" id="openClearProgress">Clear learning progress…</button>
+    </div>
+  </dialog>
+
+  <dialog id="clearProgressDialog" class="base-dialog confirm-dialog">
+    <button class="modal-close" data-action="close-clear-progress" aria-label="Close"><span class="close-icon" aria-hidden="true"></span></button>
+    <div class="modal-kicker">DESTRUCTIVE ACTION</div>
+    <h2>Clear learning progress?</h2>
+    <p class="modal-copy">This removes XP, study history, review scheduling, mastery, streak activity, and session statistics for both languages. Your name, targets, and daily goals stay unchanged.</p>
+    <label class="confirm-input-label">Type <strong>CLEAR</strong> to confirm
+      <input id="clearProgressConfirm" autocomplete="off" spellcheck="false" placeholder="CLEAR"/>
+    </label>
+    <div class="confirm-actions">
+      <button class="btn secondary" data-action="close-clear-progress">Cancel</button>
+      <button class="btn danger" id="confirmClearProgress" disabled>Clear progress</button>
     </div>
   </dialog>
 
@@ -448,6 +514,7 @@
   <script src="data/japanese_vocabulary.js"></script>
   <script src="data/cantonese_vocabulary.js"></script>
   <script src="data/comprehension.js"></script>
+  <script src="data/reading_passages.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

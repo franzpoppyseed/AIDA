@@ -5,7 +5,9 @@
     "Cantonese grammar is a structured teaching index synthesized from Jason Tang's Guide to Cantonese Grammar and CUHK's Cantonese Grammar multimedia chapter structure, with concise original summaries.",
     "Vocabulary files are normalized from the two CSV files supplied by the user.",
     "Abstract chapter-label grammar entries with no Japanese or Cantonese surface form were removed from the learner-facing dataset.",
-    "Sentence and passage comprehension items are original AIDA learning content added for target-aware comprehension practice."
+    "Sentence and passage comprehension items are original AIDA learning content added for target-aware comprehension practice.",
+    "Passage comprehension now uses typed-response assessment with reference-answer comparison and learner-confirmed grading; the local match score is advisory only.",
+    "An additional original reading passage bank is stored in data/reading_passages.js."
   ],
   "sources": {
     "japanese_grammar_primary": "https://bunpro.jp/grammar_points",
@@ -21,9 +23,9 @@
     "cantonese_grammar": 67,
     "japanese_vocabulary": 7972,
     "cantonese_vocabulary": 44435,
-    "japanese_comprehension_sentences": 10,
-    "japanese_comprehension_passages": 5,
+    "japanese_comprehension_sentences": 8,
+    "japanese_comprehension_passages": 15,
     "cantonese_comprehension_sentences": 8,
-    "cantonese_comprehension_passages": 5
+    "cantonese_comprehension_passages": 12
   }
 }

@@ -13,9 +13,9 @@
     yueG: DATA.cantoneseGrammar?.items || [],
     yueV: DATA.cantoneseVocabulary?.items || [],
     jpS: DATA.comprehension?.japanese?.sentences || [],
-    jpP: DATA.comprehension?.japanese?.passages || [],
+    jpP: [...(DATA.comprehension?.japanese?.passages || []), ...(DATA.readingPassages?.japanese || [])],
     yueS: DATA.comprehension?.cantonese?.sentences || [],
-    yueP: DATA.comprehension?.cantonese?.passages || []
+    yueP: [...(DATA.comprehension?.cantonese?.passages || []), ...(DATA.readingPassages?.cantonese || [])]
   };
 
   const byId = new Map();
@@ -490,7 +490,8 @@
     return [
       ...grammar.map(item => ({ kind: grammarKind, item })),
       ...vocabulary.map(item => ({ kind: vocabKind, item })),
-      ...sentences.map(item => ({ kind: sentenceKind, item }))
+      ...sentences.map(item => ({ kind: sentenceKind, item })),
+      ...passages.map(item => ({ kind: passageKind, item }))
     ];
   }
 
@@ -503,11 +504,44 @@
     return copy;
   }
 
+  function prioritizedSample(entries, count) {
+    const unseen = shuffled(entries.filter(entry => !state.srs[itemKey(entry.kind, entry.item)]));
+    const learned = shuffled(entries.filter(entry => state.srs[itemKey(entry.kind, entry.item)]));
+    return [...unseen, ...learned].slice(0, count);
+  }
+
   function buildStudyItems(lang, focus, count) {
-    const pool = studyPool(lang, focus);
-    const unseen = pool.filter(entry => !state.srs[itemKey(entry.kind, entry.item)]);
-    const learned = pool.filter(entry => state.srs[itemKey(entry.kind, entry.item)]);
-    return [...shuffled(unseen), ...shuffled(learned)].slice(0, count);
+    if (focus !== "mixed") return prioritizedSample(studyPool(lang, focus), count);
+
+    // Mixed sessions deliberately reserve space for comprehension instead of
+    // letting the much larger vocabulary pool crowd sentences and passages out.
+    const buckets = [
+      { focus: "vocabulary", weight: 0.35 },
+      { focus: "grammar", weight: 0.35 },
+      { focus: "sentences", weight: 0.20 },
+      { focus: "passages", weight: 0.10 }
+    ].map(bucket => ({ ...bucket, entries: studyPool(lang, bucket.focus) }));
+
+    const selected = [];
+    const used = new Set();
+    buckets.forEach(bucket => {
+      let quota = Math.floor(count * bucket.weight);
+      if (bucket.focus === "passages" && count >= 5) quota = Math.max(1, quota);
+      if (bucket.focus === "sentences" && count >= 4) quota = Math.max(1, quota);
+      prioritizedSample(bucket.entries, quota).forEach(entry => {
+        const key = itemKey(entry.kind, entry.item);
+        if (!used.has(key)) { used.add(key); selected.push(entry); }
+      });
+    });
+
+    if (selected.length < count) {
+      prioritizedSample(studyPool(lang, "mixed"), count * 2).forEach(entry => {
+        if (selected.length >= count) return;
+        const key = itemKey(entry.kind, entry.item);
+        if (!used.has(key)) { used.add(key); selected.push(entry); }
+      });
+    }
+    return shuffled(selected).slice(0, count);
   }
 
   // ---------- audio ----------
@@ -712,6 +746,35 @@
     return "SENTENCE";
   }
 
+  let passageAssessment = null;
+
+  function passageQuestionsFor(item) {
+    if (Array.isArray(item.questions) && item.questions.length) return item.questions;
+    if (item.question && item.answer) {
+      return [{ type: "comprehension", prompt: item.question, answer: item.answer, keywordGroups: [] }];
+    }
+    return [];
+  }
+
+  function resetPassageAssessment(entry) {
+    const questions = passageQuestionsFor(entry.item);
+    passageAssessment = {
+      entry,
+      questions,
+      index: 0,
+      correct: 0,
+      results: [],
+      checked: false
+    };
+    $("#passageText").textContent = entry.item.text || "";
+    $("#passageReferenceText").textContent = entry.item.text || "";
+    $("#passageReadingStage").classList.remove("hidden");
+    $("#passageQuestionStage").classList.add("hidden");
+    $("#passageResultStage").classList.add("hidden");
+    $("#passageFeedback").classList.add("hidden");
+    $("#passageResponse").value = "";
+  }
+
   function renderStudyItem() {
     const entry = study.items[study.index];
     if (!entry) {
@@ -723,12 +786,22 @@
     const percent = (study.index / study.items.length) * 100;
     const grammar = kind.endsWith("G");
     const comprehension = isComprehensionKind(kind);
+    const passage = kind.endsWith("P");
     study.revealed = false;
 
     $("#sessionProgressBar").style.width = `${percent}%`;
     $("#studySessionProgress").textContent = `${study.index + 1} / ${study.items.length}`;
     $("#studyItemType").textContent = studyTypeLabel(kind);
     $("#studyItemLevel").textContent = itemLevel(kind, item);
+
+    $("#standardStudyExperience").classList.toggle("hidden", passage);
+    $("#passageStudyExperience").classList.toggle("hidden", !passage);
+
+    if (passage) {
+      resetPassageAssessment(entry);
+      return;
+    }
+
     $("#studyLanguageLabel").textContent = study.lang === "jp" ? "日本語 · JAPANESE" : "廣東話 · CANTONESE";
     $("#studyMain").textContent = humanizedPattern(kind, item);
     $("#studyQuestion").textContent = comprehension ? item.question : "Recall the meaning and usage, then reveal the answer.";
@@ -768,6 +841,115 @@
     schedule(entry.kind, entry.item, rating);
     study.ratings.push(rating);
     study.index += 1;
+    if (study.index >= study.items.length) finishStudy();
+    else renderStudyItem();
+  }
+
+  function normalizeFreeResponse(value) {
+    return normalize(value)
+      .replace(/[^a-z0-9぀-ヿ㐀-鿿\s]/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
+  function passageMatchEstimate(response, question) {
+    const user = normalizeFreeResponse(response);
+    if (!user) return 0;
+    const groups = Array.isArray(question.keywordGroups) ? question.keywordGroups : [];
+    let groupScore = 0;
+    if (groups.length) {
+      const matched = groups.filter(group => group.some(term => user.includes(normalizeFreeResponse(term)))).length;
+      groupScore = matched / groups.length;
+    }
+
+    const stop = new Set(["the","a","an","is","are","was","were","to","of","and","or","in","on","at","for","that","because","it","they","he","she","their","with","by"]);
+    const referenceTokens = normalizeFreeResponse(question.answer).split(" ").filter(token => token.length > 2 && !stop.has(token));
+    const overlap = referenceTokens.length
+      ? referenceTokens.filter(token => user.includes(token)).length / referenceTokens.length
+      : 0;
+    return clamp(Math.round(Math.max(groupScore, overlap * 0.85) * 100), 0, 100);
+  }
+
+  function startPassageQuestions() {
+    if (!passageAssessment?.questions.length) {
+      showToast("This passage does not contain comprehension questions yet.");
+      return;
+    }
+    $("#passageReadingStage").classList.add("hidden");
+    $("#passageQuestionStage").classList.remove("hidden");
+    renderPassageQuestion();
+  }
+
+  function renderPassageQuestion() {
+    if (!passageAssessment) return;
+    const question = passageAssessment.questions[passageAssessment.index];
+    if (!question) {
+      finishPassageAssessment();
+      return;
+    }
+    passageAssessment.checked = false;
+    const total = passageAssessment.questions.length;
+    $("#passageQuestionCount").textContent = `Question ${passageAssessment.index + 1} of ${total}`;
+    $("#passageQuestionRail").style.width = `${(passageAssessment.index / total) * 100}%`;
+    $("#passageQuestionType").textContent = titleCase(question.type || "comprehension");
+    $("#passageQuestionPrompt").textContent = question.prompt || question.question || "What does this passage mean?";
+    $("#passageResponse").value = "";
+    $("#passageResponse").disabled = false;
+    $("#checkPassageAnswer").disabled = false;
+    $("#passageFeedback").classList.add("hidden");
+    $("#passageResponse").focus();
+  }
+
+  function checkPassageAnswer() {
+    if (!passageAssessment || passageAssessment.checked) return;
+    const response = $("#passageResponse").value.trim();
+    if (!response) {
+      showToast("Write an answer before checking it.");
+      return;
+    }
+    const question = passageAssessment.questions[passageAssessment.index];
+    const estimate = passageMatchEstimate(response, question);
+    passageAssessment.checked = true;
+    $("#passageResponse").disabled = true;
+    $("#checkPassageAnswer").disabled = true;
+    $("#passageMatchScore").textContent = `${estimate}%`;
+    $("#passageReferenceAnswer").textContent = question.answer || "";
+    $("#passageFeedback").classList.remove("hidden");
+    $("#passageFeedback").scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+
+  function selfGradePassageQuestion(correct) {
+    if (!passageAssessment?.checked) return;
+    const question = passageAssessment.questions[passageAssessment.index];
+    const response = $("#passageResponse").value.trim();
+    const estimate = passageMatchEstimate(response, question);
+    passageAssessment.results.push({ correct, estimate, response });
+    if (correct) passageAssessment.correct += 1;
+    state.answers[study.lang][correct ? "correct" : "wrong"] += 1;
+    passageAssessment.index += 1;
+    if (passageAssessment.index >= passageAssessment.questions.length) finishPassageAssessment();
+    else renderPassageQuestion();
+  }
+
+  function finishPassageAssessment() {
+    if (!passageAssessment) return;
+    const { entry, questions, correct } = passageAssessment;
+    const accuracy = questions.length ? Math.round((correct / questions.length) * 100) : 0;
+    const rating = accuracy >= 90 ? 5 : accuracy >= 70 ? 4 : accuracy >= 40 ? 2 : 1;
+    schedule(entry.kind, entry.item, rating);
+    study.ratings.push(rating);
+
+    $("#passageQuestionStage").classList.add("hidden");
+    $("#passageResultStage").classList.remove("hidden");
+    $("#passageScoreOrb").textContent = `${accuracy}%`;
+    $("#passageResultSummary").textContent = `${correct} of ${questions.length} questions marked correct. The passage was scheduled as ${rating === 5 ? "Easy" : rating === 4 ? "Good" : rating === 2 ? "Hard" : "Again"}.`;
+    $("#passageResultReading").textContent = humanizedReading(entry.kind, entry.item) || "No separate reading guide is bundled for this passage.";
+    $("#passageResultTranslation").textContent = meaningOf(entry.item) || "No translation is bundled for this passage.";
+  }
+
+  function continueAfterPassage() {
+    study.index += 1;
+    passageAssessment = null;
     if (study.index >= study.items.length) finishStudy();
     else renderStudyItem();
   }
@@ -906,10 +1088,13 @@
     $("#reviewSessionDue").textContent = due ? "Due now" : `Mastery ${entry.srs.mastery || 0}%`;
     $("#reviewSideLabel").textContent = lang === "jp" ? "JAPANESE REVIEW" : "CANTONESE REVIEW";
     $("#reviewPrompt").textContent = humanizedPattern(entry.kind, entry.item);
-    $("#reviewPromptSub").textContent = humanizedReading(entry.kind, entry.item) || "Recall the meaning and usage before revealing.";
+    $("#reviewPromptSub").textContent = entry.kind.endsWith("P")
+      ? "Recall the passage meaning and main ideas before revealing."
+      : humanizedReading(entry.kind, entry.item) || "Recall the meaning and usage before revealing.";
     $("#speakReview").disabled = !speechText(entry.kind, entry.item);
     $("#reviewReveal").classList.add("hidden");
     $("#reviewReveal").innerHTML = `
+      ${entry.kind.endsWith("P") && humanizedReading(entry.kind, entry.item) ? `<p>${escapeHtml(humanizedReading(entry.kind, entry.item))}</p>` : ""}
       <strong>${escapeHtml(meaningOf(entry.item))}</strong>
       ${entry.kind.endsWith("G") && grammarGuide(entry.item) ? `<p>${escapeHtml(grammarGuide(entry.item))}</p>` : ""}
       <small>${escapeHtml(displayMeta(entry.kind, entry.item))}</small>`;
@@ -1189,7 +1374,7 @@
         ? analysis.hints.map(hint => `<div class="structure-hint"><b>${escapeHtml(hint.label)}</b><span>${escapeHtml(hint.explanation)}</span></div>`).join("")
         : '<div class="analysis-match muted-match">No basic structure marker was confidently identified.</div>';
       return `
-        <article class="sentence-analysis">
+        <article class="sentence-analysis" id="analysisSentence-${index}">
           <div class="sentence-analysis-head"><span>Sentence ${index + 1}</span><strong>${analysis.coverage}% vocabulary coverage</strong></div>
           <p class="analyzed-sentence">${escapeHtml(analysis.sentence)}</p>
           <div class="analysis-subsection"><h5>Word separation</h5><div class="segmented-line">${analysis.tokens.map(token => renderToken(token, labMode)).join("")}</div></div>
@@ -1205,8 +1390,15 @@
         <div><strong>${grammarCount}</strong><span>grammar matches</span></div>
         <div><strong>${averageCoverage}%</strong><span>known-word coverage</span></div>
       </div>
-      ${sentences.length > 1 ? '<div class="passage-note">Passage mode: analysis is broken down sentence by sentence so structure does not bleed across sentence boundaries.</div>' : ""}
+      ${sentences.length > 1 ? `<div class="sentence-jump-nav"><span>Jump to</span>${sentences.map((_, index) => `<button data-jump-sentence="${index}">${index + 1}</button>`).join("")}</div><div class="passage-note">Passage mode: analysis is broken down sentence by sentence so structure does not bleed across sentence boundaries.</div>` : ""}
       ${sentenceHtml}`;
+
+    $$('[data-jump-sentence]', $("#labAnalysis")).forEach(button => {
+      button.addEventListener("click", () => {
+        const target = $(`#analysisSentence-${button.dataset.jumpSentence}`, $("#labAnalysis"));
+        if (target) $("#labAnalysis").scrollTo({ top: Math.max(0, target.offsetTop - 8), behavior: "smooth" });
+      });
+    });
   }
 
   // ---------- source library ----------
@@ -1512,6 +1704,26 @@
     reader.readAsText(file);
   }
 
+  function openClearProgressDialog() {
+    $("#clearProgressConfirm").value = "";
+    $("#confirmClearProgress").disabled = true;
+    showDialog($("#clearProgressDialog"));
+    setTimeout(() => $("#clearProgressConfirm").focus(), 80);
+  }
+
+  function clearLearningProgress() {
+    const profile = { ...state.profile };
+    const preferredStudyLanguage = state.preferredStudyLanguage;
+    state = defaultState();
+    state.profile = profile;
+    state.preferredStudyLanguage = preferredStudyLanguage;
+    saveState();
+    passageAssessment = null;
+    closeDialog($("#clearProgressDialog"));
+    closeDialog($("#profileDialog"));
+    showToast("Learning progress cleared. Your settings were kept.");
+  }
+
   // ---------- event wiring ----------
 
   $$("[data-action]").forEach(button => {
@@ -1530,6 +1742,7 @@
       else if (action === "close-profile") closeDialog($("#profileDialog"));
       else if (action === "progress") openProgress();
       else if (action === "close-progress") closeDialog($("#progressDialog"));
+      else if (action === "close-clear-progress") closeDialog($("#clearProgressDialog"));
     });
   });
 
@@ -1563,6 +1776,18 @@
     const entry = study.items[study.index];
     if (entry) speakItem(entry.kind, entry.item);
   });
+  $("#speakPassage").addEventListener("click", () => {
+    const entry = study.items[study.index];
+    if (entry?.kind.endsWith("P")) speakItem(entry.kind, entry.item);
+  });
+  $("#startPassageQuestions").addEventListener("click", startPassageQuestions);
+  $("#checkPassageAnswer").addEventListener("click", checkPassageAnswer);
+  $("#passageResponse").addEventListener("keydown", event => {
+    if ((event.ctrlKey || event.metaKey) && event.key === "Enter") checkPassageAnswer();
+  });
+  $("#markPassageWrong").addEventListener("click", () => selfGradePassageQuestion(false));
+  $("#markPassageCorrect").addEventListener("click", () => selfGradePassageQuestion(true));
+  $("#continueAfterPassage").addEventListener("click", continueAfterPassage);
   $("#speakReview").addEventListener("click", () => {
     const entry = reviewQueue[reviewIndex];
     if (entry) speakItem(entry.kind, entry.item);
@@ -1601,6 +1826,13 @@
 
   $("#saveProfile").addEventListener("click", saveProfile);
   $("#exportProgress").addEventListener("click", exportProgress);
+  $("#openClearProgress").addEventListener("click", openClearProgressDialog);
+  $("#clearProgressConfirm").addEventListener("input", event => {
+    $("#confirmClearProgress").disabled = event.target.value.trim() !== "CLEAR";
+  });
+  $("#confirmClearProgress").addEventListener("click", () => {
+    if ($("#clearProgressConfirm").value.trim() === "CLEAR") clearLearningProgress();
+  });
   $("#importProgress").addEventListener("change", event => {
     if (event.target.files?.[0]) importProgress(event.target.files[0]);
   });
@@ -1609,7 +1841,7 @@
     showToast(`${streak()}-day streak · Japanese ${state.activity.jp[key] || 0}/${state.profile.jpDailyGoal} · Cantonese ${state.activity.yue[key] || 0}/${state.profile.yueDailyGoal}`);
   });
 
-  [libraryDialog, studyDialog, reviewDialog, usageDialog, $("#profileDialog"), $("#progressDialog")].forEach(dialog => {
+  [libraryDialog, studyDialog, reviewDialog, usageDialog, $("#profileDialog"), $("#progressDialog"), $("#clearProgressDialog")].forEach(dialog => {
     dialog?.addEventListener("click", event => {
       if (event.target === dialog) dialog.close();
     });

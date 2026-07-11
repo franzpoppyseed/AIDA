@@ -1,145 +1,83 @@
-# AIDA / 間 — Functional V5 Learning-First Revision
+# AIDA / 間 — Functional V6 Reading & Progress Revision
 
-A local-first Japanese and Cantonese learning application. The two languages share one interface but remain completely separate learning tracks.
+A local-first Japanese and Cantonese learning application. The two languages share one interface but remain separate learning tracks.
 
-## What changed in V5
+## V6 changes
 
-### Study cards now teach the language, not taxonomy
+### Usage Lab scrolling is fixed
 
-Abstract chapter labels that contain no actual Japanese or Cantonese surface form were removed from the learner-facing grammar datasets and CSV exports. For example, a card such as `NEGATIVE / POSITIVE IMPERATIVE` no longer exists as a study or library item.
+The analysis pane is now a real independently scrollable region inside the desktop dialog. Long passage analysis can be scrolled from the first sentence to the last without the modal trapping the content.
 
-The study flow is now reveal-first:
+For multi-sentence input, a sticky **Jump to 1 / 2 / 3...** navigator also appears at the top of the analysis pane.
 
-1. The front shows only the target-language prompt, a recall/comprehension prompt, and pronunciation.
-2. Click the card or press Enter/Space to reveal the reading, meaning, explanation, and metadata.
-3. Only after revealing the answer do Again / Hard / Good / Easy appear.
+### Passage comprehension is now an assessment, not a reveal card
 
-### Sentence and passage comprehension
+Passages use a dedicated flow:
 
-Study sessions now support:
+1. Read the target-language passage with no translation shown.
+2. Begin the comprehension test.
+3. Answer several questions in your own words.
+4. Check your answer against a reference answer.
+5. A local keyword/overlap score gives an advisory match estimate.
+6. You make the final correct/incorrect judgment yourself.
+7. The passage receives an automatic SRS rating from the final comprehension score.
+8. Reading help and translation appear only after the assessment.
 
-- Mixed learning
-- Grammar only
-- Vocabulary only
-- Sentence comprehension
-- Passage comprehension
+This avoids making reading progress depend only on multiple-choice recognition or an unreliable fully automatic grader.
 
-Comprehension material is target-aware. A Japanese N3 target admits N5, N4, and N3 comprehension; a Cantonese Intermediate target admits Beginner and Intermediate comprehension.
+Question types include detail, sequence, cause/effect, contrast, inference, strategy, risk, and main idea.
 
-### Usage Lab text analysis
+### Larger passage bank
 
-Usage Lab now accepts a sentence or a multi-sentence passage and analyzes it sentence by sentence.
+The project now contains:
 
-It provides:
+- 15 Japanese passages across N5–N1
+- 12 Cantonese passages across Beginner–Advanced
+- 8 Japanese sentence-comprehension items
+- 8 Cantonese sentence-comprehension items
 
-- longest-match word separation against the bundled vocabulary
-- readings and meanings for recognized words
-- visibly marked unknown chunks
-- matching grammar patterns from the local grammar data
-- basic structure hints for common Japanese particles/endings and Cantonese particles/aspect/connector patterns
-- simple register hints
-- known-word coverage
+The original comprehension data remains in `data/comprehension.js`. Additional original passages are stored separately in `data/reading_passages.js`.
 
-This is a local heuristic parser, not a full morphological or syntactic parser, but it is substantially more useful than a simple exact-string lookup.
+Mixed sessions now reserve some space for sentence and passage comprehension so the much larger vocabulary pool cannot crowd reading practice out completely.
 
-### Audio
+### Clear progress
 
-The browser audio layer now:
+Profile now includes **Clear learning progress…**.
 
-- waits for the browser voice inventory to load before choosing a voice
-- uses the stored kana reading for Japanese vocabulary
-- prefers `yue-HK`, other `yue` voices, and then Hong Kong `zh-HK` voices for Cantonese
-- refuses to silently substitute a Mandarin voice for Cantonese
-- includes a Profile → Audio setup panel with detected voice diagnostics and test buttons
+The destructive action requires typing `CLEAR`. It removes:
 
-See `AUDIO_SETUP.md` for local-device setup and the path to guaranteed hosted Cantonese TTS.
-
-### Motion and interaction
-
-The black-and-white UI remains minimalist, with restrained motion added for:
-
-- page and panel entrance
-- modal reveal
-- study-card answer reveal
-- progress rails
-- hover lift and sheen
-- nav underline motion
-- rating-button sweeps
-- Usage Lab analysis sections
-
-`prefers-reduced-motion` is respected.
-
-## Separate language tracks
-
-Japanese and Cantonese each have their own:
-
-- target level
-- XP total
-- daily goal
-- activity history
-- study sessions
-- answer history
+- Japanese and Cantonese XP
 - SRS/mastery records
+- review queue history
+- activity/streak history
+- session statistics
+- answer statistics
 
-There is no parallel Japanese/Cantonese lesson generator.
-
-### Japanese target scope
-
-- N5 → N5
-- N4 → N5 + N4
-- N3 → N5 + N4 + N3
-- N2 → N5 through N2
-- N1 → N5 through N1
-
-### Cantonese target scope
-
-Grammar and comprehension:
-
-- Beginner → Beginner
-- Intermediate → Beginner + Intermediate
-- Advanced → all levels
-
-The bundled Cantonese vocabulary data has no native proficiency level, so AIDA uses frequency bands:
-
-- Beginner → ranks 1–3,000
-- Intermediate → ranks 1–12,000
-- Advanced → full vocabulary pool
-
-## Review
-
-Review contains every item you have studied, not only failed or currently due items.
-
-- due items are prioritized by default
-- filter by All / Japanese / Cantonese
-- drag and drop the visible queue to reorder the current review session
-- click a queue item to move it to the front
-
-## Source Library
-
-Separate datasets remain available for:
-
-- Japanese grammar
-- Japanese vocabulary
-- Cantonese grammar
-- Cantonese vocabulary
-
-The library supports full-text search, level filters, category/collection/frequency filters, sorting, random lookup, and pronunciation.
-
-## Profile and persistence
-
-This build is local-first and uses browser `localStorage` rather than a real account backend.
-
-Profile settings include:
+It keeps:
 
 - name
 - Japanese target
 - Cantonese target
-- any positive-integer Japanese daily goal
-- any positive-integer Cantonese daily goal
+- both daily goals
+
+### Existing V5 behavior retained
+
+- Japanese and Cantonese remain fully separate tracks.
+- Japanese targets are cumulative: N4 includes N5+N4, and so on.
+- Cantonese targets are cumulative: Intermediate includes Beginner+Intermediate.
+- Study answers and Again/Hard/Good/Easy remain hidden until a standard card is revealed.
+- Abstract taxonomy-only grammar cards remain removed.
+- Review contains every learned item and supports drag-and-drop reordering.
+- Source Library supports search, level/category filters, and sorting.
+- Usage Lab provides local word separation, structure hints, grammar matching, and sentence-by-sentence analysis.
+- Japanese audio uses the stored reading where appropriate.
+- Cantonese browser audio prefers `yue-HK`/`zh-HK` voices and does not silently substitute Mandarin.
+
+## Persistence
+
+The application remains local-first and stores progress in browser `localStorage` under the existing storage key, so V4/V5 progress remains compatible.
 
 Progress can be exported and imported as JSON.
-
-A real secure username/password login with cross-device retrieval requires hosted authentication and storage. A fake local password system was intentionally not added.
 
 ## Run locally
 
@@ -170,6 +108,7 @@ AIDA_FUNCTIONAL_V3/
 │   ├── cantonese_grammar.js
 │   ├── cantonese_vocabulary.js
 │   ├── comprehension.js
+│   ├── reading_passages.js
 │   ├── manifest.json
 │   └── SOURCES.md
 ├── exports/
@@ -177,4 +116,4 @@ AIDA_FUNCTIONAL_V3/
 └── README.md
 ```
 
-The ZIP includes the complete project, including unchanged assets and source notes.
+The ZIP includes the complete project, including unchanged assets, exports, and source notes.

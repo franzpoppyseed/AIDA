@@ -289,3 +289,85 @@ body::before{
 }
 .single-study-card.revealed .study-card-front{min-height:0;padding-bottom:26px;justify-content:flex-start}
 .single-study-card.revealed .study-card-front h3{font-size:clamp(34px,4vw,58px)}
+
+/* V6: make Usage Lab genuinely scrollable inside the fixed-height dialog. */
+.usage-dialog{display:flex;flex-direction:column;max-height:95vh}
+.usage-dialog>.dialog-header{flex:0 0 auto}
+.usage-dialog-body{height:auto;min-height:0;flex:1;overflow:hidden}
+.usage-workspace{height:100%;min-height:0;overflow:hidden}
+.usage-input-panel,.usage-results-panel{min-height:0;overflow:hidden}
+.usage-results-panel{display:flex;flex-direction:column}
+.evidence-grid{flex:0 0 auto}
+.lab-analysis{
+  flex:1;height:auto;min-height:0;max-height:none;overflow-y:auto;overflow-x:hidden;
+  overscroll-behavior:contain;scrollbar-gutter:stable;padding-right:10px;
+  scrollbar-width:thin;scrollbar-color:#6b6b67 #111;
+}
+.lab-analysis::-webkit-scrollbar{width:10px}
+.lab-analysis::-webkit-scrollbar-track{background:#111;border-radius:999px}
+.lab-analysis::-webkit-scrollbar-thumb{background:#62625e;border:2px solid #111;border-radius:999px}
+.lab-analysis::-webkit-scrollbar-thumb:hover{background:#8b8b86}
+.sentence-jump-nav{position:sticky;top:0;z-index:4;display:flex;align-items:center;gap:7px;margin:0 0 12px;padding:9px 10px;border:1px solid #2c2c2c;border-radius:11px;background:rgba(10,10,10,.94);backdrop-filter:blur(12px)}
+.sentence-jump-nav span{margin-right:3px;color:#777;font-size:11px;text-transform:uppercase;letter-spacing:.1em}
+.sentence-jump-nav button{width:30px;height:30px;display:grid;place-items:center;border:1px solid #353535;border-radius:8px;background:#101010;color:#aaa;font-size:12px;cursor:pointer;transition:transform .18s ease,border-color .18s ease,color .18s ease,background .18s ease}
+.sentence-jump-nav button:hover{transform:translateY(-1px);border-color:#777;background:#171717;color:#fff}
+.sentence-analysis{scroll-margin-top:58px}
+
+/* V6: passage comprehension assessment. */
+.passage-assessment{margin-top:18px;border:1px solid var(--line);border-radius:15px;background:linear-gradient(145deg,#080808,#0c0c0c);overflow:hidden}
+.passage-reading-stage,.passage-question-stage,.passage-result-stage{padding:clamp(28px,4vw,58px)}
+.passage-test-kicker,.passage-question-type{color:#777;font-size:12px;font-weight:750;letter-spacing:.13em;text-transform:uppercase}
+.passage-test-text,.passage-reference p{margin:18px 0 0;font-family:Georgia,"Noto Serif JP","Noto Serif TC",serif;font-size:clamp(25px,3vw,42px);line-height:1.8;letter-spacing:.01em}
+.passage-read-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:30px}
+.passage-test-note{max-width:760px;margin:18px 0 0;color:#888883;font-size:13px;line-height:1.65}
+.passage-reference{border:1px solid #2b2b2b;border-radius:12px;background:#090909;overflow:hidden}
+.passage-reference summary{cursor:pointer;padding:13px 15px;color:#a9a9a4;font-size:12px;text-transform:uppercase;letter-spacing:.1em;user-select:none}
+.passage-reference p{margin:0;padding:2px 20px 20px;font-size:clamp(20px,2.1vw,30px);line-height:1.75}
+.passage-question-progress{display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:center;margin:24px 0 16px;color:#9b9b96;font-size:12px}
+.passage-question-rail{height:4px;border-radius:999px;background:#242424;overflow:hidden}
+.passage-question-rail i{display:block;width:0;height:100%;background:#fff;border-radius:inherit;transition:width .28s cubic-bezier(.2,.75,.2,1)}
+.passage-question-card{padding:26px;border:1px solid #2b2b2b;border-radius:14px;background:#0b0b0b;animation:aidaFadeUp .28s ease both}
+.passage-question-card h4{max-width:900px;margin:10px 0 20px;font-family:Georgia,"Times New Roman",serif;font-size:clamp(25px,3vw,40px);line-height:1.2;font-weight:400}
+.passage-question-card textarea{width:100%;min-height:120px;resize:vertical;border:1px solid #343434;border-radius:11px;background:#070707;color:#f2f2ee;padding:15px 16px;font-size:16px;line-height:1.65}
+.passage-question-card textarea:disabled{color:#a5a5a0;background:#090909}
+.passage-question-card .btn{margin-top:12px}
+.passage-feedback{margin-top:14px;padding:22px;border:1px solid #353535;border-radius:14px;background:linear-gradient(180deg,#0d0d0d,#090909);animation:aidaReveal .28s ease both}
+.passage-match-row{display:flex;align-items:center;justify-content:space-between;gap:20px;color:#aaa;font-size:13px}
+.passage-match-row strong{font-family:Georgia,"Times New Roman",serif;font-size:34px;font-weight:400;color:#fff}
+.passage-match-note{margin:7px 0 20px;color:#777;font-size:12px;line-height:1.55}
+.passage-reference-answer{padding:16px;border:1px solid #292929;border-radius:11px;background:#080808}
+.passage-reference-answer span,.passage-review-reveal span{color:#777;font-size:11px;text-transform:uppercase;letter-spacing:.11em}
+.passage-reference-answer p{margin:8px 0 0;color:#f2f2ee;font-size:16px;line-height:1.6}
+.passage-self-grade{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:14px}
+.passage-result-stage{text-align:center;animation:aidaReveal .35s ease both}
+.passage-score-orb{width:112px;height:112px;display:grid;place-items:center;margin:0 auto;border:1px solid #555;border-radius:50%;font-family:Georgia,"Times New Roman",serif;font-size:30px;background:radial-gradient(circle at 50% 35%,#171717,#080808 68%);box-shadow:0 0 0 10px rgba(255,255,255,.02),0 20px 60px rgba(0,0,0,.35)}
+.passage-result-stage h4{margin:22px 0 8px;font-family:Georgia,"Times New Roman",serif;font-size:38px;font-weight:400}
+.passage-result-stage>p{max-width:720px;margin:0 auto;color:#aaa;font-size:14px;line-height:1.7}
+.passage-review-reveal{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:24px 0;text-align:left}
+.passage-review-reveal>div{padding:16px;border:1px solid #292929;border-radius:11px;background:#090909}
+.passage-review-reveal p{margin:8px 0 0;color:#d9d9d5;font-size:14px;line-height:1.65}
+
+/* V6: destructive progress reset. */
+.btn.danger{border:1px solid #6a3535;background:#1a0d0d;color:#ffdede}
+.btn.danger:hover{border-color:#a85858;background:#261111}
+.btn.danger:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.confirm-dialog{width:min(620px,92vw);padding:36px;overflow:visible}
+.confirm-dialog h2{margin:8px 0 10px;font-family:Georgia,"Times New Roman",serif;font-size:38px;font-weight:400}
+.confirm-input-label{display:grid;gap:9px;margin-top:24px;color:#bbb;font-size:13px}
+.confirm-input-label input{width:100%;border:1px solid #373737;border-radius:10px;background:#080808;color:#fff;padding:13px 14px;font-size:16px;letter-spacing:.08em;text-transform:uppercase}
+.confirm-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:18px}
+
+@media(max-width:900px){
+  .usage-dialog{height:min(940px,96vh)}
+  .usage-dialog-body{overflow:auto}
+  .usage-workspace{height:auto;overflow:visible}
+  .usage-input-panel,.usage-results-panel{overflow:visible}
+  .lab-analysis{overflow:visible;max-height:none;padding-right:0}
+  .passage-review-reveal{grid-template-columns:1fr}
+}
+@media(max-width:560px){
+  .passage-reading-stage,.passage-question-stage,.passage-result-stage{padding:24px 18px}
+  .passage-read-actions,.passage-self-grade,.confirm-actions{grid-template-columns:1fr;display:grid}
+  .passage-question-progress{grid-template-columns:1fr;gap:8px}
+  .sentence-jump-nav{overflow-x:auto}
+}

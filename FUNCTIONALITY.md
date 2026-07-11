@@ -1,4 +1,4 @@
-# Functional architecture — V5
+# Functional architecture — V6
 
 ## Files
 
@@ -6,7 +6,8 @@
 - `data/cantonese_grammar.js` — learner-facing Cantonese grammar data
 - `data/japanese_vocabulary.js` — Japanese vocabulary data
 - `data/cantonese_vocabulary.js` — Cantonese vocabulary data
-- `data/comprehension.js` — target-leveled sentence and passage comprehension material
+- `data/comprehension.js` — target-leveled sentence comprehension and the original passage set
+- `data/reading_passages.js` — additional original passage bank with multi-question assessments
 - `app.js` — state, target filtering, study/reveal flow, SRS, review queue, audio, Usage Lab, and Source Library logic
 - `styles.css` — minimalist black-and-white interface plus motion/effects
 - `index.html` — application shell and dialogs
@@ -85,19 +86,13 @@ The answer area and rating controls appear with a reveal animation. Rating is im
 
 ## Comprehension
 
-`data/comprehension.js` adds sentence and passage modes for both languages.
+Sentence comprehension remains a reveal-and-self-rate study item. Passage comprehension now uses a dedicated typed-response assessment.
 
-Each item stores:
+Passages are loaded from both `data/comprehension.js` and `data/reading_passages.js`. They can store multiple question objects with a type, prompt, reference answer, and keyword groups for an advisory local match estimate.
 
-- stable ID
-- level
-- target-language text
-- reading/Jyutping
-- translation
-- comprehension question
-- expected answer
+Passage assessment keeps the target-language passage available, hides reading help and translation until the end, asks the learner to answer in their own words, shows a reference answer, and lets the learner make the final correct/incorrect judgment. The aggregate score is mapped to an SRS rating.
 
-Comprehension items use the same target filters, SRS storage, XP accounting, review queue, and audio path as grammar and vocabulary.
+All comprehension items use the same cumulative target filters, SRS storage, XP accounting, review queue, and audio path as grammar and vocabulary.
 
 ## Spaced repetition and review
 
@@ -192,3 +187,60 @@ Available filter concepts vary by dataset:
 Progress is stored in browser `localStorage` under the existing storage key.
 
 JSON export/import remains available for backup and manual transfer.
+
+# V6 additions
+
+## Usage Lab overflow and navigation
+
+The desktop Usage Lab now uses a fixed dialog shell with explicit `min-height: 0` propagation through the body, workspace, and results panel. The analysis region itself owns vertical scrolling with `overflow-y: auto`, so long sentence-by-sentence results remain reachable.
+
+Multi-sentence analysis also renders a sticky sentence jump bar. Each button scrolls the analysis region to the selected sentence.
+
+## Passage assessment engine
+
+Passage items use a separate assessment UI from standard reveal cards.
+
+Each passage may store a `questions` array. A question contains:
+
+- `type`
+- `prompt`
+- `answer`
+- `keywordGroups` used only for an advisory local match estimate
+
+The test flow is:
+
+1. target-language passage reading
+2. typed response
+3. local match estimate
+4. reference-answer reveal
+5. learner-confirmed correct/incorrect judgment
+6. aggregate comprehension score
+7. automatic SRS rating
+
+Automatic passage rating thresholds:
+
+- 90–100% → Easy
+- 70–89% → Good
+- 40–69% → Hard
+- below 40% → Again
+
+The learner's self-confirmed result is authoritative because a static keyword matcher cannot reliably judge every valid free-form answer.
+
+## Reading bank
+
+`data/reading_passages.js` adds an independent original passage bank that is merged with the original comprehension passages at runtime.
+
+Current totals:
+
+- Japanese sentences: 8
+- Japanese passages: 15
+- Cantonese sentences: 8
+- Cantonese passages: 12
+
+Mixed study sessions use balanced sampling so vocabulary size does not eliminate comprehension practice.
+
+## Progress reset
+
+Profile includes a destructive progress-reset workflow. The user must type `CLEAR` before the action is enabled.
+
+Resetting learning progress preserves profile settings but resets XP, activity, SRS, sessions, answer history, and last-session data.
