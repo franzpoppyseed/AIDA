@@ -1,0 +1,7 @@
+{
+  "functions": {
+    "api/cantonese-tts.js": {
+      "maxDuration": 10
+    }
+  }
+}

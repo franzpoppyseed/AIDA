@@ -264,9 +264,13 @@
                 <div id="studyRevealHint" class="reveal-hint"><span>Click card to reveal</span><i>↘</i></div>
               </div>
               <div id="studyAnswer" class="study-card-answer hidden">
-                <div id="studyReading" class="study-reading"></div>
+                <div id="studyReadingBlock" class="answer-reading hidden">
+                  <span id="studyReadingLabel">Reading</span>
+                  <div id="studyReading" class="study-reading"></div>
+                </div>
                 <p id="studyMeaning"></p>
                 <div id="studyGuide" class="study-guide hidden"></div>
+                <div id="studyContexts" class="study-contexts hidden"></div>
                 <div id="studyMeta" class="study-meta"></div>
               </div>
             </section>
@@ -321,7 +325,7 @@
               <h4>Passage complete</h4>
               <p id="passageResultSummary"></p>
               <div class="passage-review-reveal">
-                <div><span>Reading</span><p id="passageResultReading"></p></div>
+                <div><span id="passageResultReadingLabel">Reading</span><p id="passageResultReading"></p></div>
                 <div><span>Translation</span><p id="passageResultTranslation"></p></div>
               </div>
               <button class="btn primary" id="continueAfterPassage">Continue ↗</button>
@@ -471,6 +475,15 @@
         <button class="btn secondary compact-btn" id="refreshAudioVoices">Refresh voices</button>
       </div>
       <div id="audioStatus" class="audio-status"></div>
+      <div class="voice-picker-grid">
+        <label>Japanese voice
+          <select id="jpVoiceSelect"><option value="">Automatic</option></select>
+        </label>
+        <label>Cantonese voice
+          <select id="yueVoiceSelect"><option value="">Automatic</option></select>
+        </label>
+      </div>
+      <p class="audio-picker-note">Cantonese first uses a genuine browser <strong>yue-CN</strong>, <strong>yue-HK</strong>, or <strong>zh-HK</strong> voice. When none is exposed, AIDA can automatically use the included <code>/api/cantonese-tts</code> hosted fallback after it is configured.</p>
       <div class="audio-test-row">
         <button class="btn secondary" id="testJapaneseAudio">Test Japanese</button>
         <button class="btn secondary" id="testCantoneseAudio">Test Cantonese</button>
@@ -515,6 +528,7 @@
   <script src="data/cantonese_vocabulary.js"></script>
   <script src="data/comprehension.js"></script>
   <script src="data/reading_passages.js"></script>
+  <script src="data/context_examples.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

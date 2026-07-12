@@ -7,7 +7,20 @@
     "Abstract chapter-label grammar entries with no Japanese or Cantonese surface form were removed from the learner-facing dataset.",
     "Sentence and passage comprehension items are original AIDA learning content added for target-aware comprehension practice.",
     "Passage comprehension now uses typed-response assessment with reference-answer comparison and learner-confirmed grading; the local match score is advisory only.",
-    "An additional original reading passage bank is stored in data/reading_passages.js."
+    "An additional original reading passage bank is stored in data/reading_passages.js.",
+    "Context coverage is exhaustive at runtime: every vocabulary and grammar item can generate sentence variations and a mini-passage; imported corpus examples are preferred when available.",
+    "Selected Japanese context examples were imported from Tatoeba/Tanaka-WWWJDIC data; selected Cantonese conversational examples come from HKCanCor via PyCantonese.",
+    "The supplemental common Japanese vocabulary item うんち was added because it is a concrete parser/test case and common everyday vocabulary.",
+    "V7 study sessions stratify across all allowed levels and order selected material from easier to harder.",
+    "V7 Usage Lab converts common Japanese romaji to kana and uses global dynamic-programming segmentation with contextual candidate ranking instead of greedy local matching.",
+    "V7 Cantonese audio recognizes yue-CN, yue-HK, other yue locales, and zh-HK, with manual browser voice selection.",
+    "V7 learner-facing Cantonese vocabulary excludes source rows with no definition, explicit deletion/editing markers, or no usable pronunciation; excluded rows are preserved in exports/cantonese_vocabulary_excluded.csv.",
+    "Every learner-facing Cantonese vocabulary item now has both a non-empty meaning and a pronunciation/Jyutping field.",
+    "All 963 Japanese grammar items now have at least three non-meta context examples: corpus examples where available and original AIDA grammar examples for the 221 items with no imported corpus match.",
+    "Imported Japanese grammar items with only one or two corpus examples are padded to three by contextual variations of the corpus sentence rather than meta-linguistic placeholder cards.",
+    "V7 provides three progressive sentence contexts and three progressive mini-passage variations for every active vocabulary and grammar source item; repeated encounters advance through easier, build, and harder variants.",
+    "Cantonese pronunciation data is normalized for learner display; all active vocabulary items and all displayed bundled Cantonese examples have usable pronunciation/Jyutping, while unrecoverable source rows remain in the excluded audit CSV.",
+    "V7 includes an optional same-origin Vercel serverless Cantonese TTS endpoint backed by Azure Speech; browser-native yue-CN/yue-HK/zh-HK remains the no-key fallback."
   ],
   "sources": {
     "japanese_grammar_primary": "https://bunpro.jp/grammar_points",
@@ -16,16 +29,28 @@
     "cantonese_grammar_secondary": "https://ywjt2.user.srcf.net/cantonese/guide_to_cantonese_grammar.pdf",
     "japanese_vocabulary_source": "user-supplied all.csv",
     "cantonese_vocabulary_source": "user-supplied Most Common Cantonese Words (Frequency List) - 40kExport.csv.csv",
-    "comprehension_source": "original AIDA learning content"
+    "comprehension_source": "original AIDA learning content",
+    "japanese_context_corpus": "https://tatoeba.org/en/downloads (WWWJDIC Japanese-English export subset used in build)",
+    "cantonese_context_corpus": "HKCanCor via PyCantonese (CC BY)"
   },
   "counts": {
     "japanese_grammar": 963,
     "cantonese_grammar": 67,
-    "japanese_vocabulary": 7972,
-    "cantonese_vocabulary": 44435,
+    "japanese_vocabulary": 7973,
+    "cantonese_vocabulary": 25869,
     "japanese_comprehension_sentences": 8,
     "japanese_comprehension_passages": 15,
     "cantonese_comprehension_sentences": 8,
-    "cantonese_comprehension_passages": 12
-  }
+    "cantonese_comprehension_passages": 12,
+    "japanese_authentic_context_items": 7733,
+    "cantonese_hkcancor_context_items": 4224,
+    "total_context_source_items": 34872,
+    "runtime_sentence_variations": 104616,
+    "japanese_grammar_context_items": 963,
+    "japanese_original_grammar_context_items": 221,
+    "runtime_mini_passage_variations": 104616,
+    "cantonese_bundled_context_items": 24927,
+    "cantonese_bundled_or_hkcancor_context_items": 25130
+  },
+  "version": "V7 Context Engine"
 }

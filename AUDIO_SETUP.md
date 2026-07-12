@@ -1,45 +1,114 @@
-# Audio setup
+# Japanese and Cantonese audio setup
 
-AIDA can use browser-native speech with no API key, but the browser can only expose voices that the operating system/browser actually provides.
+AIDA now supports two speech paths:
 
-## What the app now does
+1. browser-native Web Speech, which requires no API key
+2. an optional same-origin hosted Cantonese TTS endpoint for deterministic playback
 
-For Cantonese, AIDA searches for voices in this order:
+## Why Cantonese may still fail in a browser even when Microsoft lists the voice
 
-1. `yue-HK`
-2. another `yue` locale
-3. `zh-HK`
-4. a voice name that clearly identifies Cantonese or Hong Kong
+A webpage can directly select only voices that the browser exposes through `speechSynthesis.getVoices()`. A Microsoft online voice can exist in a Microsoft product or speech catalog without appearing in that JavaScript voice list.
 
-It does **not** silently fall back to a Mandarin voice.
+That is why an entry such as:
 
-Open **Profile → Audio setup** to see the exact Japanese and Cantonese voices detected by the current browser. Use **Refresh voices** after installing a new system voice, then restart the browser if the new voice still does not appear.
+```text
+Microsoft 晓敏 Online (Natural) - Chinese (Cantonese, Simplified) · yue-CN
+```
 
-## Windows: local/no-API route
+may work in one Microsoft speech surface but still be absent from Chrome or Edge Web Speech on a particular machine.
 
-1. Open **Settings → Time & language → Language & region**.
-2. Add **Chinese (Traditional, Hong Kong SAR)** when available.
-3. Open that language's options and install available speech/text-to-speech voice features.
-4. Completely restart Edge/Chrome.
-5. Return to AIDA → **Profile → Audio setup → Refresh voices**.
+## Browser-native setup
+
+AIDA recognizes and prioritizes:
+
+1. `yue-CN`
+2. `yue-HK`
+3. other `yue-*` locales
+4. `zh-HK`
+
+Recognized Cantonese-oriented names include:
+
+- Microsoft XiaoMin / 晓敏 / 曉敏
+- Microsoft YunSong / 云松 / 雲松
+- HiuMaan
+- HiuGaai
+- WanLung
+- voice names containing Cantonese / Hong Kong / 廣東 / 粵語 / 粤语
+
+To test:
+
+1. Open **Profile**.
+2. Go to **Audio setup**.
+3. Press **Refresh voices**.
+4. Open the **Cantonese voice** dropdown.
+5. Select an exact `yue-CN`, `yue-HK`, or `zh-HK` voice when one appears.
 6. Press **Test Cantonese**.
 
-Browser-native availability varies by Windows version, browser, and installed language components.
+If a voice was installed or enabled recently, fully close all browser windows before reopening the site and refreshing the voice list.
 
-## Guaranteed cross-device Cantonese audio
+When no Cantonese voice is enumerated, AIDA still tries a `lang=yue-CN` browser-locale request. This is only a best-effort fallback because the browser ultimately chooses the engine.
 
-A static GitHub Pages site cannot guarantee that every visitor has a Cantonese system voice. For consistent audio across devices, use one of these approaches:
+# Guaranteed Cantonese audio with the included serverless endpoint
 
-### Hosted TTS endpoint
+The project now includes:
 
-Send the target text to a serverless/backend text-to-speech endpoint and return an audio stream. Keep the provider key on the server, never in `app.js`.
+```text
+api/cantonese-tts.js
+vercel.json
+```
 
-A hosted Cantonese voice should use a Hong Kong Cantonese locale such as `zh-HK`.
+The frontend automatically calls:
 
-### Pre-generated audio
+```text
+/api/cantonese-tts
+```
 
-Generate MP3/OGG files ahead of time, store them under an audio directory or object storage, and map each stable vocabulary/grammar/comprehension ID to its audio file. This has no runtime API cost but requires generating and storing the audio corpus.
+when no genuine Cantonese browser voice is available. The endpoint synthesizes Cantonese speech with Azure Speech and returns MP3 audio. The default hosted voice is:
 
-## Why an API key should not go in this repository
+```text
+yue-CN-XiaoMinNeural
+```
 
-Any key placed directly in browser JavaScript can be read by visitors. A hosted TTS provider should therefore be called through a serverless function or other backend that keeps the secret outside the repository and browser bundle.
+## Vercel deployment
+
+1. Push this complete project to GitHub.
+2. Import that GitHub repository into Vercel.
+3. Create an Azure Speech resource and copy its key and region.
+4. In the Vercel project, add these environment variables:
+
+```text
+AZURE_SPEECH_KEY=<your key>
+AZURE_SPEECH_REGION=<your Azure region, for example eastus>
+```
+
+Optional:
+
+```text
+AZURE_CANTONESE_VOICE=yue-CN-XiaoMinNeural
+```
+
+5. Redeploy the Vercel project.
+6. Open **Profile → Audio setup → Test Cantonese**.
+
+No Azure key is stored in `app.js`, HTML, or any other public browser file.
+
+## What happens at runtime
+
+For Cantonese, AIDA now tries in this order:
+
+1. a manually selected genuine Cantonese browser voice
+2. the best automatically detected `yue-CN` / `yue-HK` / `zh-HK` browser voice
+3. the configured `/api/cantonese-tts` hosted endpoint when no browser Cantonese voice is available
+4. a browser `yue-CN` locale-only fallback
+
+If an explicitly selected browser voice errors during playback, AIDA also gives the hosted endpoint a fallback attempt.
+
+## GitHub Pages limitation
+
+GitHub Pages serves static files only. It cannot execute `api/cantonese-tts.js`, so a GitHub Pages deployment uses only browser-native speech.
+
+For the included hosted fallback, deploy the same repository to a platform that runs serverless functions, such as Vercel.
+
+## Security
+
+Do not place `AZURE_SPEECH_KEY` directly in `app.js` or commit it to GitHub. Keep it in deployment environment variables.

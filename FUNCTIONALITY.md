@@ -1,246 +1,117 @@
-# Functional architecture — V6
+# AIDA V7 functionality map
 
-## Files
+## Separate learning tracks
 
-- `data/japanese_grammar.js` — learner-facing Japanese grammar data
-- `data/cantonese_grammar.js` — learner-facing Cantonese grammar data
-- `data/japanese_vocabulary.js` — Japanese vocabulary data
-- `data/cantonese_vocabulary.js` — Cantonese vocabulary data
-- `data/comprehension.js` — target-leveled sentence comprehension and the original passage set
-- `data/reading_passages.js` — additional original passage bank with multi-question assessments
-- `app.js` — state, target filtering, study/reveal flow, SRS, review queue, audio, Usage Lab, and Source Library logic
-- `styles.css` — minimalist black-and-white interface plus motion/effects
-- `index.html` — application shell and dialogs
-- `AUDIO_SETUP.md` — Cantonese/Japanese browser voice setup and hosted-TTS guidance
+Japanese and Cantonese remain independent for target level, XP, daily goal, activity history, SRS/mastery, and review filtering.
 
-## State
+## Study modes
 
-The browser state schema remains version 4 so existing V4 local progress remains compatible. The storage key also remains unchanged.
+- Mixed learning
+- Grammar only
+- Vocabulary only
+- Sentence comprehension
+- Passage comprehension
 
-Version 3 local progress is migrated automatically:
+Every active vocabulary and grammar source item can participate in sentence and passage practice.
 
-- old shared XP is split between Japanese and Cantonese
-- old combined activity is split between the tracks
-- the previous Japanese target is retained
-- Cantonese starts at Beginner
-- older low daily goals are raised to the 30-item default during migration
+## Progressive difficulty
 
-## Learner-facing grammar cleanup
+Japanese:
 
-Grammar rows whose `pattern` contains no target-language script are excluded from the learner-facing data.
+```text
+N5 → N4 → N3 → N2 → N1
+```
 
-This removes abstract chapter headings and taxonomy labels that cannot be practiced as actual Japanese or Cantonese forms. The corresponding CSV exports and manifest counts are kept in sync.
+Cantonese:
 
-Counts in this build:
+```text
+Beginner → Intermediate → Advanced
+```
 
-- Japanese grammar: 963 items
-- Cantonese grammar: 67 items
+The selected target is the upper ceiling. Sessions are stratified across allowed bands and ordered from easier to harder. Each source item also has three sentence contexts and three passage variants that advance with repeated exposure.
 
-## Study targeting
+## Answer reveal
 
-### Japanese
-
-`N5 < N4 < N3 < N2 < N1`
-
-Targets are cumulative and never fall back to the full dataset. An N3 target admits only N5, N4, and N3 items.
-
-### Cantonese grammar and comprehension
-
-`Beginner < Intermediate < Advanced`
-
-Targets are cumulative in the same way.
-
-### Cantonese vocabulary
-
-The source has no native proficiency-level field, so the application derives a transparent study level from `frequency_rank`:
-
-- Beginner: 1–3,000
-- Intermediate: 3,001–12,000
-- Advanced: 12,001+
-
-The target scope is cumulative.
-
-## Study reveal flow
-
-A study item has two phases.
-
-### Before reveal
-
-Visible:
+Before reveal:
 
 - target-language prompt
-- recall or comprehension question
-- pronunciation control
+- recall/comprehension question
+- pronunciation button
 
-Hidden:
+After reveal:
 
-- reading
-- definition/translation
-- explanation
-- metadata details below the answer
+- Japanese reading or Cantonese Jyutping
+- meaning/translation
+- grammar explanation when relevant
+- three context variations for direct vocabulary/grammar cards
 - Again / Hard / Good / Easy
 
-### After reveal
+Cantonese Jyutping remains hidden until reveal.
 
-The answer area and rating controls appear with a reveal animation. Rating is impossible before reveal; an attempted rating call reveals the card instead.
+## Passage assessment
 
-## Comprehension
+- read target-language passage first
+- answer typed comprehension questions
+- view an advisory local match estimate
+- compare with the reference answer
+- self-confirm correct/incorrect
+- final score maps to SRS rating
+- reading/Jyutping and translation reveal after completion
 
-Sentence comprehension remains a reveal-and-self-rate study item. Passage comprehension now uses a dedicated typed-response assessment.
+## Usage Lab
 
-Passages are loaded from both `data/comprehension.js` and `data/reading_passages.js`. They can store multiple question objects with a type, prompt, reference answer, and keyword groups for an advisory local match estimate.
+Japanese and Cantonese now use:
 
-Passage assessment keeps the target-language passage available, hides reading help and translation until the end, asks the learner to answer in their own words, shows a reference answer, and lets the learner make the final correct/incorrect judgment. The aggregate score is mapped to an SRS rating.
+- global dynamic-programming word segmentation
+- a whole-word length score that prevents known words from being split into attractive one-character fragments
+- context-aware sense ranking
+- imported-context overlap
+- nearby semantic-domain reranking for ambiguous homophones
+- alternative-sense display
+- token-boundary-aware structure and grammar matching
 
-All comprehension items use the same cumulative target filters, SRS storage, XP accounting, review queue, and audio path as grammar and vocabulary.
+Japanese additionally supports romaji-to-kana interpretation and common conjugation matching.
 
-## Spaced repetition and review
+Examples such as `unchi wo taberu`, all-kana `はしでごはんをたべる`, and bridge context `かわにかかるはしをわたる` are explicitly covered by the validation tests.
 
-Every learned item is stored independently under its stable `kind:id` key.
-
-A rating updates:
-
-- ease
-- interval
-- repetitions
-- due time
-- correct/incorrect history
-- mastery
-- last rating
-
-The full review queue is built from all learned SRS entries, not only due or weak items.
-
-Default ordering:
-
-1. due cards
-2. lower mastery
-3. older last review
-
-The visible queue is draggable. Reordering affects only the current review-session order.
-
-## Usage Lab parser
-
-Usage Lab is language-specific and local-first.
-
-### Sentence splitting
-
-Multi-sentence input is separated at Japanese/CJK sentence punctuation and line boundaries. Passage analysis is rendered sentence by sentence so pattern matches do not bleed across sentence boundaries.
-
-### Word separation
-
-A cached vocabulary trie performs longest-match segmentation against the bundled vocabulary pool.
-
-Recognized tokens display reading and meaning metadata. Unmatched target-script chunks remain visible as unknown rather than being discarded.
-
-### Grammar matching
-
-Learner-facing target-script chunks are extracted from grammar patterns and matched against the sentence. Matches are ranked by the amount of concrete target-language structure they contain.
-
-### Basic structure hints
-
-The local heuristic layer detects common structure signals, including:
-
-- Japanese topic/subject/object/location/direction/possessive particles
-- Japanese reason, concessive, polite, and progressive markers
-- Cantonese copula/location forms
-- Cantonese negation and aspect markers
-- Cantonese condition/result and contrast connectors
-- common sentence-final particles
-
-This is intentionally described as heuristic analysis rather than a full morphological parser.
+Multi-sentence input is analyzed sentence by sentence. The result pane scrolls independently and includes sentence jump navigation.
 
 ## Audio
 
-The static build uses the Web Speech API.
+Browser-native path:
 
-### Japanese
+- Japanese browser voice selection
+- Cantonese recognition for `yue-CN`, `yue-HK`, other `yue-*`, and `zh-HK`
+- explicit XiaoMin / 晓敏 and YunSong / 云松 recognition
+- manual voice selectors
+- chunked long-form speech
 
-Vocabulary speech uses the stored kana reading when available. Sentence and passage comprehension speaks the exact target-language text.
+Hosted fallback path:
 
-### Cantonese
+- `api/cantonese-tts.js`
+- same-origin automatic fallback when no browser Cantonese voice is exposed
+- Azure Speech credentials remain in server environment variables rather than frontend JavaScript
+- default hosted voice: `yue-CN-XiaoMinNeural`
 
-Voice ranking prefers:
+## Review
 
-1. `yue-HK`
-2. other `yue` voices
-3. `zh-HK`
-4. known Hong Kong/Cantonese voice names
-
-Mandarin-labelled voices are penalized and are not used as a silent fallback.
-
-Voice loading waits for the asynchronous browser voice inventory. Profile → Audio setup shows what the current browser actually exposes and provides test buttons.
-
-A static site cannot guarantee a Cantonese voice on every device. Guaranteed cross-device speech requires a hosted TTS service or pre-generated audio files. See `AUDIO_SETUP.md`.
+- all learned items, not only due items
+- due items prioritized
+- Japanese/Cantonese filters
+- drag-and-drop queue reordering
+- reading/Jyutping shown only after reveal
 
 ## Source Library
 
-Filtering and sorting are applied to the full dataset before the first 120 visible results are rendered.
+- separate Japanese grammar/vocabulary and Cantonese grammar/vocabulary datasets
+- search
+- level filtering
+- category/frequency/collection filtering
+- sorting
 
-Available filter concepts vary by dataset:
+## Progress controls
 
-- grammar: proficiency level + grammar category
-- Japanese vocabulary: JLPT level + collection grouping
-- Cantonese vocabulary: derived proficiency level + frequency band
-
-## Persistence
-
-Progress is stored in browser `localStorage` under the existing storage key.
-
-JSON export/import remains available for backup and manual transfer.
-
-# V6 additions
-
-## Usage Lab overflow and navigation
-
-The desktop Usage Lab now uses a fixed dialog shell with explicit `min-height: 0` propagation through the body, workspace, and results panel. The analysis region itself owns vertical scrolling with `overflow-y: auto`, so long sentence-by-sentence results remain reachable.
-
-Multi-sentence analysis also renders a sticky sentence jump bar. Each button scrolls the analysis region to the selected sentence.
-
-## Passage assessment engine
-
-Passage items use a separate assessment UI from standard reveal cards.
-
-Each passage may store a `questions` array. A question contains:
-
-- `type`
-- `prompt`
-- `answer`
-- `keywordGroups` used only for an advisory local match estimate
-
-The test flow is:
-
-1. target-language passage reading
-2. typed response
-3. local match estimate
-4. reference-answer reveal
-5. learner-confirmed correct/incorrect judgment
-6. aggregate comprehension score
-7. automatic SRS rating
-
-Automatic passage rating thresholds:
-
-- 90–100% → Easy
-- 70–89% → Good
-- 40–69% → Hard
-- below 40% → Again
-
-The learner's self-confirmed result is authoritative because a static keyword matcher cannot reliably judge every valid free-form answer.
-
-## Reading bank
-
-`data/reading_passages.js` adds an independent original passage bank that is merged with the original comprehension passages at runtime.
-
-Current totals:
-
-- Japanese sentences: 8
-- Japanese passages: 15
-- Cantonese sentences: 8
-- Cantonese passages: 12
-
-Mixed study sessions use balanced sampling so vocabulary size does not eliminate comprehension practice.
-
-## Progress reset
-
-Profile includes a destructive progress-reset workflow. The user must type `CLEAR` before the action is enabled.
-
-Resetting learning progress preserves profile settings but resets XP, activity, SRS, sessions, answer history, and last-session data.
+- local browser persistence
+- JSON export/import
+- separate language XP and goals
+- clear learning progress with typed `CLEAR` confirmation
