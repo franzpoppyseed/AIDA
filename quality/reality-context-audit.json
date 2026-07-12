@@ -1,0 +1,16 @@
+{
+  "version": "V13",
+  "policy": "verified learner-facing contexts only",
+  "generic_vocabulary_fallback_enabled": false,
+  "generated_vocabulary_phrases_present_in_app": [],
+  "banned_phrases": [
+    "is an important topic",
+    "大切なテーマです",
+    "呢個%s對我好重要"
+  ],
+  "passage_study": "curated reading bank only",
+  "notes": [
+    "Items without verified examples display an explicit unavailable state.",
+    "Grammar fallback is limited to audited/class-validated examples."
+  ]
+}

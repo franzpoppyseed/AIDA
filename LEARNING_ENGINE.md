@@ -113,14 +113,16 @@ This is intentionally more than memorizing `formal → casual` pairs. The learne
 
 ## Grammar-context validation
 
-Grammar context tiles now use a validation layer before they appear.
+Grammar context tiles now resolve through the V14 per-item registry rather than character-overlap matching or generic runtime generation.
 
-- 150 high-risk Japanese grammar cards have 3 manual audited examples each.
-- 8 broad Japanese class/inflection cards use dedicated concept validators.
-- The remaining 805 Japanese grammar cards passed a stricter offline morphology/construction-signature audit with at least 3 validated source contexts each.
-- All 67 Cantonese grammar cards have 3 manual audited examples each, including Jyutping.
+- 963 Japanese grammar registry keys exist.
+- 437 Japanese grammar items currently have one or more verified learner-facing contexts.
+- 1,061 verified Japanese grammar examples are in the registry.
+- all 129 N5 Japanese grammar items have verified contexts.
+- ambiguous higher-level Japanese grammar items may intentionally have no example rather than a guessed one.
+- all 67 Cantonese grammar cards have manually audited contexts, for 201 examples total, including Jyutping and English.
 
-See `GRAMMAR_CONTEXT_AUDIT.md` for the full methodology and counts.
+See `GRAMMAR_CONTEXT_AUDIT.md` and `ITEM_SPECIFIC_CONTEXT_POLICY.md` for the methodology and counts.
 
 ## Migration
 

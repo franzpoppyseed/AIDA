@@ -1,34 +1,50 @@
-# AIDA / 間 — Functional V12 Japanese Prosody + Everyday Vocabulary
+# AIDA / 間 — Functional V14 Item-Specific Contexts
 
-A local-first Japanese and Cantonese learning application. Both languages live on one website, but remain independent tracks with separate targets, XP, daily goals, activity, mastery, and review schedules.
+A local-first Japanese and Cantonese learning application. Both languages live on one website but remain independent tracks with separate targets, XP, daily goals, activity, mastery, and review schedules.
 
-## Core learning engine
+## V14 context policy: specific or nothing
 
-### 1. Coherent context progression
+AIDA no longer uses a generic sentence generator that inserts arbitrary words into a small set of reusable templates.
 
-Every active vocabulary and grammar source item can generate three linked sentence contexts and three coherent mini-passage variants:
+Learner-facing examples are allowed only when they are tied to the exact item being studied:
 
-```text
-EASIER → BUILD → HARDER
-```
+1. **item-specific curated examples** written for that exact word or grammar point;
+2. **manually audited grammar examples** selected for the named construction;
+3. **exact-expression corpus examples** with an English translation;
+4. **exact bundled examples** attached to the source vocabulary item; or
+5. **curated reading-bank sentences/passages** that actually contain the target item.
 
-The passage engine no longer creates a “passage” by simply stacking unrelated example sentences. It selects a real/bundled target example where available, assigns a semantic domain, and places the target example inside a scenario with a setup, development, and consequence. Harder variants add reconsideration, evidence, and inference.
+If none of those sources provides a trustworthy example, AIDA shows no sentence instead of inventing filler.
 
-Coverage:
+Multi-sentence material follows the same rule. Independent example sentences are never stitched together to make a fake passage. Passage study uses complete curated passages in which sentence 2 belongs to the same situation as sentence 1 and later sentences continue the same event, explanation, or argument.
 
-- 8,056 Japanese vocabulary items
-- 963 Japanese grammar items
-- 25,918 active Cantonese vocabulary items
-- 67 Cantonese grammar items
-- **35,004 active vocabulary/grammar items total**
-- **105,012 sentence variations**
-- **105,012 coherent item-linked passage variations**
+See `ITEM_SPECIFIC_CONTEXT_POLICY.md` and `CONTEXT_COVERAGE.md`.
 
-The three generated passage variants were exhaustively validated for uniqueness and question coverage across the original 34,872 source set; V12 adds 132 curated everyday supplement entries that use the same three-variation runtime engine.
+## Current verified context coverage
 
-### 2. Six independent memory skills
+Active source inventory:
 
-A source item no longer has one universal “mastery” state. A learner can recognize a word while still being unable to produce it or understand it in speech.
+- **8,056** Japanese vocabulary items
+- **963** Japanese grammar items
+- **25,918** active Cantonese vocabulary items
+- **67** Cantonese grammar items
+- **35,004** active vocabulary/grammar items total
+
+Item-specific additions and grammar verification:
+
+- **83 / 83** Japanese everyday-supplement words have exact item-specific examples
+- **49 / 49** Cantonese everyday-supplement words have exact item-specific examples with Jyutping
+- **437 / 963** Japanese grammar items currently have verified learner-facing contexts in the V14 registry
+- **129 / 129** N5 Japanese grammar items have verified contexts
+- **67 / 67** Cantonese grammar items have manually audited contexts with Jyutping
+- **1,061** verified Japanese grammar examples in the registry
+- **201** audited Cantonese grammar examples
+
+The remaining ambiguous higher-level Japanese grammar items are intentionally allowed to have no example. V14 prefers an honest gap over a sentence that only happens to contain a similar character sequence.
+
+## Six independent learning skills
+
+A source item does not have one universal mastery state. A learner can recognize a word while still being unable to produce it or understand it in speech.
 
 AIDA tracks these independently:
 
@@ -41,49 +57,55 @@ AIDA tracks these independently:
 
 The Progress dashboard shows a separate mastery and due-review state for each skill in each language.
 
-### 3. FSRS-based scheduling
+## FSRS-based scheduling
 
-AIDA now vendors `ts-fsrs` and keeps a separate FSRS memory card for each active item × skill combination. The learner can set desired retention from 80% to 97% in Profile settings. Rating buttons show the predicted next interval before the learner chooses.
+AIDA vendors `ts-fsrs` and keeps a separate FSRS memory card for each active item × skill combination. Desired retention is configurable from 80% to 97%. Rating buttons show the predicted next interval before selection.
 
-Existing V4/V5 item-level progress is migrated into the most sensible initial skill bucket instead of being discarded.
+Existing older item-level progress is migrated into the most sensible initial skill bucket instead of being discarded.
 
 See `LEARNING_ENGINE.md` and `vendor/TS-FSRS-LICENSE.txt`.
 
-### 4. Contextual listening
+## Contextual listening
 
-Listening is now a first-class practice mode rather than only a pronunciation button.
+Listening is a first-class practice mode:
 
-- Sentence listening begins with the transcript hidden.
-- Passage listening begins with the entire transcript hidden.
-- The learner can type the meaning, the words heard, or both before reveal; the local match score is advisory.
-- Revealed text can replay with synchronized word/character highlighting.
-- Cantonese reveal uses Jyutping ruby text over Chinese characters.
-- Context Browser sentence and passage examples can also be played with synchronized highlighting.
+- sentence transcripts begin hidden;
+- passage transcripts begin hidden;
+- the learner can type what was heard or understood before reveal;
+- revealed text can replay with synchronized highlighting;
+- Cantonese reveal uses Jyutping ruby text above Chinese characters;
+- Context Browser examples can also be played with highlighting.
 
-Browser speech boundary events are used when exposed. A timed synchronization fallback is used otherwise. V12 also adds a same-origin Japanese neural TTS route and changes Japanese playback to send the real written word or full sentence instead of flattening vocabulary to kana first. Cantonese keeps its hosted neural fallback; see `AUDIO_SETUP.md`.
+Japanese playback sends the written surface form or complete written sentence to TTS rather than flattening compounds to isolated kana before synthesis. A same-origin Japanese neural TTS route is included. Cantonese has a hosted neural fallback as well. See `AUDIO_SETUP.md` and `JAPANESE_AUDIO.md`.
 
+## Casual & conversational language
 
-### 5. Casual & conversational language
-
-Japanese and Cantonese now have a dedicated conversational register system with its own memory state and review schedule. Practice rotates through:
+Japanese and Cantonese have a dedicated conversational register system with its own FSRS memory state. Practice rotates through:
 
 ```text
 TRANSFORM → NOTICE → REGISTER JUDGMENT
 ```
 
-Japanese coverage includes plain forms, context-dependent omission of `を / は / が / に`, casual questions, and common spoken contractions such as `てる`, `って`, `じゃ`, `ちゃう`, `なきゃ`, and `とく`. Cantonese coverage includes sentence-final particles, recoverable omission, aspectual spoken forms, colloquial questions, and spoken-vs-written lexical choices. Cantonese forms show Jyutping on reveal.
+The focused curriculum currently contains:
 
-Casual language is tracked as its own FSRS skill, so knowing the formal grammar does not automatically mark the conversational form as mastered. See `CASUAL_LANGUAGE.md` for the full practice model and coverage.
+- **90 Japanese casual/conversational items**
+- **90 Cantonese casual/conversational items**
 
-### 6. Grammar-context audit
+Every casual item includes English on reveal. Japanese coverage includes plain forms, context-dependent particle omission, contractions, ellipsis, fillers, backchannels, indirectness, quotation, discourse markers, slang, and register-sensitive rough forms. Cantonese coverage includes omission, aspect, A-not-A questions, backchannels, repair, discourse markers, final-particle combinations, colloquial vocabulary, idioms, and selected Hong Kong code-switching with cautions.
 
-The grammar context selector was rebuilt after the old `い-Adjectives` card exposed a serious false-match problem. A sentence must now represent the target construction rather than merely contain a matching character.
+See `CASUAL_LANGUAGE.md`.
 
-- **963 Japanese grammar cards** checked
-- **150 high-risk Japanese cards** given 3 manual audited examples each
-- **8 broad class/inflection cards** handled by dedicated concept validators
-- **805 remaining Japanese cards** passed a stricter offline morphology/construction-signature audit with at least 3 validated source contexts each
-- **67 / 67 Cantonese grammar cards** given 3 manual audited examples each, including Jyutping
+## Grammar-context verification
+
+The old character-overlap matcher was removed after false matches such as an `い-Adjectives` card accepting a sentence merely because it contained the character `い`.
+
+V14 uses a static per-item registry plus conservative evidence rules:
+
+- manually audited examples are accepted directly;
+- automatic Japanese corpus matches require a strong construction signature and token-boundary evidence from the offline build audit;
+- all N5 Japanese grammar items have verified contexts;
+- ambiguous higher-level items may have no context rather than a guessed one;
+- all Cantonese grammar contexts come from the manually audited registry.
 
 See `GRAMMAR_CONTEXT_AUDIT.md`.
 
@@ -96,7 +118,7 @@ Japanese:  N5 → N4 → N3 → N2 → N1
 Cantonese: Beginner → Intermediate → Advanced
 ```
 
-Sessions are sampled from allowed levels and ordered from easier material toward harder material. Repeated encounters with the same source item also rotate through EASIER, BUILD, and HARDER context variants for the skill being practiced.
+Sessions are sampled from allowed levels and ordered from easier material toward harder material.
 
 ## Study modes
 
@@ -110,11 +132,11 @@ Sessions are sampled from allowed levels and ordered from easier material toward
 - Sentence comprehension
 - Passage comprehension
 
-Adaptive mixed practice deliberately includes all active memory skills instead of letting the largest vocabulary dataset crowd out listening, production, or reading.
+Sentence practice uses only verified item-specific, bundled, audited, or translated corpus context. Passage practice uses curated reading-bank passages rather than generated multi-sentence filler.
 
 ## Comprehension testing
 
-Passage questions test discourse rather than asking for isolated word definitions. Question types include:
+Passage questions test discourse rather than isolated word definitions. Question types include:
 
 - central detail
 - sequence
@@ -131,111 +153,66 @@ The learner answers in free text, receives a local match estimate as a hint, com
 
 ## Context Browser
 
-The Contexts tab lets the learner search any vocabulary or grammar item and review:
+The Contexts tab lets the learner search vocabulary or grammar and review only the contexts actually available for that item:
 
-- 3 progressively harder sentence variations
-- 3 progressively harder coherent passage variations
-- meaningful comprehension prompts
-- exact matches from the bundled reading bank where available
-- synchronized sentence and passage audio
+- exact item-specific sentences;
+- audited grammar examples;
+- translated exact corpus examples;
+- exact bundled examples;
+- curated reading-bank passages that contain the target.
 
-Cantonese Jyutping appears above Chinese characters with ruby annotation.
+The interface does **not** force three sentences or three passages when trustworthy material is unavailable. Cantonese Jyutping appears above Chinese characters with ruby annotation.
 
 ## Usage Lab
 
-Usage Lab uses global dynamic-programming segmentation, conjugation handling, imported-context overlap, nearby grammatical evidence, semantic-domain reranking, and alternative-sense display. It remains an offline heuristic parser rather than a neural dependency parser, but it uses whole-sentence context instead of accepting the first dictionary match.
+Usage Lab uses global dynamic-programming segmentation, conjugation handling, imported-context overlap, nearby grammatical evidence, semantic-domain reranking, and alternative-sense display. It remains an offline heuristic parser rather than an authoritative neural dependency parser.
 
-## Data and imported context
+## Everyday vocabulary topics
 
-`data/context_examples.js` contains selected context where available:
+Vocabulary can be filtered across 26 semantic topics, including vegetables, fruit, animals, vehicles, home objects, kitchen items, appliances, hygiene, tools, school, work, shopping, places, weather, health, cooking, sports, and travel.
 
-- Japanese: selected Japanese–English pairs from the Tatoeba/Tanaka-WWWJDIC export
-- Cantonese: selected conversational utterances from HKCanCor via PyCantonese
+The V12 everyday supplement added exact missing entries only where the source dictionaries lacked the form:
 
-Generated/original fallback material is identified as AIDA content rather than corpus-authentic text. Third-party attribution is in `THIRD_PARTY_CONTEXT_LICENSES.md`.
+- 83 Japanese items
+- 49 Cantonese items
 
-## Cantonese audio
+Every supplement item has an English meaning; Cantonese entries have Jyutping. V14 gives every one of these 132 supplement items an exact item-specific example instead of a reusable topic template.
 
-AIDA prioritizes genuine Cantonese/Hong Kong browser voices and supports a hosted same-origin fallback:
+## English translation policy
 
-```text
-api/cantonese-tts.js
+English is required for every learner-facing:
+
+- vocabulary word;
+- static sentence;
+- static passage;
+- casual-language item;
+- audited grammar context;
+- translated corpus example shown as a learning card.
+
+Study and review still hide the answer until reveal so the English does not spoil the test. Raw Cantonese corpus lines without English remain internal parser/corpus evidence and are not surfaced as learning examples.
+
+## Example quality controls
+
+Every displayed context has a provenance/evidence label and a local **Report issue** workflow. Reported examples can be hidden, restored, managed from Profile, and carried through JSON export/import.
+
+Pre-release audits:
+
+```bash
+python tools/audit_content.py
+python tools/audit_reality_contexts.py
+python tools/audit_item_specific_contexts.py
 ```
 
-For reliable cross-device Cantonese audio, deploy with the serverless endpoint and configure the environment variables documented in `AUDIO_SETUP.md`.
+See `QUALITY_CONTROL.md`.
 
 ## Local progress
 
 The site stores progress in the browser and supports:
 
-- JSON export/import
-- clear-progress confirmation
-- separate Japanese/Cantonese XP
-- independent skill-level FSRS histories
-- preserved profile targets and daily goals when progress is cleared
+- JSON export/import;
+- clear-progress confirmation;
+- separate Japanese/Cantonese XP;
+- independent skill-level FSRS histories;
+- preserved profile targets and daily goals when learning progress is cleared.
 
-No fake local username/password system is included because browser-only credentials would not provide real account security or cross-device account retrieval.
-
-## V11 — Casual depth + quality loop
-
-- Focused casual-language curriculum expanded to **90 Japanese** and **90 Cantonese** items.
-- Every casual item includes an English translation on reveal and in review.
-- Japanese coverage now includes backchannels, fillers, indirectness, particle omission, contractions, quotation, ellipsis, slang, discourse markers, and register-sensitive rough forms.
-- Cantonese coverage now includes A-not-A questions, omission, aspect, repair, backchannels, discourse markers, narrative connectors, colloquial vocabulary, final-particle combinations, idioms, rhetorical reactions, and selected Hong Kong code-switching with cautions.
-- Every displayed context now has a provenance/evidence badge and a local **Report issue** workflow.
-- Reported examples can be hidden locally, restored, managed from Profile, and carried through JSON export/import.
-- `tools/audit_content.py` provides a deterministic pre-release content integrity audit; the latest result is stored in `quality/audit-report.json`.
-
-See `CASUAL_LANGUAGE.md` and `QUALITY_CONTROL.md`.
-
-
-## V12 — Japanese prosody, everyday topics, and English coverage
-
-### Japanese speech no longer destroys compound context
-
-Japanese vocabulary audio now sends the written surface form (`東京`, `地下鉄`, `国際交流`, etc.) to the speech engine instead of replacing it with a kana-only reading before synthesis. Sentence and passage audio is sent as complete orthographic sentence chunks, so the TTS front end can analyze compounds and surrounding syntax before speaking.
-
-The project now includes:
-
-```text
-api/japanese-tts.js
-```
-
-When configured, AIDA prefers the hosted Japanese neural route and falls back to the selected browser voice. The same Azure Speech key and region used for Cantonese can serve both endpoints. Exact pitch accent can still vary by voice/model, so the app no longer pretends that every browser voice is authoritative.
-
-### 26 semantic vocabulary topics
-
-Vocabulary can now be filtered by semantic topic rather than only source collection or frequency band. The current topic system includes:
-
-- vegetables and fruit
-- animals
-- vehicles and transport
-- home and furniture
-- kitchen and dining
-- food and drinks
-- bathroom and hygiene
-- clothing and accessories
-- electronics and appliances
-- tools and repair
-- school and study
-- office and work
-- shopping and money
-- places and buildings
-- city and street
-- weather and nature
-- body and health
-- cleaning and laundry
-- cooking
-- time and calendar
-- family and people
-- colors and appearance
-- sports and exercise
-- travel
-
-The original dictionaries are retained. V12 additionally adds **83 Japanese** and **49 Cantonese** curated everyday vocabulary entries where the bundled source data did not contain an exact matching form, including vegetables, household objects, appliances, hygiene items, animals, vehicles, and electronics.
-
-### English is mandatory on learner-facing content
-
-Every learner-facing vocabulary item, static sentence, static passage, casual item, and audited grammar context now has an English meaning or translation. Context Browser shows English directly under sentences and passages. Study and review still hide the answer until reveal so comprehension is not spoiled.
-
-The raw HKCanCor corpus remains available internally as segmentation/context evidence, but untranslated raw corpus lines are no longer surfaced as learning examples. The release audit checks this policy in `tools/audit_content.py`.
+No fake browser-only username/password system is included because it would not provide real account security or cross-device account retrieval.

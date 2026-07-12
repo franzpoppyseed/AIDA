@@ -1,121 +1,123 @@
-# Context coverage report — V9
+# Context coverage report — V14
 
-## Learner-facing source items
+## Policy
 
-| Track | Type | Items | Sentence variants | Coherent passage variants |
-|---|---:|---:|---:|---:|
-| Japanese | Vocabulary | 8,056 | 24,168 | 24,168 |
-| Japanese | Grammar | 963 | 2,889 | 2,889 |
-| Cantonese | Vocabulary | 25,918 | 77,754 | 77,754 |
-| Cantonese | Grammar | 67 | 201 | 201 |
-| **Total** |  | **35,004** | **105,012** | **105,012** |
+V14 uses a **specific-or-nothing** rule for learner-facing context.
 
-Context is materialized on demand rather than stored as hundreds of thousands of duplicate runtime cards.
+AIDA does not generate a sentence by dropping an arbitrary vocabulary word or grammar label into a generic frame. A learner-facing sentence must be connected to the exact item through one of these evidence paths:
 
-## Three-stage progression
+1. item-specific curated context;
+2. manually audited grammar context;
+3. exact-expression translated corpus context;
+4. exact bundled source example; or
+5. exact occurrence inside a curated reading-bank passage.
 
-Every source item exposes:
+When no trustworthy context is available, the item may be studied as a word/grammar card without a sentence. Missing coverage is treated as a content backlog, not permission to fabricate filler.
 
-```text
-EASIER → BUILD → HARDER
-```
+## Active source inventory
 
-The progression is skill-specific. Repeated listening exposure can advance while recognition remains on another state because listening and recognition no longer share one universal exposure counter.
+| Track | Type | Active items |
+|---|---:|---:|
+| Japanese | Vocabulary | 8,056 |
+| Japanese | Grammar | 963 |
+| Cantonese | Vocabulary | 25,918 |
+| Cantonese | Grammar | 67 |
+| **Total** |  | **35,004** |
 
-## Coherent passage construction
+Unlike older releases, V14 does not claim a fixed number of generated variants per item. The number of examples shown is the number of trustworthy examples currently available.
 
-A passage variant is built from:
+## Exact everyday-supplement coverage
 
-1. a semantic-domain scenario setup
-2. an authentic, bundled, original, or deterministic target-containing anchor context
-3. discourse framing appropriate to the difficulty stage
-4. a consequence, reconsideration, evidence step, or inference step
+The V12 supplement added concrete everyday vocabulary that was missing from the source dictionaries. V14 gives every supplement entry an exact item-specific example:
 
-The three variants are not simple concatenations of the three sentence cards.
+- Japanese: **83 / 83**
+- Cantonese: **49 / 49**
 
-### EASIER
+Every learner-facing example has English. Cantonese examples also have Jyutping.
 
-- short everyday setup
-- target-containing central event/claim
-- direct consequence or follow-up
-- detail and sequence questions
+## Japanese grammar context coverage
 
-### BUILD
+The V14 static registry contains:
 
-- initial expectation
-- target-containing event/claim
-- changed interpretation
-- purpose, change-in-view, and evidence questions
+- **963** grammar registry keys;
+- **437** grammar items with one or more verified learner-facing contexts;
+- **1,061** verified Japanese grammar examples;
+- **129 / 129 N5 grammar items** with verified contexts.
 
-### HARDER
+Evidence comes from manually audited overrides or conservative translated-corpus matches that passed offline construction-signature and token-boundary checks.
 
-- contextual setup
-- target-containing event/claim
-- broader reasoning
-- delayed conclusion or information gathering
-- context, reasoning, implication, and summary questions
+Higher-level Japanese grammar is intentionally conservative. If a form is too ambiguous to verify safely from the available corpus evidence, the registry can remain empty. This avoids false matches such as:
 
-## Exhaustive validation
+- `い` inside an unrelated form being treated as an い-adjective;
+- a short grammar string being found inside a different lexical word;
+- a surface-identical expression being accepted with the wrong grammatical sense.
 
-The V9 validation pass generated all three passage variants for the original 34,872 active vocabulary/grammar items; V12 adds 132 curated everyday supplement entries that use the same runtime generation system:
+## Cantonese grammar context coverage
 
-- 104,616 generated passage variants checked
-- 348,720 generated comprehension questions checked
-- 0 duplicate three-variant sets
-- 0 empty passages
-- 0 item-linked passages without comprehension questions
-- 0 generated “What does this word mean?” comprehension prompts
-- 0 Cantonese generated passages missing a reading/Jyutping string
+- **67 / 67** grammar items have manually audited contexts;
+- **201** audited Cantonese grammar examples;
+- learner-facing examples include Jyutping and English.
 
-Question types observed:
+Runtime slot-filling and placeholder substitution are disabled.
 
-- CENTRAL DETAIL
-- SEQUENCE
-- PURPOSE
-- CHANGE IN VIEW
-- EVIDENCE
-- INFERENCE
-- CONTEXT
-- REASONING
-- IMPLICATION
-- SUMMARY
+## Vocabulary context sources
 
-## Context source priority
+### Japanese vocabulary
 
-### Japanese vocabulary and grammar
+Priority:
 
-1. selected Tatoeba/Tanaka-WWWJDIC Japanese–English context
-2. original AIDA grammar examples where no imported match exists
-3. deterministic AIDA fallback for remaining gaps
+1. exact item-specific registry context;
+2. exact-expression Japanese–English corpus example;
+3. exact bundled source example, when present.
+
+No generic fallback sentence is created.
 
 ### Cantonese vocabulary
 
-1. bundled vocabulary examples with Jyutping
-2. HKCanCor conversational context
-3. deterministic AIDA fallback
+Priority:
 
-### Cantonese grammar
+1. exact item-specific registry context;
+2. exact bundled example with English/Jyutping when available;
+3. translated exact corpus evidence when available.
 
-Target-language structure instantiations with varied people, objects, times, and places.
+Raw HKCanCor utterances without English remain internal parser/corpus evidence and are not surfaced as learning cards.
 
-Generated/original material is identified as AIDA material rather than corpus-authentic text.
+## Multi-sentence coherence policy
 
-## Imported/bundled coverage before fallback
+AIDA never combines unrelated sentence examples to manufacture a passage.
 
-- Japanese vocabulary with imported context: 6,991 / 8,056 (new everyday supplement items use generated/curated runtime context)
-- Japanese grammar with imported corpus context: 742 / 963
-- Japanese grammar with at least three non-meta contexts after AIDA supplementation: 963 / 963
-- Cantonese vocabulary with bundled examples: 24,927 / 25,918
-- Cantonese vocabulary with HKCanCor context: 4,224 / 25,918
-- Cantonese vocabulary covered by bundled examples or HKCanCor: 25,130 / 25,918
+Passage study and passage display use complete entries from the curated reading banks. A passage is stored as one unit, so later sentences belong to the same situation, event, explanation, or argument as the earlier sentences.
 
-## Cantonese pronunciation coverage
+For a searched vocabulary or grammar item, a passage is shown only when that complete curated passage contains the target item.
 
-The learner-facing active Cantonese dataset contains 25,918 vocabulary items and 67 grammar items. Active items retain learner-visible Jyutping/pronunciation data. Generated Cantonese passage support lines also include Jyutping so answer reveal and synchronized transcript rendering can annotate characters.
+If no matching curated passage exists, AIDA does not create one by joining independent examples.
 
+## Current verification gates
 
-## V12 semantic topic expansion
+Run:
 
-V12 adds 26 semantic topic labels across the existing vocabulary dictionaries and a curated 108-concept bilingual everyday supplement. Exact missing entries were added only when the bundled dictionary lacked the corresponding surface form: 83 Japanese items and 49 Cantonese items. All supplement entries have English meanings; Cantonese supplement entries also have Jyutping.
+```bash
+python tools/audit_item_specific_contexts.py
+python tools/audit_reality_contexts.py
+python tools/audit_content.py
+```
 
-Untranslated raw HKCanCor lines remain in the corpus file for parser/context evidence, but the learner-facing context selector filters them out. Every sentence or passage shown as a learning example has an English translation.
+The V14 item-specific audit checks:
+
+- all 83 Japanese everyday-supplement entries have exact item-specific context and English;
+- all 49 Cantonese everyday-supplement entries have exact item-specific context, English, and Jyutping;
+- all 129 N5 Japanese grammar items have verified contexts;
+- all 67 Cantonese grammar items have audited contexts;
+- low-confidence automatic grammar signatures are excluded;
+- runtime generic sentence generators are absent.
+
+The reality-context audit checks:
+
+- the item-specific registry is loaded;
+- runtime generic generators are removed;
+- passage study uses curated reading banks;
+- independent sentences are not stitched into passages.
+
+## Design trade-off
+
+V14 deliberately prefers **precision over nominal coverage**. A missing example is visible work to be completed later; a natural-looking but conceptually wrong example can actively teach the learner the wrong thing.

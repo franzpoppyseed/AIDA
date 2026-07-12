@@ -1,0 +1,15 @@
+{
+  "policy": "item-specific-only",
+  "japanese_everyday_specific_contexts": 83,
+  "cantonese_everyday_specific_contexts": 49,
+  "japanese_grammar_registry_items": 963,
+  "japanese_grammar_items_with_contexts": 437,
+  "japanese_grammar_context_examples": 1061,
+  "japanese_n5_grammar_items": 129,
+  "japanese_n5_grammar_items_with_contexts": 129,
+  "cantonese_grammar_registry_items": 67,
+  "cantonese_grammar_items_with_contexts": 67,
+  "cantonese_grammar_context_examples": 201,
+  "runtime_generic_sentence_generators": 0,
+  "errors": []
+}

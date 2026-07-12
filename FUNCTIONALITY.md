@@ -1,4 +1,4 @@
-# AIDA V10 functionality map
+# AIDA V14 functionality map
 
 ## Independent language tracks
 
@@ -64,26 +64,28 @@ Practice cycles through transformation, noticing, and register judgment. Casual 
 
 ## Grammar-context audit
 
-Grammar examples are validated before display.
+Grammar examples resolve through the V14 per-item registry before display.
 
-- Japanese grammar cards checked: **963**
-- 150 high-risk Japanese cards: 3 manual audited examples each
-- 8 broad class/inflection cards: dedicated concept validators
-- remaining 805 Japanese cards: 3 source contexts each after stricter construction-signature audit
-- Cantonese grammar cards: **67 / 67** with 3 manual audited examples each
+- Japanese grammar registry keys: **963**
+- Japanese grammar items with verified contexts: **437**
+- verified Japanese grammar examples: **1,061**
+- N5 Japanese grammar coverage: **129 / 129**
+- Cantonese grammar items with manually audited contexts: **67 / 67**
+- audited Cantonese grammar examples: **201**
 
-The old `い-Adjectives` error is specifically regression-tested. Sentences that merely contain the character `い` do not qualify as い-adjective examples.
+Character overlap alone is not grammatical evidence. The old `い-Adjectives` failure is specifically prevented, and ambiguous higher-level Japanese grammar may show no sentence rather than a potentially wrong one.
 
 See `GRAMMAR_CONTEXT_AUDIT.md`.
 
-## Coherent context engine
+## Item-specific context engine
 
-Every active vocabulary and grammar item can provide:
+Learner-facing sentences are not generated from reusable generic templates.
 
-- 3 sentence variations
-- 3 coherent passage variations
+A context must be tied to the exact item through an item-specific curated example, an audited grammar example, an exact translated corpus example, an exact bundled source example, or an exact match inside a curated reading-bank passage.
 
-Passages use a semantic-domain scenario, a target-containing anchor context, and progressive discourse framing. Harder variants require more interpretation and inference rather than simply adding unrelated sentences.
+The interface does not force a fixed number of examples. If no trustworthy context exists, it shows none.
+
+Independent sentence examples are never concatenated to manufacture a passage. Multi-sentence study uses complete curated passages whose later sentences continue the same situation, event, explanation, or argument.
 
 ## Production practice
 
@@ -110,7 +112,9 @@ Cantonese uses ruby annotations so Jyutping sits above the Chinese characters af
 
 ## Passage comprehension
 
-Generated questions are discourse-level:
+Passage practice uses complete curated reading-bank entries, not generated multi-sentence wrappers around arbitrary words.
+
+Questions are discourse-level:
 
 - central detail
 - sequence/purpose
@@ -157,13 +161,16 @@ It also retains aggregate base-item coverage and XP summaries.
 
 ## Context Browser
 
-Search by term, reading, Jyutping, meaning, or grammar item. Review:
+Search by term, reading, Jyutping, meaning, or grammar item. The browser shows only the verified context actually available for that item:
 
-- 3 validated sentence variants
-- 3 coherent passage variants
-- meaningful comprehension questions
-- exact reading-bank matches
-- synchronized context audio
+- exact item-specific sentences
+- audited grammar examples
+- translated exact corpus examples
+- exact bundled examples
+- complete curated reading-bank passages containing the target
+- synchronized audio where available
+
+It does not fabricate three sentence or passage variants when trustworthy material is unavailable.
 
 ## Usage Lab
 
@@ -205,12 +212,23 @@ Hosted Cantonese route:
 - profile targets, goals, and retention setting preserved across clear-progress reset
 
 
-## V12 semantic vocabulary topics
+## V13 semantic vocabulary topics
 
 Japanese and Cantonese vocabulary can be filtered by 26 everyday semantic topics. The topic layer is additive to the original source metadata and includes vegetables, fruit, animals, transport, household objects, appliances, hygiene, tools, school, work, shopping, places, weather, health, cooking, and other daily-life domains.
 
-V12 also adds a curated bilingual everyday supplement where the original dictionaries lacked an exact entry: 83 Japanese items and 49 Cantonese items. Every supplemental word has an English meaning and a pronunciation field; Cantonese supplement entries have Jyutping.
+V13 also adds a curated bilingual everyday supplement where the original dictionaries lacked an exact entry: 83 Japanese items and 49 Cantonese items. Every supplemental word has an English meaning and a pronunciation field; Cantonese supplement entries have Jyutping.
 
-## V12 learner-facing English coverage
+## V13 learner-facing English coverage
 
 English is mandatory for every learner-facing word, static sentence, static passage, casual item, and audited grammar context. Context Browser displays English under sentence and passage examples. Study/review continues to hide answers until reveal. Raw Cantonese corpus lines without translations remain internal parser/corpus evidence and are not surfaced as learning cards.
+
+
+## V14 item-specific context policy
+
+- Removed learner-facing runtime sentence templates and the old coherent-scenario passage generator.
+- Added `data/item_specific_contexts.js`, a per-item context registry.
+- Added exact, item-specific examples for all V12 everyday supplement entries.
+- Japanese grammar contexts now come from manually audited overrides or authentic corpus sentences containing a strong construction signature.
+- Cantonese grammar contexts now come from the manually audited registry only.
+- Independent sentence examples are never stitched into passages; multi-sentence study uses the curated reading banks only.
+- Items without a trustworthy sentence show no example instead of fabricated filler.

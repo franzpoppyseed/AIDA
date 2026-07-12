@@ -24,6 +24,8 @@ Selected Cantonese conversational utterances in `data/context_examples.js` were 
 
 The selected utterances are used for conversational context, segmentation evidence, and Jyutping where available.
 
-## AIDA-generated material
+## AIDA-authored and curated material
 
-When an item has fewer than three imported or bundled contexts, AIDA generates deterministic fallback examples at runtime. Those examples are labeled as AIDA-generated/fallback context and are not attributed to Tatoeba, HKCanCor, or another external corpus.
+AIDA also contains item-specific examples written or manually selected for the exact learner-facing vocabulary or grammar point. These are labeled as curated/audited AIDA material and are not attributed to Tatoeba, HKCanCor, or another external corpus.
+
+V14 does **not** use a generic runtime sentence generator to fill context gaps. If no trustworthy item-specific, audited, translated corpus, bundled, or curated reading-bank context is available, the learner-facing context is left absent.

@@ -5,7 +5,7 @@
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
   const DATA = window.AIDA_DATA || {};
   const CONTEXT = DATA.contextExamples || {};
-  const GRAMMAR_OVERRIDES = DATA.grammarOverrides || {};
+  const SPECIFIC_CONTEXTS = DATA.itemSpecificContexts || {};
   const STORAGE_KEY = "aida.functional.v3.state";
   const DAY = 86_400_000;
 
@@ -834,7 +834,7 @@
     return metadataParts(kind, item).join(" · ");
   }
 
-  // ---------- exhaustive context coverage ----------
+  // ---------- item-specific context coverage ----------
 
   const contextCache = new Map();
 
@@ -842,33 +842,47 @@
     return kind.endsWith("G") ? humanizedPattern(kind, item) : humanizedPattern(kind, item);
   }
 
+  function itemSpecificContexts(kind, item) {
+    if (kind === "jpV") return SPECIFIC_CONTEXTS.japanese?.vocabulary?.[item.id] || [];
+    if (kind === "jpG") return SPECIFIC_CONTEXTS.japanese?.grammar?.[item.id] || [];
+    if (kind === "yueV") return SPECIFIC_CONTEXTS.cantonese?.vocabulary?.[item.id] || [];
+    if (kind === "yueG") return SPECIFIC_CONTEXTS.cantonese?.grammar?.[item.id] || [];
+    return [];
+  }
+
   function authenticContexts(kind, item) {
-    if (kind === "jpV") return CONTEXT.japanese?.vocabulary?.[item.id] || [];
-    if (kind === "jpG") return [
-      ...(GRAMMAR_OVERRIDES.japanese?.[item.id] || []),
-      ...(CONTEXT.japanese?.grammar?.[item.id] || [])
-    ];
-    if (kind === "yueG") return [
-      ...(GRAMMAR_OVERRIDES.cantonese?.[item.id] || [])
-    ];
+    const specific = itemSpecificContexts(kind, item);
+    if (kind === "jpG" || kind === "yueG") return specific;
+
+    if (kind === "jpV") {
+      const surface = String(item.expression || "").trim();
+      const corpus = (CONTEXT.japanese?.vocabulary?.[item.id] || []).filter(example => {
+        const text = String(example.text || "").trim();
+        return surface && text.includes(surface) && String(example.translation || "").trim();
+      });
+      return [...specific, ...corpus];
+    }
+
     if (kind === "yueV") {
+      const surface = String(item.word || "").trim();
       const bundled = (item.examples || []).map(example => ({
         text: example.sentence || "",
         reading: example.jyutping || "",
         translation: example.meaning || "",
-        source: "Bundled vocabulary example"
-      })).filter(example => example.text);
-      const corpus = (CONTEXT.cantonese?.corpus?.[item.id] || []).map(example => ({
+        source: "Bundled vocabulary example",
+        qualityStatus: "curated"
+      })).filter(example => surface && example.text.includes(surface) && example.translation);
+      const translatedCorpus = (CONTEXT.cantonese?.corpus?.[item.id] || []).map(example => ({
         text: example.text || "",
         reading: example.jyutping || "",
         translation: example.translation || "",
-        source: example.source || "HKCanCor via PyCantonese"
-      })).filter(example => example.text && example.translation);
-      return [...bundled, ...corpus];
+        source: example.source || "HKCanCor via PyCantonese",
+        qualityStatus: "corpus"
+      })).filter(example => surface && example.text.includes(surface) && example.translation);
+      return [...specific, ...bundled, ...translatedCorpus];
     }
-    return [];
+    return specific;
   }
-
 
   const JP_CURATED_GRAMMAR_CONTEXTS = {
     "い-adjectives": [
@@ -951,223 +965,27 @@
   function grammarContextMatches(kind, item, candidate) {
     const text = String(candidate?.text || "");
     if (!text) return false;
-    if (candidate?.auditVerified === true || candidate?.source === "AIDA audited grammar override") return true;
-    if (kind === "jpG") {
-      const classExamples = japaneseClassGrammarContexts(item);
-      if (classExamples.length) return classExamples.some(example => example.text === text);
-      const literals = grammarLiteralCandidates(kind, item);
-      if (!literals.length) return false;
-      const meaningful = literals.filter(token => token.length >= 2);
-      if (meaningful.length) return meaningful.some(token => text.includes(token));
-      if (literals.length === 1) return japaneseParticleContextMatches(text, literals[0]);
-      return literals.some(token => text.includes(token));
-    }
-    if (kind === "yueG") {
-      const literals = grammarLiteralCandidates(kind, item).filter(token => token.length >= 1);
-      if (!literals.length) return false;
-      const long = literals.filter(token => token.length >= 2);
-      return (long.length ? long : literals).some(token => text.includes(token));
-    }
-    return true;
+    // Grammar examples are admitted only through the offline per-item registry.
+    // Manually audited entries are trusted; corpus entries must retain the exact
+    // construction signature that was checked when the registry was built.
+    if (candidate?.auditVerified === true || normalize(candidate?.qualityStatus || "") === "audited") return true;
+    const signature = String(candidate?.matchedSignature || "").trim();
+    return Boolean(signature && text.includes(signature));
   }
 
-  function everydayVocabularyContexts(kind, item) {
-    if (kind !== "jpV" && kind !== "yueV") return [];
-    const topics = new Set(itemTopics(kind, item));
-    if (!topics.size) return [];
-    const edible = ["Vegetables", "Fruit", "Food & ingredients", "Drinks"].some(topic => topics.has(topic));
-    const animals = topics.has("Animals");
-    const vehicles = topics.has("Vehicles & transport");
-    const objectLike = ["Home & furniture", "Kitchen & dining", "Bathroom & hygiene", "Clothing & accessories", "Electronics & appliances", "Tools & repair", "Cleaning & laundry", "School & study", "Office & work"].some(topic => topics.has(topic));
-    const gloss = String(item.meaning || "").split(/[;,/]/)[0].trim();
-    if (kind === "jpV") {
-      const target = item.expression || "";
-      if (edible) return [
-        { text: `スーパーで${target}を買いました。`, translation: `I bought ${gloss || target} at the supermarket.`, source: "AIDA everyday-topic context" },
-        { text: `${target}を切って、夕飯の料理に入れました。`, translation: `I cut the ${gloss || target} and added it to dinner.`, source: "AIDA everyday-topic context" },
-        { text: `今日は${target}を使って料理しました。`, translation: `Today I cooked using ${gloss || target}.`, source: "AIDA everyday-topic context" }
-      ];
-      if (animals) return [
-        { text: `公園で${target}を見ました。`, translation: `I saw a ${gloss || target} in the park.`, source: "AIDA everyday-topic context" },
-        { text: `子どもが${target}を見て喜びました。`, translation: `The child was happy to see the ${gloss || target}.`, source: "AIDA everyday-topic context" },
-        { text: `写真を撮ろうとしたら、${target}がすぐに動きました。`, translation: `When I tried to take a picture, the ${gloss || target} moved right away.`, source: "AIDA everyday-topic context" }
-      ];
-      if (vehicles) return [
-        { text: `駅の近くで${target}を見ました。`, translation: `I saw a ${gloss || target} near the station.`, source: "AIDA everyday-topic context" },
-        { text: `今日は${target}を使って移動しました。`, translation: `Today I traveled using ${gloss || target}.`, source: "AIDA everyday-topic context" },
-        { text: `道路が混んでいて、${target}もゆっくり進んでいました。`, translation: `The road was crowded, and the ${gloss || target} was moving slowly too.`, source: "AIDA everyday-topic context" }
-      ];
-      if (objectLike) return [
-        { text: `新しい${target}を買いました。`, translation: `I bought a new ${gloss || target}.`, source: "AIDA everyday-topic context" },
-        { text: `${target}は家の中の決まった場所に置いてあります。`, translation: `The ${gloss || target} is kept in its usual place at home.`, source: "AIDA everyday-topic context" },
-        { text: `必要なときにすぐ使えるように、${target}を手の届く場所に置いています。`, translation: `I keep the ${gloss || target} within reach so I can use it when needed.`, source: "AIDA everyday-topic context" }
-      ];
-    } else {
-      const word = item.word || "";
-      const jy = item.jyutping || "";
-      if (edible) return [
-        { text: `我喺超級市場買咗${word}。`, reading: `ngo5 hai2 ciu1 kap1 si5 coeng4 maai5 zo2 ${jy}.`, translation: `I bought ${gloss || word} at the supermarket.`, source: "AIDA everyday-topic context" },
-        { text: `我切好${word}之後，就放落餸入面。`, reading: `ngo5 cit3 hou2 ${jy} zi1 hau6, zau6 fong3 lok6 sung3 jap6 min6.`, translation: `After cutting the ${gloss || word}, I added it to the dish.`, source: "AIDA everyday-topic context" },
-        { text: `我今日用${word}煮晚餐。`, reading: `ngo5 gam1 jat6 jung6 ${jy} zyu2 maan5 caan1.`, translation: `Today I cooked dinner using ${gloss || word}.`, source: "AIDA everyday-topic context" }
-      ];
-      if (animals) return [
-        { text: `我喺公園見到${word}。`, reading: `ngo5 hai2 gung1 jyun2 gin3 dou3 ${jy}.`, translation: `I saw a ${gloss || word} in the park.`, source: "AIDA everyday-topic context" },
-        { text: `個細路見到${word}之後好開心。`, reading: `go3 sai3 lou6 gin3 dou3 ${jy} zi1 hau6 hou2 hoi1 sam1.`, translation: `The child was very happy after seeing the ${gloss || word}.`, source: "AIDA everyday-topic context" },
-        { text: `我想影相嗰陣，${word}突然郁咗。`, reading: `ngo5 soeng2 jing2 soeng2 go2 zan6, ${jy} dat6 jin4 juk1 zo2.`, translation: `When I wanted to take a photo, the ${gloss || word} suddenly moved.`, source: "AIDA everyday-topic context" }
-      ];
-      if (vehicles) return [
-        { text: `我喺車站附近見到${word}。`, reading: `ngo5 hai2 ce1 zaam6 fu6 gan6 gin3 dou3 ${jy}.`, translation: `I saw a ${gloss || word} near the station.`, source: "AIDA everyday-topic context" },
-        { text: `我今日搭${word}去另一區。`, reading: `ngo5 gam1 jat6 daap3 ${jy} heoi3 ling6 jat1 keoi1.`, translation: `Today I took the ${gloss || word} to another district.`, source: "AIDA everyday-topic context" },
-        { text: `條路好塞，${word}都行得好慢。`, reading: `tiu4 lou6 hou2 sak1, ${jy} dou1 haang4 dak1 hou2 maan6.`, translation: `The road was congested, so the ${gloss || word} was moving very slowly too.`, source: "AIDA everyday-topic context" }
-      ];
-      if (objectLike) return [
-        { text: `我新買咗${word}。`, reading: `ngo5 san1 maai5 zo2 ${jy}.`, translation: `I bought a new ${gloss || word}.`, source: "AIDA everyday-topic context" },
-        { text: `我將${word}放喺屋企固定嘅位置。`, reading: `ngo5 zoeng1 ${jy} fong3 hai2 uk1 kei2 gu3 ding6 ge3 wai6 zi3.`, translation: `I keep the ${gloss || word} in a fixed place at home.`, source: "AIDA everyday-topic context" },
-        { text: `為咗需要嗰陣即刻用到，我將${word}放喺容易拎到嘅地方。`, reading: `wai6 zo2 seoi1 jiu3 go2 zan6 zik1 hak1 jung6 dou2, ngo5 zoeng1 ${jy} fong3 hai2 jung4 ji6 ling1 dou2 ge3 dei6 fong1.`, translation: `I keep the ${gloss || word} somewhere easy to reach so I can use it immediately when needed.`, source: "AIDA everyday-topic context" }
-      ];
-    }
+
+  // Vocabulary examples are item-specific or corpus-backed. There is deliberately no generic fallback generator.
+
+
+  function japaneseFallbackContexts() {
     return [];
   }
 
-  function japaneseFallbackContexts(kind, item) {
-    const target = contextTargetLabel(kind, item);
-    const meaning = meaningOf(item);
-    if (kind === "jpV") {
-      const gloss = String(meaning || "").split(/[;,/]/)[0].trim();
-      const reading = String(item.reading || item.expression || "");
-      const looksVerb = /^to\s+/i.test(gloss) || /[うくぐすつぬぶむる]$/.test(reading) && /^to\b/i.test(String(meaning || ""));
-      const looksAdjective = /adjective|\badj\.?\b|beautiful|good|bad|big|small|new|old|easy|difficult|busy|happy|sad|expensive|cheap/i.test(String(meaning || ""));
-      const everyday = everydayVocabularyContexts(kind, item);
-      if (!looksVerb && !looksAdjective && everyday.length) return everyday;
-      if (looksVerb) {
-        return [
-          { text: `${target}ことは大切です。`, translation: `${gloss || target} is important.`, source: "AIDA generated usage context" },
-          { text: `時間があれば、${target}つもりです。`, translation: `If I have time, I intend to ${gloss.replace(/^to\s+/i, "") || target}.`, source: "AIDA generated usage context" },
-          { text: `毎日少しずつ${target}ようにしています。`, translation: `I try to ${gloss.replace(/^to\s+/i, "") || target} little by little every day.`, source: "AIDA generated usage context" }
-        ];
-      }
-      if (looksAdjective) {
-        return [
-          { text: `これはとても${target}です。`, translation: `This is very ${gloss || target}.`, source: "AIDA generated usage context" },
-          { text: `思ったより${target}です。`, translation: `It is ${gloss || target} compared with what I expected.`, source: "AIDA generated usage context" },
-          { text: `本当に${target}と思います。`, translation: `I really think it is ${gloss || target}.`, source: "AIDA generated usage context" }
-        ];
-      }
-      return [
-        { text: `今日は${target}について話しました。`, translation: `Today we talked about ${gloss || target}.`, source: "AIDA generated usage context" },
-        { text: `${target}は大切なテーマです。`, translation: `${gloss || target} is an important topic.`, source: "AIDA generated usage context" },
-        { text: `最近、${target}に興味があります。`, translation: `Recently, I have been interested in ${gloss || target}.`, source: "AIDA generated usage context" }
-      ];
-    }
-    const classContexts = japaneseClassGrammarContexts(item);
-    if (classContexts.length) return classContexts;
-    // Do not invent a sentence merely because it contains the same characters as a
-    // grammar label. Unverified grammar cards intentionally show no context tile.
+
+  function cantoneseFallbackContexts() {
     return [];
   }
 
-  const YUE_PLACEHOLDER_SETS = [
-    { A: "我", B: "學生", S: "我", O: "呢本書", X: "今日", Y: "聽日", SUBJECT: "我", PLACE: "屋企", CLASSIFIER: "個", PRONOUN: "我", "DIRECT OBJECT": "呢本書", "INDIRECT OBJECT": "朋友", CLAUSE: "我今日返工", LOCATION: "屋企", TIME: "今日", PERSON: "朋友", SOURCE: "公司", VP: "食飯", PHRASE: "好快", "REDUPLICATED ADVERB": "慢慢", RESULT: "好攰", NUMBER: "三", "STATIVE VERB": "鍾意", "RELATIVE CLAUSE": "我昨日買", YEAR: "二零二六", MONTH: "七", DAY: "十一", HOUR: "三", MINUTES: "十五", DURATION: "兩", REQUEST: "幫我開門", VERB: "食", V: "食", NOUN: "朋友", N: "朋友", ADJ: "開心", CL: "個" },
-    { A: "佢", B: "老師", S: "佢", O: "杯茶", X: "朝早", Y: "夜晚", SUBJECT: "佢", PLACE: "公司", CLASSIFIER: "本", PRONOUN: "佢", "DIRECT OBJECT": "杯茶", "INDIRECT OBJECT": "阿媽", CLAUSE: "佢聽日放假", LOCATION: "公司", TIME: "朝早", PERSON: "阿媽", SOURCE: "學校", VP: "返工", PHRASE: "好清楚", "REDUPLICATED ADVERB": "快快", RESULT: "好開心", NUMBER: "兩", "STATIVE VERB": "明白", "RELATIVE CLAUSE": "佢頭先講", YEAR: "二零二五", MONTH: "十二", DAY: "二十四", HOUR: "八", MINUTES: "三十", DURATION: "三", REQUEST: "畀杯水我", VERB: "講", V: "講", NOUN: "工作", N: "工作", ADJ: "方便", CL: "本" },
-    { A: "我哋", B: "香港人", S: "我哋", O: "個問題", X: "而家", Y: "下次", SUBJECT: "我哋", PLACE: "學校", CLASSIFIER: "件", PRONOUN: "我哋", "DIRECT OBJECT": "個問題", "INDIRECT OBJECT": "老師", CLAUSE: "我哋學緊廣東話", LOCATION: "學校", TIME: "而家", PERSON: "老師", SOURCE: "屋企", VP: "學廣東話", PHRASE: "好自然", "REDUPLICATED ADVERB": "靜靜", RESULT: "好成功", NUMBER: "五", "STATIVE VERB": "需要", "RELATIVE CLAUSE": "我哋一齊做", YEAR: "二零二四", MONTH: "三", DAY: "一", HOUR: "十", MINUTES: "四十五", DURATION: "一", REQUEST: "再講一次", VERB: "做", V: "做", NOUN: "方法", N: "方法", ADJ: "重要", CL: "件" }
-  ];
-  const YUE_JYUTPING_PLACEHOLDER_SETS = [
-    { A: "ngo5", B: "hok6 saang1", S: "ngo5", O: "ni1 bun2 syu1", X: "gam1 jat6", Y: "ting1 jat6", SUBJECT: "ngo5", PLACE: "uk1 kei2", CLASSIFIER: "go3", PRONOUN: "ngo5", "DIRECT OBJECT": "ni1 bun2 syu1", "INDIRECT OBJECT": "pang4 jau5", CLAUSE: "ngo5 gam1 jat6 faan1 gung1", LOCATION: "uk1 kei2", TIME: "gam1 jat6", PERSON: "pang4 jau5", SOURCE: "gung1 si1", VP: "sik6 faan6", PHRASE: "hou2 faai3", "REDUPLICATED ADVERB": "maan6 maan6", RESULT: "hou2 gui6", NUMBER: "saam1", "STATIVE VERB": "zung1 ji3", "RELATIVE CLAUSE": "ngo5 zok6 jat6 maai5", YEAR: "ji6 ling4 ji6 luk6", MONTH: "cat1", DAY: "sap6 jat1", HOUR: "saam1", MINUTES: "sap6 ng5", DURATION: "loeng5", REQUEST: "bong1 ngo5 hoi1 mun4", VERB: "sik6", V: "sik6", NOUN: "pang4 jau5", N: "pang4 jau5", ADJ: "hoi1 sam1", CL: "go3" },
-    { A: "keoi5", B: "lou5 si1", S: "keoi5", O: "bui1 caa4", X: "ziu1 zou2", Y: "je6 maan5", SUBJECT: "keoi5", PLACE: "gung1 si1", CLASSIFIER: "bun2", PRONOUN: "keoi5", "DIRECT OBJECT": "bui1 caa4", "INDIRECT OBJECT": "aa3 maa1", CLAUSE: "keoi5 ting1 jat6 fong3 gaa3", LOCATION: "gung1 si1", TIME: "ziu1 zou2", PERSON: "aa3 maa1", SOURCE: "hok6 haau6", VP: "faan1 gung1", PHRASE: "hou2 cing1 co2", "REDUPLICATED ADVERB": "faai3 faai3", RESULT: "hou2 hoi1 sam1", NUMBER: "loeng5", "STATIVE VERB": "ming4 baak6", "RELATIVE CLAUSE": "keoi5 tau4 sin1 gong2", YEAR: "ji6 ling4 ji6 ng5", MONTH: "sap6 ji6", DAY: "ji6 sap6 sei3", HOUR: "baat3", MINUTES: "saam1 sap6", DURATION: "saam1", REQUEST: "bei2 bui1 seoi2 ngo5", VERB: "gong2", V: "gong2", NOUN: "gung1 zok3", N: "gung1 zok3", ADJ: "fong1 bin6", CL: "bun2" },
-    { A: "ngo5 dei6", B: "hoeng1 gong2 jan4", S: "ngo5 dei6", O: "go3 man6 tai4", X: "ji4 gaa1", Y: "haa6 ci3", SUBJECT: "ngo5 dei6", PLACE: "hok6 haau6", CLASSIFIER: "gin6", PRONOUN: "ngo5 dei6", "DIRECT OBJECT": "go3 man6 tai4", "INDIRECT OBJECT": "lou5 si1", CLAUSE: "ngo5 dei6 hok6 gan2 gwong2 dung1 waa2", LOCATION: "hok6 haau6", TIME: "ji4 gaa1", PERSON: "lou5 si1", SOURCE: "uk1 kei2", VP: "hok6 gwong2 dung1 waa2", PHRASE: "hou2 zi6 jin4", "REDUPLICATED ADVERB": "zing6 zing6", RESULT: "hou2 sing4 gung1", NUMBER: "ng5", "STATIVE VERB": "seoi1 jiu3", "RELATIVE CLAUSE": "ngo5 dei6 jat1 cai4 zou6", YEAR: "ji6 ling4 ji6 sei3", MONTH: "saam1", DAY: "jat1", HOUR: "sap6", MINUTES: "sei3 sap6 ng5", DURATION: "jat1", REQUEST: "zoi3 gong2 jat1 ci3", VERB: "zou6", V: "zou6", NOUN: "fong1 faat3", N: "fong1 faat3", ADJ: "zung6 jiu3", CL: "gin6" }
-  ];
-
-  function replaceAsciiPlaceholders(text, replacements, joiner = "") {
-    let output = String(text || "");
-    Object.keys(replacements).sort((a, b) => b.length - a.length).forEach(token => {
-      output = output.replace(new RegExp(`(^|[^A-Za-z])${token}(?=$|[^A-Za-z])`, "g"), (match, prefix) => `${prefix}${replacements[token]}`);
-    });
-    return output.replace(/\s*\+\s*/g, joiner).replace(/\s{2,}/g, " ").trim();
-  }
-
-  function cantoneseGrammarContexts(item) {
-    const pattern = String(item.pattern || "").trim();
-    const compactPattern = pattern.replace(/\s+/g, "");
-
-    // A few grammar records are labels for fixed conversational expressions rather
-    // than slot templates. Give those three genuinely different learner-facing uses
-    // instead of repeating the same heading three times.
-    if (compactPattern.includes("唔該/多謝") || (pattern.includes("唔該") && pattern.includes("多謝"))) {
-      return [
-        { text: "唔該，幫我開門。", reading: "m4 goi1, bong1 ngo5 hoi1 mun4.", translation: "Please help me open the door.", source: "AIDA grammar instantiation" },
-        { text: "唔該晒你。", reading: "m4 goi1 saai3 nei5.", translation: "Thank you very much.", source: "AIDA grammar instantiation" },
-        { text: "多謝你今日幫我。", reading: "do1 ze6 nei5 gam1 jat6 bong1 ngo5.", translation: "Thank you for helping me today.", source: "AIDA grammar instantiation" }
-      ];
-    }
-    if (compactPattern.includes("對唔住/唔好意思") || (pattern.includes("對唔住") && pattern.includes("唔好意思"))) {
-      return [
-        { text: "對唔住，我遲到咗。", reading: "deoi3 m4 zyu6, ngo5 ci4 dou3 zo2.", translation: "Sorry, I was late.", source: "AIDA grammar instantiation" },
-        { text: "唔好意思，阻你一陣。", reading: "m4 hou2 ji3 si1, zo2 nei5 jat1 zan6.", translation: "Excuse me for taking up a moment of your time.", source: "AIDA grammar instantiation" },
-        { text: "真係對唔住。", reading: "zan1 hai6 deoi3 m4 zyu6.", translation: "I am really sorry.", source: "AIDA grammar instantiation" }
-      ];
-    }
-    if (pattern.includes("...就...") || compactPattern === "…就…") {
-      return [
-        { text: "你去，我就去。", reading: "nei5 heoi3, ngo5 zau6 heoi3.", translation: "If you go, then I will go.", source: "AIDA grammar instantiation" },
-        { text: "如果落雨，我哋就留喺屋企。", reading: "jyu4 gwo2 lok6 jyu5, ngo5 dei6 zau6 lau4 hai2 uk1 kei2.", translation: "If it rains, then we will stay at home.", source: "AIDA grammar instantiation" },
-        { text: "做完功課就可以休息。", reading: "zou6 jyun4 gung1 fo3 zau6 ho2 ji5 jau1 sik1.", translation: "Once the homework is finished, you can rest.", source: "AIDA grammar instantiation" }
-      ];
-    }
-    if (/ADJ\s*-\s*ADJ\s*-?\s*哋/i.test(pattern)) {
-      return [
-        { text: "大家開開心心哋食飯。", reading: "daai6 gaa1 hoi1 hoi1 sam1 sam1 dei2 sik6 faan6.", translation: "Everyone ate together happily.", source: "AIDA grammar instantiation" },
-        { text: "佢快快脆脆哋做完份工。", reading: "keoi5 faai3 faai3 ceoi3 ceoi3 dei2 zou6 jyun4 fan6 gung1.", translation: "They finished the work quickly and efficiently.", source: "AIDA grammar instantiation" },
-        { text: "我哋舒舒服服哋坐低傾偈。", reading: "ngo5 dei6 syu1 syu1 fuk6 fuk6 dei2 co5 dai1 king1 gai2.", translation: "We sat down comfortably and chatted.", source: "AIDA grammar instantiation" }
-      ];
-    }
-
-    return YUE_PLACEHOLDER_SETS.map((replacements, index) => {
-      let text = replaceAsciiPlaceholders(pattern, replacements, "");
-      let reading = replaceAsciiPlaceholders(item.jyutping || "", YUE_JYUTPING_PLACEHOLDER_SETS[index], " ");
-      if (text.includes("→")) text = text.split("→").pop().trim();
-      if (reading.includes("→")) reading = reading.split("→").pop().trim();
-      text = text.replace(/[\[\]()~～]/g, "").trim();
-      reading = reading.replace(/[\[\]()~～]/g, "").trim().replace(/(?<=\d)(?=[A-Za-z])/g, " ");
-      return {
-        text: text || pattern,
-        reading,
-        translation: `Example of: ${item.meaning}`,
-        source: "AIDA grammar instantiation"
-      };
-    });
-  }
-
-  function cantoneseFallbackContexts(kind, item) {
-    if (kind === "yueG") return cantoneseGrammarContexts(item);
-    const word = item.word || "";
-    const jy = item.jyutping || "";
-    const meaning = item.meaning || "";
-    const gloss = String(meaning).split(/[;,/]/)[0].trim();
-    const looksVerb = /^to\s+/i.test(gloss) || /\bverb\b/i.test(meaning);
-    const looksAdjective = /adjective|\badj\.?\b|beautiful|good|bad|big|small|new|old|easy|difficult|busy|happy|sad|expensive|cheap/i.test(meaning);
-    const everyday = everydayVocabularyContexts(kind, item);
-    if (!looksVerb && !looksAdjective && everyday.length) return everyday;
-    if (looksVerb) {
-      const action = gloss.replace(/^to\s+/i, "") || word;
-      return [
-        { text: `我今日想${word}。`, reading: `ngo5 gam1 jat6 soeng2 ${jy}`, translation: `Today I want to ${action}.`, source: "AIDA generated usage context" },
-        { text: `佢成日都${word}。`, reading: `keoi5 seng4 jat6 dou1 ${jy}`, translation: `They often ${action}.`, source: "AIDA generated usage context" },
-        { text: `你可唔可以${word}？`, reading: `nei5 ho2 m4 ho2 ji5 ${jy}`, translation: `Can you ${action}?`, source: "AIDA generated usage context" }
-      ];
-    }
-    if (looksAdjective) {
-      return [
-        { text: `呢樣嘢好${word}。`, reading: `ni1 joeng6 je5 hou2 ${jy}`, translation: `This is very ${gloss || word}.`, source: "AIDA generated usage context" },
-        { text: `我覺得佢幾${word}。`, reading: `ngo5 gok3 dak1 keoi5 gei2 ${jy}`, translation: `I think it is quite ${gloss || word}.`, source: "AIDA generated usage context" },
-        { text: `今日比琴日更加${word}。`, reading: `gam1 jat6 bei2 kam4 jat6 gang3 gaa1 ${jy}`, translation: `Today is even more ${gloss || word} than yesterday.`, source: "AIDA generated usage context" }
-      ];
-    }
-    return [
-      { text: `我今日見到${word}。`, reading: `ngo5 gam1 jat6 gin3 dou3 ${jy}`, translation: `Today I saw ${gloss || word}.`, source: "AIDA generated usage context" },
-      { text: `呢個${word}對我好重要。`, reading: `ni1 go3 ${jy} deoi3 ngo5 hou2 zung6 jiu3`, translation: `This ${gloss || word} is important to me.`, source: "AIDA generated usage context" },
-      { text: `我哋講緊關於${word}嘅事。`, reading: `ngo5 dei6 gong2 gan2 gwaan1 jyu1 ${jy} ge3 si6`, translation: `We are talking about ${gloss || word}.`, source: "AIDA generated usage context" }
-    ];
-  }
 
   function contextDifficultyScore(example, kind) {
     const text = String(example?.text || "");
@@ -1183,10 +1001,7 @@
     if (!/^(jp|yue)[GV]$/.test(kind)) return [];
     const cacheKey = `${kind}:${item.id}`;
     if (contextCache.has(cacheKey)) return contextCache.get(cacheKey);
-    const candidates = [
-      ...authenticContexts(kind, item),
-      ...(kind.startsWith("jp") ? japaneseFallbackContexts(kind, item) : cantoneseFallbackContexts(kind, item))
-    ];
+    const candidates = authenticContexts(kind, item);
     const seen = new Set();
     const unique = [];
     for (const candidate of candidates) {
@@ -1212,7 +1027,8 @@
 
   function contextSentenceEntry(baseEntry, variantIndex = 0) {
     const variants = contextVariations(baseEntry.kind, baseEntry.item);
-    const variant = variants[variantIndex % Math.max(1, variants.length)] || {};
+    if (!variants.length) return sourceEntryFor(baseEntry);
+    const variant = variants[variantIndex % variants.length];
     const lang = langFromKind(baseEntry.kind);
     const sentenceKind = lang === "jp" ? "jpS" : "yueS";
     const focus = humanizedPattern(baseEntry.kind, baseEntry.item);
@@ -1243,231 +1059,31 @@
     return Math.abs(hash >>> 0);
   }
 
-  const COHERENT_SCENES = {
-    jp: {
-      general: { text: "今日、身近な出来事について考えることがありました。", translation: "Today, something in everyday life gave me a reason to think." },
-      food: { text: "昼ごろ、友達と食事の話をしていました。", translation: "Around noon, I was talking with a friend about food." },
-      movement: { text: "出かける前に、今日の予定を確認しました。", translation: "Before going out, I checked today's plans." },
-      people: { text: "友達と話していると、ある出来事の話になりました。", translation: "While talking with a friend, the conversation turned to something that had happened." },
-      time: { text: "予定を確認していると、時間の使い方が話題になりました。", translation: "While checking the schedule, we started talking about how time was being used." },
-      work: { text: "仕事が終わったあと、今日の出来事を振り返りました。", translation: "After work, I looked back on what had happened that day." },
-      body: { text: "体調のことが気になって、少し立ち止まって考えました。", translation: "I was concerned about my condition, so I stopped to think for a moment." },
-      money: { text: "買い物の前に、何を優先するか考えていました。", translation: "Before shopping, I was thinking about what to prioritize." },
-      communication: { text: "会話の途中で、言葉の受け取り方について考えることがありました。", translation: "During a conversation, I found myself thinking about how words can be understood." },
-      home: { text: "家で過ごしているとき、身近なことが話題になりました。", translation: "While spending time at home, an everyday matter came up." },
-      nature: { text: "外の様子を見ながら、その日の出来事について話していました。", translation: "While looking outside, we talked about what had happened that day." }
-    },
-    yue: {
-      general: { text: "今日有件身邊嘅事令我停低諗咗一陣。", reading: "gam1 jat6 jau5 gin6 san1 bin1 ge3 si6 ling6 ngo5 ting4 dai1 nam2 zo2 jat1 zan6.", translation: "Something close to me today made me stop and think for a while." },
-      food: { text: "中午嗰陣，我同朋友傾緊食嘢嘅事。", reading: "zung1 ng5 go2 zan6, ngo5 tung4 pang4 jau5 king1 gan2 sik6 je5 ge3 si6.", translation: "Around noon, I was talking with a friend about food." },
-      movement: { text: "出門口之前，我睇咗一次今日嘅安排。", reading: "ceot1 mun4 hau2 zi1 cin4, ngo5 tai2 zo2 jat1 ci3 gam1 jat6 ge3 on1 paai4.", translation: "Before going out, I checked today's plans once more." },
-      people: { text: "我同朋友傾偈嗰陣，講起一件最近發生嘅事。", reading: "ngo5 tung4 pang4 jau5 king1 gai2 go2 zan6, gong2 hei2 jat1 gin6 zeoi3 gan6 faat3 sang1 ge3 si6.", translation: "While chatting with a friend, we brought up something that happened recently." },
-      time: { text: "我哋睇緊行程嗰陣，開始傾點樣安排時間。", reading: "ngo5 dei6 tai2 gan2 hang4 cing4 go2 zan6, hoi1 ci2 king1 dim2 joeng6 on1 paai4 si4 gaan3.", translation: "While looking at the schedule, we started talking about how to arrange our time." },
-      work: { text: "收工之後，我諗返今日發生嘅事。", reading: "sau1 gung1 zi1 hau6, ngo5 nam2 faan1 gam1 jat6 faat3 sang1 ge3 si6.", translation: "After work, I thought back over what happened today." },
-      body: { text: "我有啲擔心自己嘅狀態，所以停低諗清楚先。", reading: "ngo5 jau5 di1 daam1 sam1 zi6 gei2 ge3 zong6 taai3, so2 ji5 ting4 dai1 nam2 cing1 co2 sin1.", translation: "I was a little worried about my condition, so I stopped to think it through first." },
-      money: { text: "買嘢之前，我先諗清楚邊樣最值得。", reading: "maai5 je5 zi1 cin4, ngo5 sin1 nam2 cing1 co2 bin1 joeng6 zeoi3 zik6 dak1.", translation: "Before buying anything, I first thought about what was most worthwhile." },
-      communication: { text: "傾偈傾到一半，我開始留意大家點樣理解同一句說話。", reading: "king1 gai2 king1 dou3 jat1 bun3, ngo5 hoi1 ci2 lau4 ji3 daai6 gaa1 dim2 joeng6 lei5 gaai2 tung4 jat1 geoi3 syut3 waa6.", translation: "Halfway through the conversation, I started noticing how people understood the same sentence differently." },
-      home: { text: "我喺屋企嗰陣，講起一件好日常嘅事。", reading: "ngo5 hai2 uk1 kei2 go2 zan6, gong2 hei2 jat1 gin6 hou2 jat6 soeng4 ge3 si6.", translation: "While I was at home, an ordinary everyday matter came up." },
-      nature: { text: "我望住出面嘅環境，同朋友傾返今日發生嘅事。", reading: "ngo5 mong6 zyu6 ceot1 min6 ge3 waan4 ging2, tung4 pang4 jau5 king1 faan1 gam1 jat6 faat3 sang1 ge3 si6.", translation: "Looking at the surroundings outside, I talked with a friend about what happened today." }
-    }
-  };
-
-  const COHERENT_FRAME_LINES = {
-    jp: [
-      {
-        before: [],
-        after: [
-          { text: "そのあと、私はそのことをもう一度確認しました。", translation: "Afterward, I checked the matter once more." }
-        ],
-        label: "Everyday scene"
-      },
-      {
-        before: [
-          { text: "最初は、特に問題はないと思っていました。", translation: "At first, I did not think there was any particular problem." }
-        ],
-        after: [
-          { text: "ところが、少し考えると、別の見方もできることに気づきました。", translation: "However, after thinking about it, I realized there was another way to see the situation." }
-        ],
-        label: "Situation and reconsideration"
-      },
-      {
-        before: [
-          { text: "最初に聞いた説明だけでは、状況は単純に見えました。", translation: "From the first explanation alone, the situation looked simple." }
-        ],
-        after: [
-          { text: "しかし、前後の事情を考えると、同じ出来事でも見方によって意味が変わります。", translation: "But when the surrounding circumstances are considered, the same event can mean different things depending on the viewpoint." },
-          { text: "そこで、すぐに結論を出さず、もう少し情報を集めることにしました。", translation: "So I decided not to jump to a conclusion and to gather a little more information first." }
-        ],
-        label: "Context and inference"
-      }
-    ],
-    yue: [
-      {
-        before: [],
-        after: [
-          { text: "之後，我再確認咗一次件事。", reading: "zi1 hau6, ngo5 zoi3 kok3 jan6 zo2 jat1 ci3 gin6 si6.", translation: "Afterward, I checked the matter once more." }
-        ],
-        label: "Everyday scene"
-      },
-      {
-        before: [
-          { text: "一開始，我以為冇乜特別問題。", reading: "jat1 hoi1 ci2, ngo5 ji5 wai4 mou5 mat1 dak6 bit6 man6 tai4.", translation: "At first, I thought there was no particular problem." }
-        ],
-        after: [
-          { text: "不過再諗深一層，我先發現原來仲可以有另一個睇法。", reading: "bat1 gwo3 zoi3 nam2 sam1 jat1 cang4, ngo5 sin1 faat3 jin6 jyun4 loi4 zung6 ho2 ji5 jau5 ling6 jat1 go3 tai2 faat3.", translation: "But after thinking about it more deeply, I realized there could be another way to see it." }
-        ],
-        label: "Situation and reconsideration"
-      },
-      {
-        before: [
-          { text: "淨係聽最初嗰個解釋，件事好似好簡單。", reading: "zing6 hai6 teng1 zeoi3 co1 go2 go3 gaai2 sik1, gin6 si6 hou2 ci5 hou2 gaan2 daan1.", translation: "If you only hear the first explanation, the matter seems simple." }
-        ],
-        after: [
-          { text: "但係將前因後果放埋一齊睇，同一件事可以因為角度唔同而有唔同意思。", reading: "daan6 hai6 zoeng1 cin4 jan1 hau6 gwo2 fong3 maai4 jat1 cai4 tai2, tung4 jat1 gin6 si6 ho2 ji5 jan1 wai6 gok3 dou6 m4 tung4 ji4 jau5 m4 tung4 ji3 si1.", translation: "But when the whole context is considered, the same event can mean different things from different viewpoints." },
-          { text: "所以我冇即刻落結論，而係決定再搵多啲資料。", reading: "so2 ji5 ngo5 mou5 zik1 hak1 lok6 git3 leon6, ji4 hai6 kyut3 ding6 zoi3 wan2 do1 di1 zi1 liu2.", translation: "So I did not reach a conclusion immediately and decided to find more information." }
-        ],
-        label: "Context and inference"
-      }
-    ]
-  };
-
-  const COHERENT_SCENE_VARIANTS = {
-    jp: {
-      general: [{ text: "帰り道、今日あったことを思い返していました。", translation: "On the way home, I was thinking back over what had happened today." }],
-      food: [{ text: "夕食の店を決めるため、何を食べたいか話していました。", translation: "We were talking about what we wanted to eat so we could decide where to have dinner." }],
-      movement: [{ text: "駅に向かいながら、いちばん楽な行き方を考えていました。", translation: "On the way to the station, I was thinking about the easiest route." }],
-      people: [{ text: "久しぶりに会った友達と、最近のことを話していました。", translation: "I was catching up on recent events with a friend I had not seen for a while." }],
-      time: [{ text: "一日の予定を組み直しながら、どこに時間を使うか考えていました。", translation: "While rearranging the day's schedule, I was deciding where to spend my time." }],
-      work: [{ text: "打ち合わせのあと、同僚と仕事の進め方を見直しました。", translation: "After a meeting, I reviewed how we were approaching the work with a colleague." }],
-      body: [{ text: "少し疲れを感じたので、最近の生活を振り返ってみました。", translation: "Because I felt a little tired, I looked back over my recent routine." }],
-      money: [{ text: "予算を見ながら、本当に必要なものを選んでいました。", translation: "Looking at the budget, I was choosing what was truly necessary." }],
-      communication: [{ text: "説明がうまく伝わらなかったので、別の言い方を試しました。", translation: "Because the explanation had not come across clearly, I tried a different way of saying it." }],
-      home: [{ text: "夕方、家でゆっくりしながら今日のことを話しました。", translation: "In the evening, we relaxed at home and talked about the day." }],
-      nature: [{ text: "天気が変わりそうだったので、外の様子を確かめました。", translation: "Because the weather looked likely to change, I checked what it was like outside." }]
-    },
-    yue: {
-      general: [{ text: "返屋企途中，我一路諗返今日發生嘅事。", reading: "faan1 uk1 kei2 tou4 zung1, ngo5 jat1 lou6 nam2 faan1 gam1 jat6 faat3 sang1 ge3 si6.", translation: "On the way home, I kept thinking back over what happened today." }],
-      food: [{ text: "為咗決定今晚去邊度食，我哋傾緊大家想食乜。", reading: "wai6 zo2 kyut3 ding6 gam1 maan5 heoi3 bin1 dou6 sik6, ngo5 dei6 king1 gan2 daai6 gaa1 soeng2 sik6 mat1.", translation: "To decide where to eat tonight, we were talking about what everyone wanted." }],
-      movement: [{ text: "行去車站嗰陣，我一路諗邊條路最方便。", reading: "haang4 heoi3 ce1 zaam6 go2 zan6, ngo5 jat1 lou6 nam2 bin1 tiu4 lou6 zeoi3 fong1 bin6.", translation: "While walking to the station, I was thinking about which route was most convenient." }],
-      people: [{ text: "我同一個好耐冇見嘅朋友傾緊大家最近嘅事。", reading: "ngo5 tung4 jat1 go3 hou2 noi6 mou5 gin3 ge3 pang4 jau5 king1 gan2 daai6 gaa1 zeoi3 gan6 ge3 si6.", translation: "I was catching up on recent events with a friend I had not seen for a long time." }],
-      time: [{ text: "我重新排緊今日嘅行程，諗下啲時間應該點分。", reading: "ngo5 cung4 san1 paai4 gan2 gam1 jat6 ge3 hang4 cing4, nam2 haa5 di1 si4 gaan3 jing1 goi1 dim2 fan1.", translation: "I was rearranging today's schedule and thinking about how to divide the time." }],
-      work: [{ text: "開完會之後，我同同事重新睇一次點樣做件事。", reading: "hoi1 jyun4 wui2 zi1 hau6, ngo5 tung4 tung4 si6 cung4 san1 tai2 jat1 ci3 dim2 joeng6 zou6 gin6 si6.", translation: "After the meeting, I reviewed with a colleague how we should handle the task." }],
-      body: [{ text: "我覺得有啲攰，所以諗返最近自己點樣生活。", reading: "ngo5 gok3 dak1 jau5 di1 gui6, so2 ji5 nam2 faan1 zeoi3 gan6 zi6 gei2 dim2 joeng6 sang1 wut6.", translation: "I felt a little tired, so I thought back over my recent routine." }],
-      money: [{ text: "我望住個預算，逐樣諗清楚邊啲先係真正需要。", reading: "ngo5 mong6 zyu6 go3 jyu6 syun3, zuk6 joeng6 nam2 cing1 co2 bin1 di1 sin1 hai6 zan1 zing3 seoi1 jiu3.", translation: "Looking at the budget, I considered item by item what was truly necessary." }],
-      communication: [{ text: "頭先個解釋講得唔夠清楚，所以我試下用另一個講法。", reading: "tau4 sin1 go3 gaai2 sik1 gong2 dak1 m4 gau3 cing1 co2, so2 ji5 ngo5 si3 haa5 jung6 ling6 jat1 go3 gong2 faat3.", translation: "The earlier explanation was not clear enough, so I tried another way of saying it." }],
-      home: [{ text: "夜晚我哋喺屋企慢慢坐低，傾返今日啲事。", reading: "je6 maan5 ngo5 dei6 hai2 uk1 kei2 maan6 maan6 co5 dai1, king1 faan1 gam1 jat6 di1 si6.", translation: "In the evening, we sat down at home and talked through the day's events." }],
-      nature: [{ text: "個天好似就嚟變，所以我出去睇下外面嘅情況。", reading: "go3 tin1 hou2 ci5 zau6 lai4 bin3, so2 ji5 ngo5 ceot1 heoi3 tai2 haa5 ngoi6 min6 ge3 cing4 fong3.", translation: "The weather looked about to change, so I went out to check the conditions." }]
-    }
-  };
-
-  const COHERENT_FRAME_VARIANTS = {
-    jp: [
-      [{ before: [], after: [{ text: "それをきっかけに、次にどうするかを決めました。", translation: "That became the basis for deciding what to do next." }], label: "Everyday scene" }],
-      [{ before: [{ text: "はじめは、いつもどおりに進めればいいと思っていました。", translation: "At first, I thought things could proceed as usual." }], after: [{ text: "でも、実際の状況を見ると、その考えを少し変える必要がありました。", translation: "But after seeing the actual situation, I needed to adjust that view." }], label: "Situation and reconsideration" }],
-      [{ before: [{ text: "一つの情報だけを見ると、答えはすぐに出せそうでした。", translation: "Looking at only one piece of information, the answer seemed easy to reach." }], after: [{ text: "ところが、別の事情も加えると、最初の判断だけでは十分ではありません。", translation: "However, once another circumstance is added, the initial judgment is no longer enough." }, { text: "そのため、理由と結果を分けて考えてから判断することにしました。", translation: "For that reason, I decided to separate cause from result before making a judgment." }], label: "Context and inference" }]
-    ],
-    yue: [
-      [{ before: [], after: [{ text: "呢件事亦都令我決定下一步應該點做。", reading: "ni1 gin6 si6 jik6 dou1 ling6 ngo5 kyut3 ding6 haa6 jat1 bou6 jing1 goi1 dim2 zou6.", translation: "This also helped me decide what to do next." }], label: "Everyday scene" }],
-      [{ before: [{ text: "一開始，我以為照平時咁做就得。", reading: "jat1 hoi1 ci2, ngo5 ji5 wai4 ziu3 ping4 si4 gam2 zou6 zau6 dak1.", translation: "At first, I thought doing things the usual way would be enough." }], after: [{ text: "但係睇清楚實際情況之後，我發現要改一改原本嘅諗法。", reading: "daan6 hai6 tai2 cing1 co2 sat6 zai3 cing4 fong3 zi1 hau6, ngo5 faat3 jin6 jiu3 goi2 jat1 goi2 jyun4 bun2 ge3 nam2 faat3.", translation: "But after seeing the actual situation clearly, I realized I needed to adjust my original view." }], label: "Situation and reconsideration" }],
-      [{ before: [{ text: "淨係睇一個資料，個答案好似好快就可以決定。", reading: "zing6 hai6 tai2 jat1 go3 zi1 liu2, go3 daap3 on3 hou2 ci5 hou2 faai3 zau6 ho2 ji5 kyut3 ding6.", translation: "Looking at only one piece of information, the answer seemed easy to decide." }], after: [{ text: "不過加埋另一個情況之後，最初嗰個判斷就未必夠。", reading: "bat1 gwo3 gaa1 maai4 ling6 jat1 go3 cing4 fong3 zi1 hau6, zeoi3 co1 go2 go3 pun3 dyun6 zau6 mei6 bit1 gau3.", translation: "But after adding another circumstance, the initial judgment may no longer be enough." }, { text: "所以我決定先分清楚原因同結果，再作判斷。", reading: "so2 ji5 ngo5 kyut3 ding6 sin1 fan1 cing1 co2 jyun4 jan1 tung4 git3 gwo2, zoi3 zok3 pun3 dyun6.", translation: "So I decided to separate the cause and result before making a judgment." }], label: "Context and inference" }]
-    ]
-  };
-
-  function primarySemanticDomain(item) {
-    const domains = [...semanticDomainsForItem(item)];
-    return domains[0] || "general";
-  }
-
-  function normalizeSentencePunctuation(text, lang) {
-    const value = String(text || "").trim();
-    if (!value) return "";
-    if (/[。！？!?]$/.test(value)) return value;
-    return `${value}${lang === "jp" ? "。" : "。"}`;
-  }
-
-  function keywordGroupsFromAnswer(answer) {
-    const stop = new Set(["the","a","an","is","are","was","were","to","of","and","or","in","on","at","for","that","because","it","they","he","she","their","with","by","from","this","there","after","before","more","once","first"]);
-    const tokens = normalizeFreeResponse(answer).split(" ").filter(token => token.length > 3 && !stop.has(token));
-    return [...new Set(tokens)].slice(0, 5).map(token => [token]);
-  }
-
-  function coherentQuestions(variantIndex, anchorTranslation, frame, fullTranslation) {
-    const central = anchorTranslation || fullTranslation;
-    if (variantIndex % 3 === 0) {
-      const after = frame.after?.[0]?.translation || "The speaker checked the situation again.";
-      return [
-        { type: "CENTRAL DETAIL", question: "What is the central situation or claim described in the passage?", answer: central, keywordGroups: keywordGroupsFromAnswer(central) },
-        { type: "SEQUENCE", question: "What does the speaker do after the central situation?", answer: after, keywordGroups: keywordGroupsFromAnswer(after) },
-        { type: "PURPOSE", question: "Why does the final action make sense in this context?", answer: "The speaker wants to verify or better understand the situation before moving on.", keywordGroups: [["verify","understand"],["situation"]] }
-      ];
-    }
-    if (variantIndex % 3 === 1) {
-      const first = frame.before?.[0]?.translation || "At first, the speaker saw no particular problem.";
-      const final = frame.after?.[0]?.translation || "The speaker realized there was another way to view the situation.";
-      return [
-        { type: "CHANGE IN VIEW", question: "How does the speaker's view change from the beginning to the end of the passage?", answer: `${first} ${final}`, keywordGroups: keywordGroupsFromAnswer(`${first} ${final}`) },
-        { type: "EVIDENCE", question: "What information in the middle of the passage causes the speaker to reconsider the situation?", answer: central, keywordGroups: keywordGroupsFromAnswer(central) },
-        { type: "INFERENCE", question: "What can you infer about the speaker's attitude at the end?", answer: "The speaker is more cautious and open to another interpretation than at the beginning.", keywordGroups: [["cautious"],["another","interpretation"]] }
-      ];
-    }
-    const conclusion = frame.after?.at(-1)?.translation || "The speaker decides to gather more information before reaching a conclusion.";
-    return [
-      { type: "CONTEXT", question: "Why is the first explanation not enough for the speaker to make a confident judgment?", answer: "Because the surrounding circumstances can change how the central situation should be understood.", keywordGroups: [["circumstances","context"],["change"],["understood","interpretation"]] },
-      { type: "REASONING", question: "How does the central situation support the speaker's decision at the end?", answer: `${central} This gives the speaker a reason not to conclude too quickly and to seek more information.`, keywordGroups: keywordGroupsFromAnswer(`${central} seek more information`) },
-      { type: "IMPLICATION", question: "What broader lesson does the passage suggest about interpreting events or statements?", answer: "A single statement or event should be interpreted in context, and more information may be needed before reaching a conclusion.", keywordGroups: [["context"],["information"],["conclusion"]] },
-      { type: "SUMMARY", question: "Summarize the passage's reasoning in two or three sentences.", answer: fullTranslation, keywordGroups: keywordGroupsFromAnswer(fullTranslation) }
-    ];
+  function curatedPassageMatchesForBase(baseEntry) {
+    const base = sourceEntryFor(baseEntry);
+    const lang = langFromKind(base.kind);
+    const passageKind = lang === "jp" ? "jpP" : "yueP";
+    const surface = base.kind === "jpV" ? String(base.item.expression || "").trim()
+      : base.kind === "yueV" ? String(base.item.word || "").trim()
+      : "";
+    if (!surface) return [];
+    return source[passageKind]
+      .filter(item => String(item.text || "").includes(surface))
+      .map(item => ({ kind: passageKind, item }));
   }
 
   function contextPassageEntry(baseEntry, variantIndex = 0) {
-    const allVariants = contextVariations(baseEntry.kind, baseEntry.item);
-    const lang = langFromKind(baseEntry.kind);
-    const passageKind = lang === "jp" ? "jpP" : "yueP";
-    const casualKind = lang === "jp" ? "jpC" : "yueC";
-    const focus = humanizedPattern(baseEntry.kind, baseEntry.item);
-    const meaning = meaningOf(baseEntry.item);
-    const normalizedIndex = ((variantIndex % 3) + 3) % 3;
-    const anchor = allVariants[normalizedIndex] || allVariants[0] || {
-      text: focus,
-      reading: humanizedReading(baseEntry.kind, baseEntry.item),
-      translation: meaning,
-      source: "AIDA context"
-    };
-    const domain = primarySemanticDomain(baseEntry.item);
-    const sceneBank = COHERENT_SCENES[lang] || COHERENT_SCENES.jp;
-    const primaryScene = sceneBank[domain] || sceneBank.general;
-    const sceneOptions = [primaryScene, ...(COHERENT_SCENE_VARIANTS[lang]?.[domain] || COHERENT_SCENE_VARIANTS[lang]?.general || [])];
-    const scene = sceneOptions[deterministicHash(`${baseItemKey(baseEntry)}:scene:${normalizedIndex}`) % sceneOptions.length];
-    const frameOptions = [COHERENT_FRAME_LINES[lang][normalizedIndex], ...(COHERENT_FRAME_VARIANTS[lang]?.[normalizedIndex] || [])];
-    const frame = frameOptions[deterministicHash(`${baseItemKey(baseEntry)}:frame:${normalizedIndex}`) % frameOptions.length];
-    const segments = [scene, ...(frame.before || []), anchor, ...(frame.after || [])]
-      .filter(segment => segment?.text)
-      .map(segment => ({
-        text: normalizeSentencePunctuation(segment.text, lang),
-        reading: segment.reading || "",
-        translation: segment.translation || ""
-      }));
-    const text = segments.map(segment => segment.text).join(lang === "jp" ? "" : "");
-    const reading = lang === "yue"
-      ? segments.map(segment => String(segment.reading || "").trim()).filter(Boolean).join(" ")
-      : segments.map(segment => String(segment.reading || "").trim()).filter(Boolean).join(" / ");
-    const translation = segments.map(segment => segment.translation).filter(Boolean).join(" ") || `A coherent context built around “${focus}” (${meaning}).`;
-    const anchorTranslation = anchor.translation || meaning;
-    const questions = coherentQuestions(normalizedIndex, anchorTranslation, frame, translation);
+    const matches = curatedPassageMatchesForBase(baseEntry);
+    if (!matches.length) return contextSentenceEntry(baseEntry, variantIndex);
+    const match = matches[((variantIndex % matches.length) + matches.length) % matches.length];
+    const base = sourceEntryFor(baseEntry);
     return {
-      kind: passageKind,
+      kind: match.kind,
       item: {
-        id: `ctx-p-${baseEntry.kind}-${baseEntry.item.id}-${normalizedIndex}`,
-        level: itemLevel(baseEntry.kind, baseEntry.item),
-        text,
-        reading,
-        translation,
-        questions,
-        scenarioType: frame.label,
-        focusDomain: domain,
-        contextSource: [anchor.source, "AIDA coherent scenario engine"].filter(Boolean).join(" · "),
-        _sourceKind: baseEntry.kind,
-        _sourceId: baseEntry.item.id
+        ...match.item,
+        contextSource: match.item.contextSource || "Curated reading bank",
+        _sourceKind: base.kind,
+        _sourceId: base.item.id
       }
     };
   }
@@ -1654,16 +1270,21 @@
         ...sentences.map(entry => ({ ...entry, practiceMode: "listening", studySkills: ["listening"] })),
         ...passages.map(entry => ({ ...entry, practiceMode: "listening", studySkills: ["listening"] }))
       ];
-      const generated = bases.map(entry => ({
+      const verifiedBases = bases.filter(entry => contextVariations(entry.kind, entry.item).length > 0);
+      const generated = verifiedBases.map(entry => ({
         ...entry,
-        contextMode: deterministicHash(baseItemKey(entry)) % 4 === 0 ? "listening-passage" : "listening-sentence"
+        contextMode: "listening-sentence"
       }));
       return [...bank, ...generated];
     }
-    // Every vocabulary and grammar item participates in sentence/passage practice.
-    // Context is materialized only after sampling, so the app does not duplicate the full generated corpus in memory.
-    if (focus === "sentences") return [...sentences, ...bases.map(entry => ({ ...entry, contextMode: "sentence" }))];
-    if (focus === "passages") return [...passages, ...bases.map(entry => ({ ...entry, contextMode: "passage" }))];
+    // Sentence practice uses only item-specific, corpus-backed, bundled, or audited contexts.
+    // Items without a trustworthy sentence are skipped instead of receiving a generic filler sentence.
+    if (focus === "sentences") {
+      const verifiedBases = bases.filter(entry => contextVariations(entry.kind, entry.item).length > 0);
+      return [...sentences, ...verifiedBases.map(entry => ({ ...entry, contextMode: "sentence" }))];
+    }
+    // Passage study uses the curated reading bank only. Independent example sentences are never stitched together.
+    if (focus === "passages") return passages;
     return [...grammar, ...vocabulary, ...sentences, ...passages, ...casual];
   }
 
@@ -2880,7 +2501,9 @@
       return materializeListeningEntry(entry, variant, passage);
     }
     if (skill === "reading" && !entry.kind.endsWith("S") && !entry.kind.endsWith("P")) {
-      return deterministicHash(entry.key) % 3 === 0 ? contextPassageEntry(entry, variant) : contextSentenceEntry(entry, variant);
+      return contextVariations(entry.kind, entry.item).length
+        ? contextSentenceEntry(entry, variant)
+        : { ...entry, studySkills: [skill] };
     }
     if (skill === "casual" || entry.kind.endsWith("C")) return materializeCasualEntry(entry, variant);
     return { ...entry, studySkills: [skill] };
@@ -3670,7 +3293,7 @@
   function renderContextBrowserDetail(entry) {
     const host = $("#contextBrowserDetail");
     if (!entry) {
-      host.innerHTML = '<div class="context-browser-empty">Search for a word or choose an item to review its sentence and passage variations.</div>';
+      host.innerHTML = '<div class="context-browser-empty">Search for a word or choose an item to review verified sentence and passage examples.</div>';
       return;
     }
     const { kind, item } = entry;
@@ -3680,8 +3303,8 @@
       ? cantoneseRubyHtml(humanizedPattern(kind, item), reading)
       : escapeHtml(humanizedPattern(kind, item));
     const sentences = contextVariations(kind, item);
-    const passages = [0, 1, 2].map(index => contextPassageEntry(entry, index).item);
     const directMatches = directReadingBankMatches(entry);
+    const passages = directMatches.filter(match => match.kind.endsWith("P")).map(match => match.item);
 
     host.innerHTML = `
       <div class="context-detail-head">
@@ -3695,9 +3318,9 @@
       </div>
 
       <section class="context-review-section">
-        <div class="context-review-section-head"><div><span>01</span><h4>Sentence variations</h4></div><p>The same item in three progressively denser contexts.</p></div>
+        <div class="context-review-section-head"><div><span>01</span><h4>Verified sentence examples</h4></div><p>Only corpus-backed, bundled, or manually audited examples are shown.</p></div>
         <div class="context-review-sentence-grid">
-          ${sentences.map((example, index) => {
+          ${sentences.length ? sentences.map((example, index) => {
             const key = qualityKey("sentence", kind, item.id, index, example.text || "");
             if (shouldHideQualityExample(key)) return "";
             const meta = { key, scope: "sentence", kind, itemId: item.id, index, text: example.text || "", reading: example.reading || "", translation: example.translation || "", source: example.source || "AIDA context", qualityStatus: example.qualityStatus, target: humanizedPattern(kind, item) };
@@ -3708,17 +3331,17 @@
               ${lang !== "yue" && example.reading ? `<p class="context-review-reading">${escapeHtml(example.reading)}</p>` : ""}
               <p class="context-review-translation">${escapeHtml(example.translation || "")}</p>
             </article>`;
-          }).join("")}
+          }).join("") : `<div class="context-browser-empty">No verified sentence example is available for this item yet.</div>`}
         </div>
       </section>
 
-      <section class="context-review-section">
-        <div class="context-review-section-head"><div><span>02</span><h4>Passage variations</h4></div><p>Read for meaning first, then use the prompts to check actual comprehension.</p></div>
+      ${passages.length ? `<section class="context-review-section">
+        <div class="context-review-section-head"><div><span>02</span><h4>Verified passage matches</h4></div><p>Curated reading-bank passages containing this exact item.</p></div>
         <div class="context-review-passage-list">
           ${passages.map((passage, index) => {
             const key = qualityKey("passage", kind, item.id, index, passage.text || "");
             if (shouldHideQualityExample(key)) return "";
-            const meta = { key, scope: "passage", kind, itemId: item.id, index, text: passage.text || "", reading: passage.reading || "", translation: passage.translation || "", source: passage.contextSource || "AIDA generated coherent passage", qualityStatus: passage.qualityStatus || "generated", target: humanizedPattern(kind, item) };
+            const meta = { key, scope: "passage", kind, itemId: item.id, index, text: passage.text || "", reading: passage.reading || "", translation: passage.translation || "", source: passage.contextSource || "Curated reading bank", qualityStatus: passage.qualityStatus || "curated", target: humanizedPattern(kind, item) };
             return `<article class="context-passage-card">
             <div class="context-passage-head"><span>${["EASIER", "BUILD", "HARDER"][index]}</span><div><strong>${passage.questions?.length || 0} comprehension prompts</strong><button type="button" class="context-audio-button" data-context-passage-audio="${index}">Listen with highlighting ↗</button></div></div>
             ${qualityControlsHtml(meta)}
@@ -3728,10 +3351,10 @@
             <div class="context-question-list">${(passage.questions || []).map(renderContextQuestion).join("")}</div>
           </article>`; }).join("")}
         </div>
-      </section>
-      ${directMatches.length ? `<section class="context-review-section">
+      </section>` : ""}
+      ${directMatches.filter(match => !match.kind.endsWith("P")).length ? `<section class="context-review-section">
         <div class="context-review-section-head"><div><span>03</span><h4>Exact reading-bank matches</h4></div><p>Existing bundled sentences or passages that contain this exact vocabulary form.</p></div>
-        <div class="direct-reading-list">${directMatches.map(match => renderDirectReadingMatch(match, lang)).join("")}</div>
+        <div class="direct-reading-list">${directMatches.filter(match => !match.kind.endsWith("P")).map(match => renderDirectReadingMatch(match, lang)).join("")}</div>
       </section>` : ""}`;
 
     const libraryButton = $("[data-context-open-library]", host);
