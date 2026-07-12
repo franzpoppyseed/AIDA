@@ -27,18 +27,6 @@
     items.forEach(item => byId.set(`${kind}:${item.id}`, { kind, item }));
   });
 
-
-const JP_FURIGANA_INDEX = new Map();
-source.jpV.forEach(item => {
-  const expression = String(item.expression || "").trim();
-  const reading = String(item.reading || "").trim();
-  if (!expression || !reading || !/\p{Script=Han}/u.test(expression)) return;
-  const first = [...expression][0];
-  if (!JP_FURIGANA_INDEX.has(first)) JP_FURIGANA_INDEX.set(first, []);
-  JP_FURIGANA_INDEX.get(first).push({ expression, reading });
-});
-JP_FURIGANA_INDEX.forEach(items => items.sort((a, b) => [...b.expression].length - [...a.expression].length));
-
   const JP_LEVELS = ["N5", "N4", "N3", "N2", "N1"];
   const YUE_LEVELS = ["Beginner", "Intermediate", "Advanced"];
   const YUE_VOCAB_LIMITS = { Beginner: 3000, Intermediate: 12000, Advanced: Infinity };
@@ -62,8 +50,6 @@ JP_FURIGANA_INDEX.forEach(items => items.sort((a, b) => [...b.expression].length
   const titleCase = value => String(value || "")
     .replace(/[_-]+/g, " ")
     .replace(/\b\w/g, char => char.toUpperCase());
-
-  const ONLINE_EXAMPLE_CACHE = new Map();
 
   const QUALITY_LABELS = {
     curated: "CURATED",
@@ -120,14 +106,13 @@ JP_FURIGANA_INDEX.forEach(items => items.sort((a, b) => [...b.expression].length
     return `<span class="quality-badge quality-${escapeHtml(status)}">${escapeHtml(QUALITY_LABELS[status] || titleCase(status))}</span>${reported ? '<span class="quality-badge quality-reported">REPORTED</span>' : ''}`;
   }
 
-  
-function qualityControlsHtml(meta) {
-  registerQualityExample(meta);
-  return `<div class="quality-controls"><button type="button" class="quality-report-button" data-report-example="${escapeHtml(meta.key)}">Report issue</button></div>`;
-}
+  function qualityControlsHtml(meta) {
+    registerQualityExample(meta);
+    return `<div class="quality-controls"><button type="button" class="quality-report-button" data-report-example="${escapeHtml(meta.key)}">Report issue</button></div>`;
+  }
 
 
-function jyutpingSyllables(reading) {
+  function jyutpingSyllables(reading) {
     return String(reading || "")
       .normalize("NFKC")
       .match(/[A-Za-z]+[0-9]/g) || [];
@@ -146,84 +131,6 @@ function jyutpingSyllables(reading) {
       return escapeHtml(chunk);
     }).join("");
   }
-
-
-function toHiragana(value) {
-  return String(value || "").normalize("NFKC").replace(/[ァ-ヶ]/g, char => String.fromCharCode(char.charCodeAt(0) - 0x60));
-}
-
-function comparableKana(value) {
-  return toHiragana(value)
-    .replace(/[\s　]/g, "")
-    .replace(/[^ぁ-ゖー]/g, "");
-}
-
-function japaneseRubyFromReading(text, reading) {
-  const sourceText = String(text || "");
-  const cleanReading = comparableKana(reading);
-  if (!sourceText || !cleanReading || !/\p{Script=Han}/u.test(sourceText)) return "";
-  const chunks = sourceText.match(/[\p{Script=Han}々〆ヶ]+|[^\p{Script=Han}々〆ヶ]+/gu) || [sourceText];
-  let cursor = 0;
-  const output = [];
-
-  chunks.forEach((chunk, index) => {
-    const isKanji = /^[\p{Script=Han}々〆ヶ]+$/u.test(chunk);
-    if (!isKanji) {
-      output.push(escapeHtml(chunk));
-      const anchor = comparableKana(chunk);
-      if (anchor) {
-        const found = cleanReading.indexOf(anchor, cursor);
-        if (found >= cursor) cursor = found + anchor.length;
-      }
-      return;
-    }
-
-    let nextAnchor = "";
-    for (let next = index + 1; next < chunks.length; next += 1) {
-      if (/^[\p{Script=Han}々〆ヶ]+$/u.test(chunks[next])) continue;
-      nextAnchor = comparableKana(chunks[next]);
-      if (nextAnchor) break;
-    }
-    let end = cleanReading.length;
-    if (nextAnchor) {
-      const found = cleanReading.indexOf(nextAnchor, cursor);
-      if (found >= cursor) end = found;
-    }
-    const rubyReading = cleanReading.slice(cursor, end);
-    cursor = end;
-    output.push(rubyReading
-      ? `<ruby><rb>${escapeHtml(chunk)}</rb><rt>${escapeHtml(rubyReading)}</rt></ruby>`
-      : escapeHtml(chunk));
-  });
-  return output.join("");
-}
-
-function japaneseRubyFromDictionary(text) {
-  const chars = [...String(text || "")];
-  let index = 0;
-  let html = "";
-  while (index < chars.length) {
-    const first = chars[index];
-    const candidates = JP_FURIGANA_INDEX.get(first) || [];
-    const rest = chars.slice(index).join("");
-    const match = candidates.find(candidate => rest.startsWith(candidate.expression));
-    if (match) {
-      html += `<ruby><rb>${escapeHtml(match.expression)}</rb><rt>${escapeHtml(match.reading)}</rt></ruby>`;
-      index += [...match.expression].length;
-    } else {
-      html += escapeHtml(first);
-      index += 1;
-    }
-  }
-  return html;
-}
-
-function japaneseRubyHtml(text, reading = "") {
-  const value = String(text || "");
-  if (!/\p{Script=Han}/u.test(value)) return escapeHtml(value);
-  const aligned = reading ? japaneseRubyFromReading(value, reading) : "";
-  return aligned && aligned.includes("<ruby") ? aligned : japaneseRubyFromDictionary(value);
-}
 
   function todayKey(date = new Date()) {
     const year = date.getFullYear();
@@ -1196,7 +1103,7 @@ function japaneseRubyHtml(text, reading = "") {
         text: variant.text || humanizedPattern(base.kind, base.item),
         reading: variant.reading || humanizedReading(base.kind, base.item),
         translation: variant.translation || meaningOf(base.item),
-        question: `Produce the ${languageName(lang)} sentence from the meaning. Type it or say it aloud before revealing the sample answer.`,
+        question: `Produce the ${languageName(lang)} sentence from the meaning. Type it or say it aloud before revealing the model answer.`,
         answer: variant.text || humanizedPattern(base.kind, base.item),
         contextSource: variant.source || "AIDA production context",
         practiceMode: "production",
@@ -1268,7 +1175,7 @@ function japaneseRubyHtml(text, reading = "") {
         ${qualityControlsHtml(meta)}
         <div class="casual-pair-grid">
           <article><span>NEUTRAL / EXPLICIT</span><p>${escapeHtml(item.base || "")}</p></article>
-          <article><span>CASUAL / CONVERSATIONAL</span><p class="${lang === "yue" ? "canto-ruby" : ""}">${lang === "yue" && item.reading ? cantoneseRubyHtml(item.casual || "", item.reading) : lang === "jp" ? japaneseRubyHtml(item.casual || "", item.reading || "") : escapeHtml(item.casual || "")}</p></article>
+          <article><span>CASUAL / CONVERSATIONAL</span><p class="${lang === "yue" ? "canto-ruby" : ""}">${lang === "yue" && item.reading ? cantoneseRubyHtml(item.casual || "", item.reading) : escapeHtml(item.casual || "")}</p></article>
         </div>
         <div class="casual-english-block"><span>ENGLISH</span><p>${escapeHtml(item.translation || "")}</p></div>
         <div class="casual-reflection-prompts">
@@ -1282,25 +1189,25 @@ function japaneseRubyHtml(text, reading = "") {
 
   function contextHtml(kind, item) {
     const rawExamples = contextVariations(kind, item);
-    if (!rawExamples.length) return onlineLookupPanel(kind, item, "library");
+    if (!rawExamples.length) return "";
     const readingLabel = kind.startsWith("yue") ? "Jyutping" : "Reading";
     const visible = rawExamples.map((example, index) => {
       const key = qualityKey("sentence", kind, item.id, index, example.text || "");
       return { example, index, key, meta: { key, scope: "sentence", kind, itemId: item.id, index, text: example.text || "", reading: example.reading || "", translation: example.translation || "", source: example.source || "AIDA context", qualityStatus: example.qualityStatus, target: humanizedPattern(kind, item) } };
     }).filter(row => !shouldHideQualityExample(row.key));
     if (!visible.length) return `<div class="quality-all-hidden"><strong>All context examples for this item are hidden.</strong><span>Open Profile → Example quality to review your reports.</span></div>`;
-    
-return `
-  <div class="context-section-head"><span>Verified context examples</span><small>${visible.length} visible concept-matched ${visible.length === 1 ? "example" : "examples"}</small></div>
-  <div class="context-variation-grid">
-    ${visible.map(({ example, index, meta }) => `
-      <article class="context-variation-card">
-        <div class="context-card-topline"><span>Example ${index + 1}</span>${qualityControlsHtml(meta)}</div>
-        <p class="context-target ${kind.startsWith("yue") ? "canto-ruby" : ""}">${kind.startsWith("yue") && example.reading ? cantoneseRubyHtml(example.text, example.reading) : kind.startsWith("jp") ? japaneseRubyHtml(example.text, example.reading || "") : escapeHtml(example.text)}</p>
-        ${example.reading ? `<p class="context-reading"><b>${readingLabel}</b>${escapeHtml(example.reading)}</p>` : ""}
-        ${example.translation ? `<p class="context-translation">${escapeHtml(example.translation)}</p>` : ""}
-      </article>`).join("")}
-  </div>`;
+    return `
+      <div class="context-section-head"><span>Examples</span><small>${visible.length} visible concept-matched ${visible.length === 1 ? "example" : "examples"}</small></div>
+      <div class="context-variation-grid">
+        ${visible.map(({ example, index, meta }) => `
+          <article class="context-variation-card">
+            <div class="context-card-topline"><span>Example ${index + 1}</span>${qualityControlsHtml(meta)}</div>
+            <p class="context-target ${kind.startsWith("yue") ? "canto-ruby" : ""}">${kind.startsWith("yue") && example.reading ? cantoneseRubyHtml(example.text, example.reading) : escapeHtml(example.text)}</p>
+            ${example.reading ? `<p class="context-reading"><b>${readingLabel}</b>${escapeHtml(example.reading)}</p>` : ""}
+            ${example.translation ? `<p class="context-translation">${escapeHtml(example.translation)}</p>` : ""}
+            <small>${escapeHtml(example.source || "AIDA context")}</small>
+          </article>`).join("")}
+      </div>`;
   }
 
   function allowedJapaneseLevels(target) {
@@ -1622,11 +1529,11 @@ return `
     const yueCandidates = speechVoices.filter(voice => voiceScore(voice, "yue") > 0);
     container.innerHTML = `
       <div class="audio-status-row ${jp ? "good" : "neutral"}"><strong>Japanese browser voice</strong><span>${jp ? escapeHtml(`${jp.name} · ${jp.lang}`) : "No Japanese browser voice detected"}</span></div>
-      <div class="audio-status-row neutral"><strong>Hosted Japanese audio</strong><span>/api/japanese-tts · ${state.audio?.jpNeuralFirst !== false ? "used first when configured" : "available as a fallback"} · receives full orthographic words and complete sentence chunks</span></div>
+      <div class="audio-status-row neutral"><strong>Japanese neural route</strong><span>/api/japanese-tts · ${state.audio?.jpNeuralFirst !== false ? "preferred when configured" : "available as fallback"} · receives full orthographic words and complete sentence chunks</span></div>
       <div class="audio-status-row ${yue ? "good" : "neutral"}"><strong>Cantonese</strong><span>${yue ? escapeHtml(`${yue.name} · ${yue.lang}`) : "No enumerated Cantonese voice · AIDA will still try the browser's yue-CN locale fallback"}</span></div>
       <div class="audio-status-row neutral"><strong>Detected voices</strong><span>${speechVoices.length} total · ${yueCandidates.length} Cantonese candidate${yueCandidates.length === 1 ? "" : "s"}</span></div>
       <div class="audio-status-row neutral"><strong>Hosted Cantonese</strong><span>/api/cantonese-tts · used automatically when configured and no browser Cantonese voice is available</span></div>
-      <p class="audio-help">For Japanese, AIDA no longer sends isolated kana readings to speech. It sends the actual written word or the complete sentence so the speech engine can analyze compounds in context. The optional hosted Japanese route is used first by default because browser voices can sound very different from one device to another.</p>`;
+      <p class="audio-help">For Japanese, AIDA no longer sends isolated kana readings to speech. It sends the actual written word or the complete sentence so the speech engine can analyze compounds in context. The optional Japanese neural endpoint is preferred by default because browser voices vary widely in prosody quality.</p>`;
     populateVoiceSelectors();
   }
 
@@ -1930,13 +1837,13 @@ return `
         if (!(await speakJapaneseCloud(chunk))) { cloudSuccess = false; break; }
       }
       if (cloudSuccess) {
-        showToast("Played with the hosted Japanese voice.");
+        showToast("Played with hosted Japanese neural speech using full-context text.");
         return;
       }
     }
 
     if (!("speechSynthesis" in window)) {
-      showToast(lang === "jp" ? "No Japanese voice is available. Set up the hosted voice or install a Japanese browser voice." : "Speech synthesis is not available in this browser.");
+      showToast(lang === "jp" ? "No Japanese speech route is available. Configure the hosted neural endpoint." : "Speech synthesis is not available in this browser.");
       return;
     }
     if (!voice && lang !== "yue") {
@@ -1961,7 +1868,7 @@ return `
         if (!(await speakCantoneseCloud(chunk))) { cloudSuccess = false; break; }
       }
       if (cloudSuccess) {
-        showToast("Played with the hosted Cantonese voice.");
+        showToast("Played with hosted Cantonese neural speech.");
         return;
       }
     }
@@ -1977,7 +1884,7 @@ return `
         if (!(await speakJapaneseCloud(chunk))) { cloudSuccess = false; break; }
       }
       if (cloudSuccess) {
-        showToast("The browser voice failed, so the hosted Japanese voice was used instead.");
+        showToast("The browser voice failed, so AIDA used hosted Japanese neural speech instead.");
         return;
       }
     }
@@ -1988,7 +1895,7 @@ return `
         if (!(await speakCantoneseCloud(chunk))) { cloudSuccess = false; break; }
       }
       if (cloudSuccess) {
-        showToast("The browser voice failed, so the hosted Cantonese voice was used instead.");
+        showToast("The browser voice failed, so AIDA used hosted Cantonese neural speech instead.");
         return;
       }
     }
@@ -2210,7 +2117,7 @@ return `
       $("#studyQuestion").textContent = "Reconstruct the meaning before revealing the transcript. Replay as often as needed.";
     } else if (production) {
       $("#studyMain").textContent = meaningOf(item) || "Produce the target-language sentence.";
-      $("#studyQuestion").textContent = item.question || `Produce the ${languageName(study.lang)} sentence before revealing the sample answer.`;
+      $("#studyQuestion").textContent = item.question || `Produce the ${languageName(study.lang)} sentence before revealing the model answer.`;
     } else {
       $("#studyMain").textContent = humanizedPattern(kind, item);
       $("#studyQuestion").textContent = comprehension ? item.question : "Recall the meaning and usage, then reveal the answer.";
@@ -2280,18 +2187,15 @@ return `
         const estimate = productionMatchEstimate(typed, expected);
         if (estimate !== null) {
           $("#productionMatch").classList.remove("hidden");
-          $("#productionMatch").innerHTML = `<strong>${estimate}%</strong><span>rough similarity to the conversational answer — compare the actual wording and register yourself</span>`;
+          $("#productionMatch").innerHTML = `<strong>${estimate}%</strong><span>surface-form similarity to the conversational model — compare the actual omissions, contractions, and register choices yourself</span>`;
         }
       } else if (typed) {
         $("#productionMatch").classList.remove("hidden");
-        $("#productionMatch").innerHTML = `<strong>Reflect</strong><span>Compare what you noticed with the explanation below. Casual speech depends on context, so there is not always one exact typed answer.</span>`;
+        $("#productionMatch").innerHTML = `<strong>Reflect</strong><span>Compare your observation with the explanation below. Register judgments are contextual, so the app does not pretend there is one exact typed answer.</span>`;
       }
       if (study.lang === "yue" && reading) {
         if (exercise === "transform") $("#studyMeaning").innerHTML = cantoneseRubyHtml(entry.item.casual || "", reading);
         else $("#studyMain").innerHTML = cantoneseRubyHtml(entry.item.casual || "", reading);
-      } else if (study.lang === "jp") {
-        if (exercise === "transform") $("#studyMeaning").innerHTML = japaneseRubyHtml(entry.item.casual || "", reading);
-        else $("#studyMain").innerHTML = japaneseRubyHtml(entry.item.casual || "", reading);
       }
     } else if (practiceMode === "listening") {
       const response = $("#listeningResponse").value.trim();
@@ -2301,7 +2205,7 @@ return `
         const transcriptScore = productionMatchEstimate(response, entry) || 0;
         const estimate = Math.max(meaningScore, transcriptScore);
         $("#listeningMatch").classList.remove("hidden");
-        $("#listeningMatch").innerHTML = `<strong>${estimate}%</strong><span>rough match against the meaning or transcript — use it as a hint, then judge your own understanding</span>`;
+        $("#listeningMatch").innerHTML = `<strong>${estimate}%</strong><span>local match hint against the meaning or transcript — judge your actual understanding yourself</span>`;
       }
       $("#studySyncTranscript").classList.remove("hidden");
       renderSyncTranscript($("#studySyncTranscriptText"), speechText(entry.kind, entry.item), study.lang, reading);
@@ -2309,15 +2213,12 @@ return `
       const estimate = productionMatchEstimate($("#productionInput").value, entry);
       if (estimate !== null) {
         $("#productionMatch").classList.remove("hidden");
-        $("#productionMatch").innerHTML = `<strong>${estimate}%</strong><span>rough similarity to the sample answer — use it only as a hint</span>`;
+        $("#productionMatch").innerHTML = `<strong>${estimate}%</strong><span>surface-form similarity to the model answer — use this only as a hint</span>`;
       }
       if (study.lang === "yue" && reading) $("#studyMeaning").innerHTML = cantoneseRubyHtml(humanizedPattern(entry.kind, entry.item), reading);
-      else if (study.lang === "jp") $("#studyMeaning").innerHTML = japaneseRubyHtml(humanizedPattern(entry.kind, entry.item), reading);
       $("#speakCurrent").classList.remove("hidden");
     } else if (study.lang === "yue" && reading) {
       $("#studyMain").innerHTML = cantoneseRubyHtml(humanizedPattern(entry.kind, entry.item), reading);
-    } else if (study.lang === "jp") {
-      $("#studyMain").innerHTML = japaneseRubyHtml(humanizedPattern(entry.kind, entry.item), reading);
     }
 
     $("#singleStudyCard").classList.add("revealed");
@@ -2447,8 +2348,7 @@ return `
       $("#passageResultReading").innerHTML = cantoneseRubyHtml(entry.item.text || "", resultReading);
     } else {
       $("#passageResultReading").classList.remove("canto-ruby", "passage-ruby-result");
-      $("#passageResultReadingLabel").textContent = "Furigana";
-      $("#passageResultReading").innerHTML = japaneseRubyHtml(entry.item.text || "", resultReading || "");
+      $("#passageResultReading").textContent = resultReading || "No separate reading guide is bundled for this passage.";
     }
     $("#passageResultTranslation").textContent = meaningOf(entry.item) || "No translation is bundled for this passage.";
     $("#passageResultTranscriptWrap").classList.remove("hidden");
@@ -2612,10 +2512,10 @@ return `
     const entry = reviewQueue[reviewIndex];
     if (!entry) return;
     const due = entry.srs.due <= Date.now();
+    const lang = langFromKind(entry.kind);
     const skill = dueSkillForKey(entry.key);
     reviewCurrentPractice = materializeReviewPractice(entry);
     const practice = reviewCurrentPractice;
-    const lang = langFromKind(practice.kind);
     const reading = humanizedReading(practice.kind, practice.item);
     const readingLabel = lang === "yue" ? "Jyutping" : "Reading";
     const mode = practice.practiceMode || practice.item.practiceMode || "";
@@ -2630,15 +2530,15 @@ return `
       $("#reviewPromptSub").textContent = exercise === "transform" ? "Produce the natural casual version before revealing." : exercise === "notice" ? "Identify what changed and why it sounds conversational." : "Judge where this register sounds natural before revealing.";
     } else if (mode === "listening") {
       $("#reviewPrompt").textContent = "Listen to the context.";
-      $("#reviewPromptSub").textContent = "The transcript stays hidden until you reveal it. Try to understand the meaning first.";
+      $("#reviewPromptSub").textContent = "The transcript stays hidden until you reveal. Reconstruct the meaning first.";
     } else if (mode === "production") {
       $("#reviewPrompt").textContent = meaningOf(practice.item) || "Produce the target-language sentence.";
       $("#reviewPromptSub").textContent = "Say or write the target-language model before revealing it.";
     } else {
       $("#reviewPrompt").textContent = humanizedPattern(practice.kind, practice.item);
       $("#reviewPromptSub").textContent = practice.kind.endsWith("P")
-        ? "Think about the main idea and important details before you reveal the answer."
-        : skill === "reading" ? "Read it for meaning before you reveal the answer." : "Think of the meaning and how it is used before you reveal the answer.";
+        ? "Recall the passage meaning and main ideas before revealing."
+        : skill === "reading" ? "Read for meaning before revealing the explanation." : "Recall the meaning and usage before revealing.";
     }
 
     $("#speakReview").disabled = !speechText(practice.kind, practice.item);
@@ -2653,15 +2553,13 @@ return `
     const baseEntry = reviewQueue[reviewIndex];
     const entry = reviewCurrentPractice || baseEntry;
     if (!baseEntry || !entry) return;
-    const lang = langFromKind(entry.kind);
+    const lang = langFromKind(baseEntry.kind);
     const reading = humanizedReading(entry.kind, entry.item);
     const mode = entry.practiceMode || entry.item.practiceMode || "";
     const target = humanizedPattern(entry.kind, entry.item);
 
     if (mode !== "listening" && mode !== "production" && lang === "yue" && reading) {
       $("#reviewPrompt").innerHTML = cantoneseRubyHtml(target, reading);
-    } else if (mode !== "listening" && mode !== "production" && lang === "jp") {
-      $("#reviewPrompt").innerHTML = japaneseRubyHtml(target, reading);
     }
 
     let revealHtml = "";
@@ -2669,7 +2567,7 @@ return `
       const casualTarget = entry.item.casual || target;
       const casualReading = entry.item.reading || reading;
       revealHtml = `
-        <div class="production-model-answer"><span>Casual / conversational</span><p class="${lang === "yue" ? "canto-ruby" : ""}">${lang === "yue" && casualReading ? cantoneseRubyHtml(casualTarget, casualReading) : lang === "jp" ? japaneseRubyHtml(casualTarget, casualReading) : escapeHtml(casualTarget)}</p></div>
+        <div class="production-model-answer"><span>Casual / conversational</span><p class="${lang === "yue" ? "canto-ruby" : ""}">${lang === "yue" && casualReading ? cantoneseRubyHtml(casualTarget, casualReading) : escapeHtml(casualTarget)}</p></div>
         <div class="review-english-answer"><span>English</span><strong>${escapeHtml(entry.item.translation || meaningOf(entry.item))}</strong></div>
         <p><strong>What changed:</strong> ${escapeHtml(entry.item.whatChanged || "")}</p>
         <p><strong>Where it is natural:</strong> ${escapeHtml(entry.item.when || "")}</p>
@@ -2684,7 +2582,7 @@ return `
         ${reading && lang !== "yue" ? `<div class="review-reading-line"><span>Reading</span><p>${escapeHtml(reading)}</p></div>` : ""}`;
     } else if (mode === "production") {
       revealHtml = `
-        <div class="production-model-answer"><span>Sample answer</span><p class="${lang === "yue" ? "canto-ruby" : ""}">${lang === "yue" && reading ? cantoneseRubyHtml(target, reading) : lang === "jp" ? japaneseRubyHtml(target, reading) : escapeHtml(target)}</p></div>
+        <div class="production-model-answer"><span>Model answer</span><p class="${lang === "yue" ? "canto-ruby" : ""}">${lang === "yue" && reading ? cantoneseRubyHtml(target, reading) : escapeHtml(target)}</p></div>
         ${reading && lang !== "yue" ? `<div class="review-reading-line"><span>Reading</span><p>${escapeHtml(reading)}</p></div>` : ""}
         <strong>${escapeHtml(meaningOf(entry.item))}</strong>`;
     } else {
@@ -3219,7 +3117,7 @@ return `
     $("#usageInput").placeholder = labMode === "ja" ? "日本語、romaji、文・段落を入力…" : "輸入廣東話句子或段落…";
     $("#usageInput").value = "";
     $("#charCount").textContent = "0/2000";
-    $("#labAnalysis").innerHTML = '<div class="analysis-empty">Paste a sentence or passage. Romaji is converted to kana first, then the site makes its best guess at word boundaries, grammar, and structure.</div>';
+    $("#labAnalysis").innerHTML = '<div class="analysis-empty">Paste a sentence or passage. Japanese romaji is converted to kana first; then AIDA uses global segmentation, candidate ranking, structure markers, and local grammar evidence.</div>';
     $$(".verify-check").forEach(node => { node.textContent = "—"; });
     renderUsageExamples();
   }
@@ -3244,13 +3142,10 @@ return `
       const structureHtml = analysis.hints.length
         ? analysis.hints.map(hint => `<div class="structure-hint"><b>${escapeHtml(hint.label)}</b><span>${escapeHtml(hint.explanation)}</span></div>`).join("")
         : '<div class="analysis-match muted-match">No basic structure marker was confidently identified.</div>';
-      const sentenceReading = labMode === "ja"
-        ? analysis.tokens.map(token => token.known && token.item ? (vocabItemFields(token.item, labMode).reading || token.text) : token.text).join("")
-        : "";
       return `
         <article class="sentence-analysis" id="analysisSentence-${index}">
           <div class="sentence-analysis-head"><span>Sentence ${index + 1}</span><strong>${analysis.coverage}% vocabulary coverage</strong></div>
-          <p class="analyzed-sentence">${labMode === "ja" ? japaneseRubyHtml(analysis.sentence, sentenceReading) : escapeHtml(analysis.sentence)}</p>
+          <p class="analyzed-sentence">${escapeHtml(analysis.sentence)}</p>
           <div class="analysis-subsection"><h5>Word separation</h5><div class="segmented-line">${analysis.tokens.map(token => renderToken(token, labMode)).join("")}</div></div>
           <div class="analysis-subsection"><h5>Contextual word choices</h5><div class="sense-choice-list">${renderContextChoices(analysis.tokens, labMode)}</div></div>
           <div class="analysis-subsection"><h5>Basic structure</h5><div class="structure-grid">${structureHtml}</div></div>
@@ -3363,106 +3258,6 @@ return `
     </div>`;
   }
 
-
-function onlineExampleLangCode(kind) {
-  return kind.startsWith("jp") ? "jpn" : "yue";
-}
-
-function onlineExampleQuery(kind, item) {
-  if (kind === "jpV") return String(item.expression || item.reading || "").trim();
-  if (kind === "yueV") return String(item.word || "").trim();
-  return stripTemplatePlaceholders(String(item.pattern || "").replace(/→.*$/, "")).replace(/^~+/, "").trim();
-}
-
-async function fetchOnlineExamples(kind, item) {
-  const query = onlineExampleQuery(kind, item);
-  if (!query) return [];
-  const cacheKey = `${kind}:${item.id}:${query}`;
-  if (ONLINE_EXAMPLE_CACHE.has(cacheKey)) return ONLINE_EXAMPLE_CACHE.get(cacheKey);
-  try {
-    const params = new URLSearchParams({
-      lang: onlineExampleLangCode(kind),
-      query,
-      kind,
-      reading: humanizedReading(kind, item) || "",
-      meaning: meaningOf(item) || ""
-    });
-    const response = await fetch(`/api/example-search?${params.toString()}`);
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const payload = await response.json();
-    const examples = Array.isArray(payload.examples)
-      ? payload.examples.filter(example => String(example.text || "").trim())
-      : [];
-    ONLINE_EXAMPLE_CACHE.set(cacheKey, examples);
-    return examples;
-  } catch (error) {
-    console.warn("AIDA online example lookup failed", error);
-    ONLINE_EXAMPLE_CACHE.set(cacheKey, []);
-    return [];
-  }
-}
-
-function onlineLookupPanel(kind, item, scope = "context") {
-  const id = `online-${scope}-${kind}-${item.id}`.replace(/[^a-zA-Z0-9_-]/g, "-");
-  const query = onlineExampleQuery(kind, item);
-  const lang = kind.startsWith("jp") ? "Japanese" : "Cantonese";
-  return `
-    <div class="online-example-panel" id="${id}">
-      <div class="online-example-copy">
-        <strong>No local verified example is bundled for this item yet.</strong>
-        <p>AIDA can search online for a real ${lang.toLowerCase()} example using <b>${escapeHtml(query)}</b>.</p>
-      </div>
-      <div class="online-example-actions">
-        <button type="button" class="btn secondary compact-btn" data-online-context="${escapeHtml(kind)}::${escapeHtml(item.id)}::${escapeHtml(scope)}::${escapeHtml(id)}">Search online examples ↗</button>
-      </div>
-    </div>`;
-}
-
-function renderOnlineExamples(host, kind, item, examples, scope = "context") {
-  const readingLabel = kind.startsWith("yue") ? "Jyutping" : "Reading";
-  if (!host) return;
-  if (!examples.length) {
-    host.innerHTML = `<div class="context-browser-empty">No online example could be retrieved right now. Try again later.</div>`;
-    return;
-  }
-  host.innerHTML = `<div class="context-review-sentence-grid">${examples.map((example, index) => {
-    const key = qualityKey(scope === "library" ? "online-library" : "online-context", kind, item.id, index, example.text || "");
-    const meta = {
-      key,
-      scope: scope === "library" ? "online-library" : "online-context",
-      kind,
-      itemId: item.id,
-      index,
-      text: example.text || "",
-      reading: example.reading || "",
-      translation: example.translation || "",
-      source: example.source || "Online example lookup",
-      qualityStatus: "unverified",
-      target: humanizedPattern(kind, item)
-    };
-    const target = kind.startsWith("yue") && example.reading
-      ? cantoneseRubyHtml(example.text, example.reading)
-      : kind.startsWith("jp") ? japaneseRubyHtml(example.text, example.reading || "") : escapeHtml(example.text);
-    return `<article class="context-review-card online-result-card">
-      <div class="context-audio-head"><span class="context-difficulty">Online example ${index + 1}</span></div>
-      ${qualityControlsHtml(meta)}
-      <p class="context-review-target ${kind.startsWith("yue") ? "canto-ruby" : ""}">${target}</p>
-      ${example.reading ? `<p class="context-review-reading"><b>${readingLabel}</b>${escapeHtml(example.reading)}</p>` : ""}
-      <p class="context-review-translation">${escapeHtml(example.translation || "")}</p>
-    </article>`;
-  }).join("")}</div>`;
-}
-
-async function handleOnlineExampleLookup(payload) {
-  const [kind, itemId, scope, hostId] = String(payload || "").split("::");
-  const entry = byId.get(`${kind}:${itemId}`);
-  const host = document.getElementById(hostId);
-  if (!entry || !host) return;
-  host.innerHTML = '<div class="context-browser-empty">Searching online examples…</div>';
-  const examples = await fetchOnlineExamples(kind, entry.item);
-  renderOnlineExamples(host, kind, entry.item, examples, scope);
-}
-
   function directReadingBankMatches(entry) {
     if (!entry?.kind?.endsWith("V")) return [];
     const lang = langFromKind(entry.kind);
@@ -3480,9 +3275,7 @@ async function handleOnlineExampleLookup(payload) {
   function renderDirectReadingMatch(match, lang) {
     const reading = humanizedReading(match.kind, match.item);
     const text = match.item.text || "";
-    const target = lang === "yue" && reading
-      ? cantoneseRubyHtml(text, reading)
-      : lang === "jp" ? japaneseRubyHtml(text, reading) : escapeHtml(text);
+    const target = lang === "yue" && reading ? cantoneseRubyHtml(text, reading) : escapeHtml(text);
     const key = qualityKey("reading-bank", match.kind, match.item.id, 0, text);
     if (shouldHideQualityExample(key)) return "";
     const meta = { key, scope: "reading-bank", kind: match.kind, itemId: match.item.id, index: 0, text, reading, translation: meaningOf(match.item), source: "Bundled reading bank", qualityStatus: "curated", target: match.kind.endsWith("P") ? "Passage bank" : "Sentence bank" };
@@ -3507,7 +3300,7 @@ async function handleOnlineExampleLookup(payload) {
     const reading = humanizedReading(kind, item);
     const termHtml = lang === "yue" && reading
       ? cantoneseRubyHtml(humanizedPattern(kind, item), reading)
-      : lang === "jp" ? japaneseRubyHtml(humanizedPattern(kind, item), reading) : escapeHtml(humanizedPattern(kind, item));
+      : escapeHtml(humanizedPattern(kind, item));
     const sentences = contextVariations(kind, item);
     const directMatches = directReadingBankMatches(entry);
     const passages = directMatches.filter(match => match.kind.endsWith("P")).map(match => match.item);
@@ -3524,7 +3317,7 @@ async function handleOnlineExampleLookup(payload) {
       </div>
 
       <section class="context-review-section">
-        <div class="context-review-section-head"><div><span>01</span><h4>Verified sentence examples</h4></div><p>Only curated, translated, or manually checked examples are shown locally. If none are bundled yet, you can search online.</p></div>
+        <div class="context-review-section-head"><div><span>01</span><h4>Verified sentence examples</h4></div><p>Only examples already checked against the target word or grammar point are shown.</p></div>
         <div class="context-review-sentence-grid">
           ${sentences.length ? sentences.map((example, index) => {
             const key = qualityKey("sentence", kind, item.id, index, example.text || "");
@@ -3533,11 +3326,11 @@ async function handleOnlineExampleLookup(payload) {
             return `<article class="context-review-card">
               <div class="context-audio-head"><span class="context-difficulty">Sentence ${index + 1}</span><button type="button" class="context-audio-button" data-context-sentence-audio="${index}">Listen ↗</button></div>
               ${qualityControlsHtml(meta)}
-              <p class="context-review-target ${lang === "yue" ? "canto-ruby" : ""}" data-context-sentence-sync="${index}">${lang === "yue" && example.reading ? cantoneseRubyHtml(example.text, example.reading) : lang === "jp" ? japaneseRubyHtml(example.text, example.reading || "") : escapeHtml(example.text)}</p>
+              <p class="context-review-target ${lang === "yue" ? "canto-ruby" : ""}" data-context-sentence-sync="${index}">${lang === "yue" && example.reading ? cantoneseRubyHtml(example.text, example.reading) : escapeHtml(example.text)}</p>
               ${lang !== "yue" && example.reading ? `<p class="context-review-reading">${escapeHtml(example.reading)}</p>` : ""}
               <p class="context-review-translation">${escapeHtml(example.translation || "")}</p>
             </article>`;
-          }).join("") : `${onlineLookupPanel(kind, item, "context")}`}
+          }).join("") : `<div class="context-browser-empty">No verified sentence example is available for this item yet.</div>`}
         </div>
       </section>
 
@@ -3551,7 +3344,7 @@ async function handleOnlineExampleLookup(payload) {
             return `<article class="context-passage-card">
             <div class="context-passage-head"><span>Passage ${index + 1}</span><div><strong>${passage.questions?.length || 0} comprehension prompts</strong><button type="button" class="context-audio-button" data-context-passage-audio="${index}">Listen with highlighting ↗</button></div></div>
             ${qualityControlsHtml(meta)}
-            <p class="context-passage-text ${lang === "yue" ? "canto-ruby" : ""}" data-context-passage-sync="${index}">${lang === "yue" && passage.reading ? cantoneseRubyHtml(passage.text, passage.reading) : lang === "jp" ? japaneseRubyHtml(passage.text, passage.reading || "") : escapeHtml(passage.text)}</p>
+            <p class="context-passage-text ${lang === "yue" ? "canto-ruby" : ""}" data-context-passage-sync="${index}">${lang === "yue" && passage.reading ? cantoneseRubyHtml(passage.text, passage.reading) : escapeHtml(passage.text)}</p>
             ${lang !== "yue" && passage.reading ? `<p class="context-review-reading">${escapeHtml(passage.reading)}</p>` : ""}
             <div class="context-passage-english"><span>ENGLISH</span><p>${escapeHtml(passage.translation || "")}</p></div>
             <div class="context-question-list">${(passage.questions || []).map(renderContextQuestion).join("")}</div>
@@ -3640,7 +3433,9 @@ async function handleOnlineExampleLookup(payload) {
     if (!meta) return;
     pendingQualityKey = key;
     const existing = qualityReportFor(key);
-    $("#qualityReportPreview").innerHTML = `<div class="quality-report-target"><span>${escapeHtml(meta.target || meta.scope || "Example")}</span><p>${escapeHtml(meta.text || "")}</p>${meta.translation ? `<small>${escapeHtml(meta.translation)}</small>` : ""}</div>`;
+    $("#qualityReportPreview").innerHTML = `
+      <div class="quality-report-target"><span>${escapeHtml(meta.target || meta.scope || "Example")}</span><p>${escapeHtml(meta.text || "")}</p>${meta.translation ? `<small>${escapeHtml(meta.translation)}</small>` : ""}</div>
+      ${qualityControlsHtml(meta)}`;
     $("#qualityReportReason").value = existing?.reason || "incorrect-grammar";
     $("#qualityReportNotes").value = existing?.notes || "";
     $("#qualityReportHide").checked = existing ? Boolean(existing.hidden) : true;
@@ -3814,7 +3609,7 @@ async function handleOnlineExampleLookup(payload) {
       <article class="library-item">
         <div class="library-term">
           <span class="item-kind">${grammar ? "GRAMMAR" : "VOCABULARY"}</span>
-          <strong>${kind.startsWith("jp") ? japaneseRubyHtml(humanizedPattern(kind, item), humanizedReading(kind, item)) : escapeHtml(humanizedPattern(kind, item))}</strong>
+          <strong>${escapeHtml(humanizedPattern(kind, item))}</strong>
           ${humanizedReading(kind, item) ? `<small>${escapeHtml(humanizedReading(kind, item))}</small>` : ""}
           <button class="inline-audio" data-audio-kind="${kind}" data-audio-id="${escapeHtml(item.id)}">Play pronunciation</button>
         </div>
@@ -3879,8 +3674,7 @@ async function handleOnlineExampleLookup(payload) {
     if (dataset && datasetConfig[dataset]) currentDataset = dataset;
     $$("[data-dataset]").forEach(button => button.classList.toggle("active", button.dataset.dataset === currentDataset));
     $("#librarySearch").value = "";
-
-  populateLibraryControls();
+    populateLibraryControls();
     renderLibrary();
     showDialog(libraryDialog);
   }
@@ -3899,7 +3693,6 @@ async function handleOnlineExampleLookup(payload) {
     const due = dueEntries();
 
     $("#streak").textContent = streak();
-    if ($("#streakHome")) $("#streakHome").textContent = streak();
     $("#profileNameTop").textContent = state.profile.name;
     $("#avatarTop").textContent = (state.profile.name.trim()[0] || "間").toUpperCase();
     $("#jpXpTop").textContent = `${state.xp.jp} XP`;
@@ -4235,8 +4028,6 @@ async function handleOnlineExampleLookup(payload) {
 
 
   document.addEventListener("click", event => {
-    const onlineButton = event.target.closest("[data-online-context]");
-    if (onlineButton) { event.preventDefault(); handleOnlineExampleLookup(onlineButton.dataset.onlineContext); return; }
     const reportButton = event.target.closest("[data-report-example]");
     if (reportButton) { event.preventDefault(); event.stopPropagation(); openQualityReport(reportButton.dataset.reportExample); return; }
     const toggleButton = event.target.closest("[data-quality-toggle-hide]");

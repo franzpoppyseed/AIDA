@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-07-12T07:52:38.844785+00:00",
+  "generated_at_utc": "2026-07-12T06:11:43.467105+00:00",
   "purpose": "Deterministic structural audit; not a substitute for linguistic review.",
   "summary": {
     "japanese_casual": {
@@ -39,7 +39,7 @@
       "supplemental_missing_pronunciation": 0
     },
     "japanese_sentences": {
-      "items": 17,
+      "items": 8,
       "missing_english": 0
     },
     "japanese_passages": {
@@ -47,7 +47,7 @@
       "missing_english": 0
     },
     "japanese_reading_passages": {
-      "items": 16,
+      "items": 10,
       "missing_english": 0
     },
     "cantonese_sentences": {
