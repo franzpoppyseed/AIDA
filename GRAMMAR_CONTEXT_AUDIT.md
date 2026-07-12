@@ -46,3 +46,12 @@ The audit includes superficially similar patterns that require different structu
 ## Scope and limitation
 
 This is a systematic construction audit, not a claim that a browser-only app can prove the full syntactic analysis of arbitrary Japanese or Cantonese sentences. V10 combines manual examples for the highest-risk points with stricter construction-signature validation for the remaining Japanese source contexts. The goal is practical: **do not show a learner an example unless the target concept is actually represented.**
+
+
+## V11 local quality-control loop
+
+Every displayed context now carries an evidence label such as **Corpus authentic**, **Audited**, **Rule validated**, **Curated**, **Generated**, or **Unverified**. These labels describe how the example entered the app; they do not claim infallibility.
+
+Every context and casual-language example also has a **Report issue** control. Reports record the target concept, exact example text, translation, source/evidence class, reason, optional notes, and whether the learner wants the example hidden locally. Reports are included in the normal JSON profile export. The Quality Review manager allows hidden examples to be restored or reports to be removed.
+
+This creates a practical feedback loop for a dataset too large to pretend has been manually proofread sentence by sentence.

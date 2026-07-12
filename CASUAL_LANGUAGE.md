@@ -84,3 +84,14 @@ Jyutping is shown on reveal for every Cantonese casual item.
 ## Scheduling
 
 Casual practice uses the same FSRS engine as the other skills, but the memory state is independent. A learner can therefore be strong at formal grammar while still having a due conversational review.
+
+
+## V11 curriculum depth
+
+The focused casual-language bank now contains **90 Japanese** and **90 Cantonese** items. Every item includes an English translation that remains visible in the revealed reflection panel and in casual review answers.
+
+The expanded Japanese curriculum covers backchanneling, fillers, hesitation, indirect refusal, sentence-final stance, requests, particle omission, contractions, quotation, self-repair, vague exemplification, slang, discourse pivots, memory checks, inference, ellipsis, and register-sensitive rough forms.
+
+The expanded Cantonese curriculum covers A-not-A questions, omission, aspect, conversational repair, backchannels, discourse markers, narrative connectors, colloquial vocabulary, suggestions, closures, final-particle combinations, rhetorical denial, idioms, and Hong Kong-style code-switching with explicit cautions about speaker variation.
+
+These are curated learner-facing examples, not claims that every listed form is universal across all speakers, regions, ages, or relationships. Register cautions are part of the answer and should be learned together with the form.

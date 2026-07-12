@@ -566,6 +566,16 @@
       </div>
     </section>
 
+    <section class="quality-settings">
+      <div class="quality-settings-head">
+        <div><span class="modal-kicker">EXAMPLE QUALITY</span><h3>Local quality control</h3></div>
+        <button class="btn secondary compact-btn" id="openQualityReports">Review reports</button>
+      </div>
+      <p>Every displayed context is labeled by evidence source. Report examples that are incorrect, unnatural, mistranslated, badly leveled, or otherwise unhelpful. Reports are saved in your local profile and included in exports.</p>
+      <div id="qualitySummary" class="quality-summary"></div>
+      <label class="quality-hide-toggle"><input id="hideReportedExamples" type="checkbox"/> Hide examples I have reported</label>
+    </section>
+
     <div class="profile-stats" id="profileStats"></div>
     <div class="profile-actions">
       <button class="btn primary" id="saveProfile">Save settings</button>
@@ -587,6 +597,40 @@
       <button class="btn secondary" data-action="close-clear-progress">Cancel</button>
       <button class="btn danger" id="confirmClearProgress" disabled>Clear progress</button>
     </div>
+  </dialog>
+
+  <dialog id="qualityReportDialog" class="base-dialog quality-report-dialog">
+    <button class="modal-close" data-action="close-quality-report" aria-label="Close"><span class="close-icon" aria-hidden="true"></span></button>
+    <div class="modal-kicker">EXAMPLE QUALITY</div>
+    <h2>Report this example</h2>
+    <div id="qualityReportPreview" class="quality-report-preview"></div>
+    <label>What is wrong?
+      <select id="qualityReportReason">
+        <option value="incorrect-grammar">Grammar or usage is incorrect</option>
+        <option value="concept-mismatch">Does not actually demonstrate the target concept</option>
+        <option value="unnatural">Unnatural or unlikely wording</option>
+        <option value="translation">Translation or meaning is wrong</option>
+        <option value="reading">Reading / Jyutping is wrong</option>
+        <option value="level">Difficulty or level is wrong</option>
+        <option value="audio">Audio does not match</option>
+        <option value="other">Other</option>
+      </select>
+    </label>
+    <label>Notes <textarea id="qualityReportNotes" maxlength="600" placeholder="What should be fixed?"></textarea></label>
+    <label class="quality-hide-toggle"><input id="qualityReportHide" type="checkbox" checked/> Hide this example from future study on this device</label>
+    <div class="confirm-actions">
+      <button class="btn secondary" data-action="close-quality-report">Cancel</button>
+      <button class="btn primary" id="saveQualityReport">Save report</button>
+    </div>
+  </dialog>
+
+  <dialog id="qualityManagerDialog" class="base-dialog quality-manager-dialog">
+    <button class="modal-close" data-action="close-quality-manager" aria-label="Close"><span class="close-icon" aria-hidden="true"></span></button>
+    <div class="modal-kicker">QUALITY REVIEW</div>
+    <h2>Your reported examples</h2>
+    <p class="modal-copy">Reports are local to this browser unless you export your profile. You can restore a hidden example or remove a report at any time.</p>
+    <div id="qualityManagerStats" class="quality-summary"></div>
+    <div id="qualityReportList" class="quality-report-list"></div>
   </dialog>
 
   <dialog id="progressDialog" class="base-dialog progress-dialog">

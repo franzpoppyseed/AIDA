@@ -1,0 +1,33 @@
+{
+  "generated_at_utc": "2026-07-12T03:45:31.202198+00:00",
+  "purpose": "Deterministic structural audit; not a substitute for linguistic review.",
+  "summary": {
+    "japanese_casual": {
+      "items": 90,
+      "missing_english": 0,
+      "missing_reading": 0,
+      "duplicate_pairs": 0
+    },
+    "cantonese_casual": {
+      "items": 90,
+      "missing_english": 0,
+      "missing_reading": 0,
+      "duplicate_pairs": 0
+    },
+    "japanese_grammar_overrides": {
+      "cards": 150,
+      "examples": 450,
+      "incomplete_sets": 0
+    },
+    "cantonese_grammar_overrides": {
+      "cards": 67,
+      "examples": 201,
+      "incomplete_sets": 0
+    }
+  },
+  "issue_counts": {
+    "errors": 0,
+    "warnings": 0
+  },
+  "issues": []
+}

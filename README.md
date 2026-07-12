@@ -175,3 +175,15 @@ The site stores progress in the browser and supports:
 - preserved profile targets and daily goals when progress is cleared
 
 No fake local username/password system is included because browser-only credentials would not provide real account security or cross-device account retrieval.
+
+## V11 — Casual depth + quality loop
+
+- Focused casual-language curriculum expanded to **90 Japanese** and **90 Cantonese** items.
+- Every casual item includes an English translation on reveal and in review.
+- Japanese coverage now includes backchannels, fillers, indirectness, particle omission, contractions, quotation, ellipsis, slang, discourse markers, and register-sensitive rough forms.
+- Cantonese coverage now includes A-not-A questions, omission, aspect, repair, backchannels, discourse markers, narrative connectors, colloquial vocabulary, final-particle combinations, idioms, rhetorical reactions, and selected Hong Kong code-switching with cautions.
+- Every displayed context now has a provenance/evidence badge and a local **Report issue** workflow.
+- Reported examples can be hidden locally, restored, managed from Profile, and carried through JSON export/import.
+- `tools/audit_content.py` provides a deterministic pre-release content integrity audit; the latest result is stored in `quality/audit-report.json`.
+
+See `CASUAL_LANGUAGE.md` and `QUALITY_CONTROL.md`.

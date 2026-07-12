@@ -51,6 +51,67 @@
     .replace(/[_-]+/g, " ")
     .replace(/\b\w/g, char => char.toUpperCase());
 
+  const QUALITY_LABELS = {
+    curated: "CURATED",
+    corpus: "CORPUS AUTHENTIC",
+    audited: "AUDITED",
+    validated: "RULE VALIDATED",
+    generated: "GENERATED",
+    unverified: "UNVERIFIED"
+  };
+  const qualityExampleRegistry = new Map();
+  let pendingQualityKey = "";
+
+  function stableTextHash(text) {
+    let hash = 2166136261;
+    for (const char of String(text || "")) {
+      hash ^= char.codePointAt(0);
+      hash = Math.imul(hash, 16777619);
+    }
+    return (hash >>> 0).toString(36);
+  }
+
+  function qualityStatusFor(example = {}) {
+    const explicit = normalize(example.qualityStatus || example.quality || "");
+    if (explicit && QUALITY_LABELS[explicit]) return explicit;
+    const sourceName = normalize(example.source || example.contextSource || "");
+    if (/tatoeba|tanaka|hkcan|corpus/.test(sourceName)) return "corpus";
+    if (/manually audited|audited|override/.test(sourceName)) return "audited";
+    if (/grammar instantiation|rule validated|validator/.test(sourceName)) return "validated";
+    if (/generated/.test(sourceName)) return "generated";
+    if (/aida/.test(sourceName)) return "curated";
+    return "unverified";
+  }
+
+  function qualityKey(scope, kind, itemId, index, text) {
+    return `${scope}:${kind}:${itemId}:${index}:${stableTextHash(text)}`;
+  }
+
+  function qualityReportFor(key) {
+    return state.quality?.reports?.[key] || null;
+  }
+
+  function shouldHideQualityExample(key) {
+    const report = qualityReportFor(key);
+    return Boolean(state.quality?.hideReported && report?.hidden);
+  }
+
+  function registerQualityExample(meta) {
+    qualityExampleRegistry.set(meta.key, meta);
+    return meta.key;
+  }
+
+  function qualityBadgeHtml(status, key) {
+    const reported = Boolean(qualityReportFor(key));
+    return `<span class="quality-badge quality-${escapeHtml(status)}">${escapeHtml(QUALITY_LABELS[status] || titleCase(status))}</span>${reported ? '<span class="quality-badge quality-reported">REPORTED</span>' : ''}`;
+  }
+
+  function qualityControlsHtml(meta) {
+    registerQualityExample(meta);
+    const status = qualityStatusFor(meta);
+    return `<div class="quality-controls">${qualityBadgeHtml(status, meta.key)}<button type="button" class="quality-report-button" data-report-example="${escapeHtml(meta.key)}">Report issue</button></div>`;
+  }
+
 
   function jyutpingSyllables(reading) {
     return String(reading || "")
@@ -62,14 +123,13 @@
     const syllables = jyutpingSyllables(reading);
     if (!syllables.length) return escapeHtml(text);
     let syllableIndex = 0;
-    return [...String(text || "")].map(char => {
-      if (/\p{Script=Han}/u.test(char)) {
+    const chunks = String(text || "").match(/[A-Za-z]+(?:['’-][A-Za-z]+)*|\p{Script=Han}|[^A-Za-z\p{Script=Han}]+/gu) || [];
+    return chunks.map(chunk => {
+      if (/^\p{Script=Han}$/u.test(chunk) || /^[A-Za-z]/.test(chunk)) {
         const syllable = syllables[syllableIndex++] || "";
-        return syllable
-          ? `<ruby><rb>${escapeHtml(char)}</rb><rt>${escapeHtml(syllable)}</rt></ruby>`
-          : escapeHtml(char);
+        return syllable ? `<ruby><rb>${escapeHtml(chunk)}</rb><rt>${escapeHtml(syllable)}</rt></ruby>` : escapeHtml(chunk);
       }
-      return escapeHtml(char);
+      return escapeHtml(chunk);
     }).join("");
   }
 
@@ -82,7 +142,7 @@
 
   function defaultState() {
     return {
-      version: 6,
+      version: 7,
       profile: {
         name: "Learner",
         jpTarget: "N5",
@@ -104,7 +164,8 @@
       },
       lastSession: null,
       preferredStudyLanguage: "jp",
-      audio: { jpVoiceId: "", yueVoiceId: "" }
+      audio: { jpVoiceId: "", yueVoiceId: "" },
+      quality: { reports: {}, hideReported: true }
     };
   }
 
@@ -168,7 +229,7 @@
     if (!raw || typeof raw !== "object") return fresh;
 
     // V4/V5 already had independent language tracks but only one memory score per item.
-    if ([4, 5, 6].includes(raw.version)) {
+    if ([4, 5, 6, 7].includes(raw.version)) {
       const migrated = {
         ...fresh,
         ...raw,
@@ -186,7 +247,12 @@
           yue: { ...fresh.answers.yue, ...(raw.answers?.yue || {}) }
         },
         audio: { ...fresh.audio, ...(raw.audio || {}) },
-        version: 6
+        quality: {
+          ...fresh.quality,
+          ...(raw.quality || {}),
+          reports: { ...(raw.quality?.reports || {}) }
+        },
+        version: 7
       };
       if (!Object.keys(migrated.skillSrs).length) {
         Object.entries(migrated.srs).forEach(([key, srs]) => {
@@ -1413,13 +1479,18 @@
 
   function casualReflectionHtml(item, lang) {
     const tags = Array.isArray(item.tags) ? item.tags : [];
+    const kind = lang === "jp" ? "jpC" : "yueC";
+    const key = qualityKey("casual", kind, item.id, 0, item.casual || item.base || "");
+    const meta = { key, scope: "casual", kind, itemId: item.id, index: 0, text: item.casual || "", reading: item.reading || "", translation: item.translation || "", source: "AIDA curated casual-language curriculum", qualityStatus: item.qualityStatus || "curated", target: item.title || "Casual language" };
     return `
       <div class="casual-reflection-panel">
         <div class="context-section-head"><span>Reflect on the register shift</span><small>notice what changed before rating yourself</small></div>
+        ${qualityControlsHtml(meta)}
         <div class="casual-pair-grid">
           <article><span>NEUTRAL / EXPLICIT</span><p>${escapeHtml(item.base || "")}</p></article>
           <article><span>CASUAL / CONVERSATIONAL</span><p class="${lang === "yue" ? "canto-ruby" : ""}">${lang === "yue" && item.reading ? cantoneseRubyHtml(item.casual || "", item.reading) : escapeHtml(item.casual || "")}</p></article>
         </div>
+        <div class="casual-english-block"><span>ENGLISH</span><p>${escapeHtml(item.translation || "")}</p></div>
         <div class="casual-reflection-prompts">
           <p><strong>What changed?</strong> ${escapeHtml(item.whatChanged || "")}</p>
           <p><strong>Where is it natural?</strong> ${escapeHtml(item.when || "")}</p>
@@ -1430,15 +1501,20 @@
   }
 
   function contextHtml(kind, item) {
-    const examples = contextVariations(kind, item);
-    if (!examples.length) return "";
+    const rawExamples = contextVariations(kind, item);
+    if (!rawExamples.length) return "";
     const readingLabel = kind.startsWith("yue") ? "Jyutping" : "Reading";
+    const visible = rawExamples.map((example, index) => {
+      const key = qualityKey("sentence", kind, item.id, index, example.text || "");
+      return { example, index, key, meta: { key, scope: "sentence", kind, itemId: item.id, index, text: example.text || "", reading: example.reading || "", translation: example.translation || "", source: example.source || "AIDA context", qualityStatus: example.qualityStatus, target: humanizedPattern(kind, item) } };
+    }).filter(row => !shouldHideQualityExample(row.key));
+    if (!visible.length) return `<div class="quality-all-hidden"><strong>All context examples for this item are hidden.</strong><span>Open Profile → Example quality to review your reports.</span></div>`;
     return `
-      <div class="context-section-head"><span>Validated context variations</span><small>${examples.length} concept-matched ${examples.length === 1 ? "example" : "examples"}</small></div>
+      <div class="context-section-head"><span>Validated context variations</span><small>${visible.length} visible concept-matched ${visible.length === 1 ? "example" : "examples"}</small></div>
       <div class="context-variation-grid">
-        ${examples.map((example, index) => `
+        ${visible.map(({ example, index, meta }) => `
           <article class="context-variation-card">
-            <span>${["EASIER", "BUILD", "HARDER"][index] || String(index + 1).padStart(2, "0")}</span>
+            <div class="context-card-topline"><span>${["EASIER", "BUILD", "HARDER"][index] || String(index + 1).padStart(2, "0")}</span>${qualityControlsHtml(meta)}</div>
             <p class="context-target ${kind.startsWith("yue") ? "canto-ruby" : ""}">${kind.startsWith("yue") && example.reading ? cantoneseRubyHtml(example.text, example.reading) : escapeHtml(example.text)}</p>
             ${example.reading ? `<p class="context-reading"><b>${readingLabel}</b>${escapeHtml(example.reading)}</p>` : ""}
             ${example.translation ? `<p class="context-translation">${escapeHtml(example.translation)}</p>` : ""}
@@ -1446,8 +1522,6 @@
           </article>`).join("")}
       </div>`;
   }
-
-  // ---------- target scopes ----------
 
   function allowedJapaneseLevels(target) {
     const index = JP_LEVELS.indexOf(target);
@@ -2307,11 +2381,14 @@
     $("#studyMeta").textContent = [displayMeta(kind, item), item.contextSource].filter(Boolean).join(" · ");
 
     const guide = casual
-      ? (item.casualExercise === "notice"
-          ? [item.when ? `Use: ${item.when}` : "", item.caution ? `Watch out: ${item.caution}` : ""].filter(Boolean).join(" ")
-          : item.casualExercise === "judgment"
-            ? item.whatChanged || ""
-            : [item.whatChanged, item.when ? `Use: ${item.when}` : "", item.caution ? `Watch out: ${item.caution}` : ""].filter(Boolean).join(" "))
+      ? [
+          item.translation ? `English: ${item.translation}` : "",
+          item.casualExercise === "notice"
+            ? [item.when ? `Use: ${item.when}` : "", item.caution ? `Watch out: ${item.caution}` : ""].filter(Boolean).join(" ")
+            : item.casualExercise === "judgment"
+              ? item.whatChanged || ""
+              : [item.whatChanged, item.when ? `Use: ${item.when}` : "", item.caution ? `Watch out: ${item.caution}` : ""].filter(Boolean).join(" ")
+        ].filter(Boolean).join(" ")
       : production
       ? `Model meaning: ${meaningOf(item)}`
       : comprehension
@@ -2666,6 +2743,7 @@
     if (skill === "reading" && !entry.kind.endsWith("S") && !entry.kind.endsWith("P")) {
       return deterministicHash(entry.key) % 3 === 0 ? contextPassageEntry(entry, variant) : contextSentenceEntry(entry, variant);
     }
+    if (skill === "casual" || entry.kind.endsWith("C")) return materializeCasualEntry(entry, variant);
     return { ...entry, studySkills: [skill] };
   }
 
@@ -2685,7 +2763,11 @@
     $("#reviewSessionDue").textContent = `${SKILL_LABELS[skill]} · ${due ? "Due now" : `Mastery ${skillMasteryForKey(entry.key, skill)}%`}`;
     $("#reviewSideLabel").textContent = `${lang === "jp" ? "JAPANESE" : "CANTONESE"} · ${SKILL_LABELS[skill].toUpperCase()} REVIEW`;
 
-    if (mode === "listening") {
+    if (mode === "casual") {
+      const exercise = practice.item.casualExercise || "transform";
+      $("#reviewPrompt").textContent = exercise === "transform" ? (practice.item.base || practice.item.title || "Make it conversational.") : (practice.item.casual || practice.item.title || "Casual language");
+      $("#reviewPromptSub").textContent = exercise === "transform" ? "Produce the natural casual version before revealing." : exercise === "notice" ? "Identify what changed and why it sounds conversational." : "Judge where this register sounds natural before revealing.";
+    } else if (mode === "listening") {
       $("#reviewPrompt").textContent = "Listen to the context.";
       $("#reviewPromptSub").textContent = "The transcript stays hidden until you reveal. Reconstruct the meaning first.";
     } else if (mode === "production") {
@@ -2720,7 +2802,16 @@
     }
 
     let revealHtml = "";
-    if (mode === "listening") {
+    if (mode === "casual") {
+      const casualTarget = entry.item.casual || target;
+      const casualReading = entry.item.reading || reading;
+      revealHtml = `
+        <div class="production-model-answer"><span>Casual / conversational</span><p class="${lang === "yue" ? "canto-ruby" : ""}">${lang === "yue" && casualReading ? cantoneseRubyHtml(casualTarget, casualReading) : escapeHtml(casualTarget)}</p></div>
+        <div class="review-english-answer"><span>English</span><strong>${escapeHtml(entry.item.translation || meaningOf(entry.item))}</strong></div>
+        <p><strong>What changed:</strong> ${escapeHtml(entry.item.whatChanged || "")}</p>
+        <p><strong>Where it is natural:</strong> ${escapeHtml(entry.item.when || "")}</p>
+        ${entry.item.caution ? `<p><strong>Watch out:</strong> ${escapeHtml(entry.item.caution)}</p>` : ""}`;
+    } else if (mode === "listening") {
       revealHtml = `
         <div class="review-sync-block">
           <div class="sync-transcript-head"><span>Transcript</span><button type="button" class="speak-btn compact-audio" id="replayReviewSync">Replay with highlighting</button></div>
@@ -3421,11 +3512,14 @@
 
   function renderDirectReadingMatch(match, lang) {
     const reading = humanizedReading(match.kind, match.item);
-    const target = lang === "yue" && reading
-      ? cantoneseRubyHtml(match.item.text || "", reading)
-      : escapeHtml(match.item.text || "");
+    const text = match.item.text || "";
+    const target = lang === "yue" && reading ? cantoneseRubyHtml(text, reading) : escapeHtml(text);
+    const key = qualityKey("reading-bank", match.kind, match.item.id, 0, text);
+    if (shouldHideQualityExample(key)) return "";
+    const meta = { key, scope: "reading-bank", kind: match.kind, itemId: match.item.id, index: 0, text, reading, translation: meaningOf(match.item), source: "Bundled reading bank", qualityStatus: "curated", target: match.kind.endsWith("P") ? "Passage bank" : "Sentence bank" };
     return `<article class="direct-reading-match">
       <span>${match.kind.endsWith("P") ? "PASSAGE BANK" : "SENTENCE BANK"} · ${escapeHtml(itemLevel(match.kind, match.item))}</span>
+      ${qualityControlsHtml(meta)}
       <p class="${lang === "yue" ? "canto-ruby" : ""}">${target}</p>
       ${lang !== "yue" && reading ? `<small>${escapeHtml(reading)}</small>` : ""}
       <details><summary>Show meaning${match.item.questions?.length ? " & questions" : ""}</summary>
@@ -3464,25 +3558,36 @@
       <section class="context-review-section">
         <div class="context-review-section-head"><div><span>01</span><h4>Sentence variations</h4></div><p>The same item in three progressively denser contexts.</p></div>
         <div class="context-review-sentence-grid">
-          ${sentences.map((example, index) => `<article class="context-review-card">
-            <div class="context-audio-head"><span class="context-difficulty">${["EASIER", "BUILD", "HARDER"][index]}</span><button type="button" class="context-audio-button" data-context-sentence-audio="${index}">Listen ↗</button></div>
-            <p class="context-review-target ${lang === "yue" ? "canto-ruby" : ""}" data-context-sentence-sync="${index}">${lang === "yue" && example.reading ? cantoneseRubyHtml(example.text, example.reading) : escapeHtml(example.text)}</p>
-            ${lang !== "yue" && example.reading ? `<p class="context-review-reading">${escapeHtml(example.reading)}</p>` : ""}
-            <p class="context-review-translation">${escapeHtml(example.translation || "")}</p>
-          </article>`).join("")}
+          ${sentences.map((example, index) => {
+            const key = qualityKey("sentence", kind, item.id, index, example.text || "");
+            if (shouldHideQualityExample(key)) return "";
+            const meta = { key, scope: "sentence", kind, itemId: item.id, index, text: example.text || "", reading: example.reading || "", translation: example.translation || "", source: example.source || "AIDA context", qualityStatus: example.qualityStatus, target: humanizedPattern(kind, item) };
+            return `<article class="context-review-card">
+              <div class="context-audio-head"><span class="context-difficulty">${["EASIER", "BUILD", "HARDER"][index]}</span><button type="button" class="context-audio-button" data-context-sentence-audio="${index}">Listen ↗</button></div>
+              ${qualityControlsHtml(meta)}
+              <p class="context-review-target ${lang === "yue" ? "canto-ruby" : ""}" data-context-sentence-sync="${index}">${lang === "yue" && example.reading ? cantoneseRubyHtml(example.text, example.reading) : escapeHtml(example.text)}</p>
+              ${lang !== "yue" && example.reading ? `<p class="context-review-reading">${escapeHtml(example.reading)}</p>` : ""}
+              <p class="context-review-translation">${escapeHtml(example.translation || "")}</p>
+            </article>`;
+          }).join("")}
         </div>
       </section>
 
       <section class="context-review-section">
         <div class="context-review-section-head"><div><span>02</span><h4>Passage variations</h4></div><p>Read for meaning first, then use the prompts to check actual comprehension.</p></div>
         <div class="context-review-passage-list">
-          ${passages.map((passage, index) => `<article class="context-passage-card">
+          ${passages.map((passage, index) => {
+            const key = qualityKey("passage", kind, item.id, index, passage.text || "");
+            if (shouldHideQualityExample(key)) return "";
+            const meta = { key, scope: "passage", kind, itemId: item.id, index, text: passage.text || "", reading: passage.reading || "", translation: passage.translation || "", source: passage.contextSource || "AIDA generated coherent passage", qualityStatus: passage.qualityStatus || "generated", target: humanizedPattern(kind, item) };
+            return `<article class="context-passage-card">
             <div class="context-passage-head"><span>${["EASIER", "BUILD", "HARDER"][index]}</span><div><strong>${passage.questions?.length || 0} comprehension prompts</strong><button type="button" class="context-audio-button" data-context-passage-audio="${index}">Listen with highlighting ↗</button></div></div>
+            ${qualityControlsHtml(meta)}
             <p class="context-passage-text ${lang === "yue" ? "canto-ruby" : ""}" data-context-passage-sync="${index}">${lang === "yue" && passage.reading ? cantoneseRubyHtml(passage.text, passage.reading) : escapeHtml(passage.text)}</p>
             ${lang !== "yue" && passage.reading ? `<p class="context-review-reading">${escapeHtml(passage.reading)}</p>` : ""}
             <details class="context-translation-details"><summary>Show passage translation</summary><p>${escapeHtml(passage.translation || "")}</p></details>
             <div class="context-question-list">${(passage.questions || []).map(renderContextQuestion).join("")}</div>
-          </article>`).join("")}
+          </article>`; }).join("")}
         </div>
       </section>
       ${directMatches.length ? `<section class="context-review-section">
@@ -3545,6 +3650,113 @@
     renderContextBrowserResults(contextBrowserSelectedKey);
     showDialog(contextBrowserDialog);
     setTimeout(() => $("#contextSearchInput").focus(), 80);
+  }
+
+  // ---------- example quality control ----------
+
+  function qualityReasonLabel(reason) {
+    return ({
+      "incorrect-grammar":"Grammar or usage is incorrect",
+      "concept-mismatch":"Does not demonstrate the target concept",
+      "unnatural":"Unnatural or unlikely wording",
+      "translation":"Translation or meaning is wrong",
+      "reading":"Reading / Jyutping is wrong",
+      "level":"Difficulty or level is wrong",
+      "audio":"Audio does not match",
+      "other":"Other"
+    })[reason] || titleCase(reason);
+  }
+
+  function openQualityReport(key) {
+    const meta = qualityExampleRegistry.get(key);
+    if (!meta) return;
+    pendingQualityKey = key;
+    const existing = qualityReportFor(key);
+    $("#qualityReportPreview").innerHTML = `
+      <div class="quality-report-target"><span>${escapeHtml(meta.target || meta.scope || "Example")}</span><p>${escapeHtml(meta.text || "")}</p>${meta.translation ? `<small>${escapeHtml(meta.translation)}</small>` : ""}</div>
+      ${qualityControlsHtml(meta)}`;
+    $("#qualityReportReason").value = existing?.reason || "incorrect-grammar";
+    $("#qualityReportNotes").value = existing?.notes || "";
+    $("#qualityReportHide").checked = existing ? Boolean(existing.hidden) : true;
+    showDialog($("#qualityReportDialog"));
+  }
+
+  function saveQualityReport() {
+    const meta = qualityExampleRegistry.get(pendingQualityKey);
+    if (!meta) return;
+    state.quality ||= { reports: {}, hideReported: true };
+    state.quality.reports ||= {};
+    state.quality.reports[pendingQualityKey] = {
+      key: pendingQualityKey,
+      scope: meta.scope,
+      kind: meta.kind,
+      itemId: meta.itemId,
+      index: meta.index,
+      target: meta.target || "",
+      text: meta.text || "",
+      reading: meta.reading || "",
+      translation: meta.translation || "",
+      source: meta.source || "",
+      qualityStatus: qualityStatusFor(meta),
+      reason: $("#qualityReportReason").value,
+      notes: $("#qualityReportNotes").value.trim(),
+      hidden: $("#qualityReportHide").checked,
+      updatedAt: Date.now(),
+      createdAt: qualityReportFor(pendingQualityKey)?.createdAt || Date.now()
+    };
+    saveState();
+    closeDialog($("#qualityReportDialog"));
+    renderQualitySummary();
+    renderQualityManager();
+    if (contextBrowserDialog?.open) renderContextBrowserDetail(byId.get(contextBrowserSelectedKey));
+    showToast("Example report saved.");
+  }
+
+  function qualityCounts() {
+    const reports = Object.values(state.quality?.reports || {});
+    return {
+      total: reports.length,
+      hidden: reports.filter(report => report.hidden).length,
+      grammar: reports.filter(report => ["incorrect-grammar","concept-mismatch"].includes(report.reason)).length
+    };
+  }
+
+  function renderQualitySummary() {
+    const counts = qualityCounts();
+    const host = $("#qualitySummary");
+    if (host) host.innerHTML = `
+      <div><strong>${counts.total}</strong><span>reported</span></div>
+      <div><strong>${counts.hidden}</strong><span>hidden locally</span></div>
+      <div><strong>${counts.grammar}</strong><span>grammar / concept flags</span></div>`;
+    const checkbox = $("#hideReportedExamples");
+    if (checkbox) checkbox.checked = state.quality?.hideReported !== false;
+  }
+
+  function renderQualityManager() {
+    const host = $("#qualityReportList");
+    if (!host) return;
+    const reports = Object.values(state.quality?.reports || {}).sort((a,b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+    const stats = $("#qualityManagerStats");
+    if (stats) {
+      const counts = qualityCounts();
+      stats.innerHTML = `<div><strong>${counts.total}</strong><span>reports</span></div><div><strong>${counts.hidden}</strong><span>hidden</span></div><div><strong>${counts.grammar}</strong><span>concept flags</span></div>`;
+    }
+    host.innerHTML = reports.length ? reports.map(report => `
+      <article class="quality-report-row" data-quality-report-row="${escapeHtml(report.key)}">
+        <div class="quality-report-row-head"><div>${qualityBadgeHtml(report.qualityStatus || "unverified", report.key)}<span class="quality-reason">${escapeHtml(qualityReasonLabel(report.reason))}</span></div><time>${new Date(report.updatedAt || report.createdAt || Date.now()).toLocaleDateString()}</time></div>
+        <strong>${escapeHtml(report.target || report.scope || "Example")}</strong>
+        <p class="quality-report-text">${escapeHtml(report.text || "")}</p>
+        ${report.translation ? `<p class="quality-report-translation">${escapeHtml(report.translation)}</p>` : ""}
+        ${report.notes ? `<p class="quality-report-notes">${escapeHtml(report.notes)}</p>` : ""}
+        <div class="quality-report-actions"><button class="btn secondary compact-btn" data-quality-toggle-hide="${escapeHtml(report.key)}">${report.hidden ? "Restore example" : "Hide example"}</button><button class="btn danger compact-btn" data-quality-delete="${escapeHtml(report.key)}">Remove report</button></div>
+      </article>`).join("") : '<div class="quality-empty">No examples reported yet. Every context card has a “Report issue” control.</div>';
+  }
+
+  function openQualityManager() {
+    renderQualitySummary();
+    renderQualityManager();
+    closeDialog($("#profileDialog"));
+    showDialog($("#qualityManagerDialog"));
   }
 
   // ---------- source library ----------
@@ -3915,9 +4127,13 @@
   function clearLearningProgress() {
     const profile = { ...state.profile };
     const preferredStudyLanguage = state.preferredStudyLanguage;
+    const audio = { ...(state.audio || {}) };
+    const quality = { ...defaultState().quality, ...(state.quality || {}), reports: { ...(state.quality?.reports || {}) } };
     state = defaultState();
     state.profile = profile;
     state.preferredStudyLanguage = preferredStudyLanguage;
+    state.audio = audio;
+    state.quality = quality;
     saveState();
     passageAssessment = null;
     closeDialog($("#clearProgressDialog"));
@@ -3942,11 +4158,13 @@
       else if (action === "close-context-browser") closeDialog(contextBrowserDialog);
       else if (action === "data-library") openLibrary();
       else if (action === "close-library") closeDialog(libraryDialog);
-      else if (action === "profile") openProfile();
+      else if (action === "profile") { renderQualitySummary(); openProfile(); }
       else if (action === "close-profile") closeDialog($("#profileDialog"));
       else if (action === "progress") openProgress();
       else if (action === "close-progress") closeDialog($("#progressDialog"));
       else if (action === "close-clear-progress") closeDialog($("#clearProgressDialog"));
+      else if (action === "close-quality-report") closeDialog($("#qualityReportDialog"));
+      else if (action === "close-quality-manager") closeDialog($("#qualityManagerDialog"));
     });
   });
 
@@ -4042,6 +4260,29 @@
   });
 
 
+  document.addEventListener("click", event => {
+    const reportButton = event.target.closest("[data-report-example]");
+    if (reportButton) { event.preventDefault(); event.stopPropagation(); openQualityReport(reportButton.dataset.reportExample); return; }
+    const toggleButton = event.target.closest("[data-quality-toggle-hide]");
+    if (toggleButton) {
+      const report = state.quality?.reports?.[toggleButton.dataset.qualityToggleHide];
+      if (report) { report.hidden = !report.hidden; report.updatedAt = Date.now(); saveState(); renderQualitySummary(); renderQualityManager(); }
+      return;
+    }
+    const deleteButton = event.target.closest("[data-quality-delete]");
+    if (deleteButton) {
+      if (state.quality?.reports?.[deleteButton.dataset.qualityDelete]) { delete state.quality.reports[deleteButton.dataset.qualityDelete]; saveState(); renderQualitySummary(); renderQualityManager(); }
+    }
+  });
+  $("#saveQualityReport").addEventListener("click", saveQualityReport);
+  $("#openQualityReports").addEventListener("click", openQualityManager);
+  $("#hideReportedExamples").addEventListener("change", event => {
+    state.quality ||= { reports: {}, hideReported: true };
+    state.quality.hideReported = event.target.checked;
+    saveState();
+    renderQualitySummary();
+  });
+
   ["#jpVoiceSelect", "#yueVoiceSelect"].forEach(selector => {
     $(selector).addEventListener("change", event => {
       state.audio ||= { jpVoiceId: "", yueVoiceId: "" };
@@ -4082,7 +4323,7 @@
     showToast(`${streak()}-day streak · Japanese ${state.activity.jp[key] || 0}/${state.profile.jpDailyGoal} · Cantonese ${state.activity.yue[key] || 0}/${state.profile.yueDailyGoal}`);
   });
 
-  [libraryDialog, contextBrowserDialog, studyDialog, reviewDialog, usageDialog, $("#profileDialog"), $("#progressDialog"), $("#clearProgressDialog")].forEach(dialog => {
+  [libraryDialog, contextBrowserDialog, studyDialog, reviewDialog, usageDialog, $("#profileDialog"), $("#progressDialog"), $("#clearProgressDialog"), $("#qualityReportDialog"), $("#qualityManagerDialog")].forEach(dialog => {
     dialog?.addEventListener("click", event => {
       if (event.target === dialog) dialog.close();
     });
@@ -4111,4 +4352,6 @@
   populateLibraryControls();
   setLabMode("ja");
   renderDashboard();
+  renderQualitySummary();
+
 })();
