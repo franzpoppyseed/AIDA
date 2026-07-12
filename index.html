@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="styles.css"/>
 </head>
 <body>
+  <canvas id="cyberCanvas" class="cyber-canvas" aria-hidden="true"></canvas>
   <header class="topbar">
     <button class="brand" data-action="home" aria-label="Go to home">
       <span class="brand-mark">間</span>
@@ -41,7 +42,7 @@
         <span class="avatar" id="avatarTop">間</span>
         <span class="profile-text">
           <strong id="profileNameTop">Learner</strong>
-          <small>Local profile</small>
+          <small>Saved in this browser</small>
         </span>
       </button>
     </div>
@@ -51,113 +52,69 @@
     <section class="home-poster" aria-labelledby="intro-title">
       <div class="poster-grid">
         <div class="poster-copy">
-          <p class="eyebrow reveal-on-scroll">AIDA / LOCAL-FIRST CYBERPUNK LANGUAGE SYSTEM</p>
+          <p class="eyebrow reveal-on-scroll">STUDY JAPANESE AND CANTONESE IN ONE PLACE</p>
           <div class="poster-mark glitch-text reveal-on-scroll" data-text="間">間</div>
-          <h1 id="intro-title" class="reveal-on-scroll">Japanese and Cantonese.<br/><span>Separate tracks. One clean interface.</span></h1>
-          <p class="intro-text reveal-on-scroll">AIDA keeps both languages in one place without blending them together. Targets, XP, daily goals, review history, and skill progress remain separate for each track. The homepage stays minimal. Use the hotbar above to enter the actual study spaces.</p>
-          <div class="poster-instruction reveal-on-scroll">Study / Review / Casual / Usage Lab / Contexts / Source Library</div>
+          <h1 id="intro-title" class="reveal-on-scroll">Two languages.<br/><span>Kept completely separate.</span></h1>
+          <p class="intro-text reveal-on-scroll">Study one language at a time. Review what you have learned, practice casual speech, break down sentences, and look up real examples. Japanese and Cantonese each keep their own XP, goals, targets, and progress.</p>
+          <div class="poster-instruction reveal-on-scroll">Use the bar above to open Study, Review, Casual, Usage Lab, Contexts, or the Source Library.</div>
         </div>
 
         <aside class="poster-side">
           <div class="poster-chip tilt-card reveal-on-scroll">
-            <span>HOTBAR ACCESS</span>
-            <p>The real learning tools live behind the top navigation, so the default home screen stays uncluttered.</p>
+            <span>JAPANESE</span>
+            <p>Vocabulary, grammar, reading, listening, casual speech, and review from N5 through N1.</p>
           </div>
           <div class="poster-chip accent tilt-card reveal-on-scroll">
-            <span>LIVE SYSTEM</span>
-            <div class="fading-feed" aria-hidden="true">
-              <em>study</em><em>review</em><em>casual</em><em>usage lab</em><em>contexts</em><em>source library</em>
-            </div>
+            <span>CANTONESE</span>
+            <p>Vocabulary, grammar, Jyutping, listening, casual speech, and review from beginner through advanced.</p>
           </div>
           <div class="poster-chip slim tilt-card reveal-on-scroll">
-            <span>STATUS</span>
-            <p>Local profile. Separate XP. Context-first examples. Cyberpunk interface.</p>
+            <span>WHAT IS HERE?</span>
+            <div class="fading-feed" aria-hidden="true">
+              <em>study</em><em>review</em><em>casual speech</em><em>sentence breakdown</em><em>examples</em><em>reading</em>
+            </div>
           </div>
         </aside>
 
         <div class="poster-ghost reveal-on-scroll">
-          <span>NEURAL GRID · CONTEXT REVIEW · CASUAL MODE · LOCAL PROGRESS</span>
+          <span>VOCABULARY · GRAMMAR · CASUAL SPEECH · READING · LISTENING · REVIEW</span>
         </div>
       </div>
     </section>
 
-    <section class="home-grid" aria-label="Homepage overview">
-      <article class="panel home-card track-card jp-card tilt-card reveal-on-scroll" data-track="jp">
-        <div class="panel-head compact-head">
-          <div>
-            <span class="section-index">01 / 日本語</span>
-            <h2>Japanese track</h2>
-          </div>
-        </div>
-        <p class="panel-description">Separate target, XP, and review history.</p>
-        <div class="track-stat-row">
-          <div><span>Target</span><strong id="jpTargetCard">N5</strong></div>
-          <div><span>XP</span><strong id="jpXpCard">0</strong></div>
-          <div><span>Mastery</span><strong id="jpProgressValue">0%</strong></div>
-        </div>
-        <div class="goal-block">
-          <div class="goal-copy"><span>Today</span><strong id="jpGoalText">0 / 30 items</strong></div>
-          <div class="goal-rail"><i id="jpGoalBar"></i></div>
-        </div>
-        <div class="track-footer compact-footer"><span id="jpScopeText">N5 material only</span></div>
+    <section class="home-status-strip" aria-label="Current progress">
+      <article class="status-card jp-status tilt-card reveal-on-scroll">
+        <div><span>日本語 / JAPANESE</span><strong id="jpTargetCard">N5</strong></div>
+        <div class="status-numbers"><span><b id="jpXpCard">0</b> XP</span><span><b id="jpProgressValue">0%</b> mastery</span></div>
+        <div class="goal-copy"><span>Today</span><strong id="jpGoalText">0 / 30 items</strong></div>
+        <div class="goal-rail"><i id="jpGoalBar"></i></div>
+        <small id="jpScopeText">N5 material only</small>
       </article>
 
-      <article class="panel home-card track-card yue-card tilt-card reveal-on-scroll" data-track="yue">
-        <div class="panel-head compact-head">
-          <div>
-            <span class="section-index">02 / 廣東話</span>
-            <h2>Cantonese track</h2>
-          </div>
-        </div>
-        <p class="panel-description">Separate target, XP, and review history.</p>
-        <div class="track-stat-row">
-          <div><span>Target</span><strong id="yueTargetCard">Beginner</strong></div>
-          <div><span>XP</span><strong id="yueXpCard">0</strong></div>
-          <div><span>Mastery</span><strong id="yueProgressValue">0%</strong></div>
-        </div>
-        <div class="goal-block">
-          <div class="goal-copy"><span>Today</span><strong id="yueGoalText">0 / 30 items</strong></div>
-          <div class="goal-rail"><i id="yueGoalBar"></i></div>
-        </div>
-        <div class="track-footer compact-footer"><span id="yueScopeText">Beginner material only</span></div>
+      <article class="status-card yue-status tilt-card reveal-on-scroll">
+        <div><span>廣東話 / CANTONESE</span><strong id="yueTargetCard">Beginner</strong></div>
+        <div class="status-numbers"><span><b id="yueXpCard">0</b> XP</span><span><b id="yueProgressValue">0%</b> mastery</span></div>
+        <div class="goal-copy"><span>Today</span><strong id="yueGoalText">0 / 30 items</strong></div>
+        <div class="goal-rail"><i id="yueGoalBar"></i></div>
+        <small id="yueScopeText">Beginner material only</small>
       </article>
 
-      <article class="panel home-card review-card tilt-card reveal-on-scroll">
-        <div class="panel-head compact-head">
-          <div>
-            <span class="section-index">03 / REVIEW</span>
-            <h2>Review status</h2>
-          </div>
-        </div>
-        <p class="panel-description">A compact snapshot of what is already in your system.</p>
-        <div class="review-summary">
-          <div><strong id="reviewAllCount">0</strong><span>learned</span></div>
-          <div><strong id="reviewDueCount">0</strong><span>due now</span></div>
-          <div><strong id="reviewJpCount">0</strong><span>Japanese</span></div>
-          <div><strong id="reviewYueCount">0</strong><span>Cantonese</span></div>
-        </div>
-        <div class="home-note">Open <b>Review</b> from the hotbar to work through the full queue.</div>
-        <div class="review-list minimal-list" id="reviewList" aria-hidden="true"></div>
-      </article>
-
-      <article class="panel home-card activity-card tilt-card reveal-on-scroll">
-        <div class="panel-head compact-head">
-          <div>
-            <span class="section-index">04 / ACTIVITY</span>
-            <h2>Last 7 days</h2>
-          </div>
-        </div>
-        <div class="activity-legend"><span><i class="legend-solid"></i>Japanese</span><span><i class="legend-outline"></i>Cantonese</span></div>
-        <div class="week-chart" id="weekChart" aria-label="Seven day activity chart"></div>
-        <p class="panel-description" id="weeklyProgressText">Start your first study session.</p>
-        <div class="home-note">Open the hotbar sections to enter Study, Casual, Usage Lab, Contexts, or the Source Library.</div>
+      <article class="status-card review-status tilt-card reveal-on-scroll">
+        <div><span>REVIEW</span><strong id="reviewDueCount">0 due</strong></div>
+        <div class="status-numbers"><span><b id="reviewAllCount">0</b> learned</span><span><b id="streakHome">0</b> day streak</span></div>
+        <p>Open Review from the top bar when you are ready to work through your queue.</p>
       </article>
     </section>
+
+    <div class="dashboard-support" aria-hidden="true">
+      <span id="reviewJpCount">0</span><span id="reviewYueCount">0</span>
+      <div id="reviewList"></div><div id="weekChart"></div><p id="weeklyProgressText"></p>
+    </div>
   </main>
 
   <footer class="site-footer">
     <span>AIDA / 間</span>
-    <span>Local-first Japanese & Cantonese learning</span>
+    <span>Japanese and Cantonese study in one place</span>
   </footer>
 
   <dialog id="dataLibrary" class="base-dialog library-dialog">
@@ -210,7 +167,7 @@
       <div>
         <div class="modal-kicker">CONTEXT BROWSER</div>
         <h2>Sentences & passages by word</h2>
-        <p>Search a word or grammar point, then review verified contexts that actually use it.</p>
+        <p>Search a word or grammar point and see sentences or passages that actually use it.</p>
       </div>
       <button class="modal-close static-close" data-action="close-context-browser" aria-label="Close"><span class="close-icon" aria-hidden="true"></span></button>
     </div>
@@ -257,9 +214,9 @@
 
       <div id="studySetup" class="study-setup">
         <section class="setup-copy">
-          <span class="eyebrow">BUILD A SESSION</span>
+          <span class="eyebrow">CHOOSE A SESSION</span>
           <h3 id="studySetupHeading">Study Japanese at your target level.</h3>
-          <p id="studySetupDescription">Your target controls the material pool. Higher targets include every lower level, never material above your target.</p>
+          <p id="studySetupDescription">Your target sets the highest level you will see. Higher targets still include easier material.</p>
           <div class="scope-callout" id="studyScopeCallout"></div>
         </section>
 
@@ -424,7 +381,7 @@
         <div>
           <div class="modal-kicker">FULL REVIEW</div>
           <h2>Review everything you have studied</h2>
-          <p>Due cards come first by default. Drag cards to change the order.</p>
+          <p>Due cards show up first. Drag cards if you want to change the order.</p>
         </div>
         <button class="modal-close static-close" data-action="close-review" aria-label="Close"><span class="close-icon" aria-hidden="true"></span></button>
       </header>
@@ -473,7 +430,7 @@
       <div>
         <div class="modal-kicker">USAGE LAB</div>
         <h2>Break down sentences and passages</h2>
-        <p>Local word separation, basic structure hints, grammar matching, and sentence-by-sentence passage analysis.</p>
+        <p>Break a sentence or passage into words, grammar, and basic structure. The results are a best guess, so use them as a study aid rather than a final answer.</p>
       </div>
       <button class="modal-close static-close" data-action="close-usage" aria-label="Close"><span class="close-icon" aria-hidden="true"></span></button>
     </div>
@@ -512,9 +469,9 @@
 
   <dialog id="profileDialog" class="base-dialog profile-dialog">
     <button class="modal-close" data-action="close-profile" aria-label="Close"><span class="close-icon" aria-hidden="true"></span></button>
-    <div class="modal-kicker">LOCAL PROFILE</div>
+    <div class="modal-kicker">PROFILE</div>
     <h2>Your settings</h2>
-    <p class="modal-copy">This static site stores progress in this browser. Export a JSON backup to move or restore your progress.</p>
+    <p class="modal-copy">Your progress is saved in this browser. Export a backup if you want to move it to another device or restore it later.</p>
 
     <div class="profile-form profile-grid">
       <label class="full-row">Name<input id="profileNameInput" maxlength="24"/></label>
@@ -557,8 +514,8 @@
           <select id="yueVoiceSelect"><option value="">Automatic</option></select>
         </label>
       </div>
-      <label class="quality-hide-toggle audio-engine-toggle"><input id="jpNeuralFirst" type="checkbox" checked/> Prefer hosted Japanese neural speech when configured</label>
-      <p class="audio-picker-note">Japanese audio now sends the <strong>actual written word or complete sentence</strong> instead of flattening vocabulary into kana before speech. When the optional <code>/api/japanese-tts</code> route is configured, AIDA prefers neural full-context synthesis and falls back to the selected browser voice. Cantonese uses a genuine browser <strong>yue-CN</strong>, <strong>yue-HK</strong>, or <strong>zh-HK</strong> voice when available, with <code>/api/cantonese-tts</code> as the hosted fallback.</p>
+      <label class="quality-hide-toggle audio-engine-toggle"><input id="jpNeuralFirst" type="checkbox" checked/> Use the hosted Japanese voice first when it is set up</label>
+      <p class="audio-picker-note">Japanese audio reads the full written word or sentence so compounds have more context. When the optional <code>/api/japanese-tts</code> route is set up, the site uses it first and falls back to your browser voice. Cantonese uses an available Cantonese or Hong Kong voice in the browser, with <code>/api/cantonese-tts</code> as the hosted fallback.</p>
       <div class="audio-test-row">
         <button class="btn secondary" id="testJapaneseAudio">Test Japanese</button>
         <button class="btn secondary" id="testCantoneseAudio">Test Cantonese</button>
@@ -570,7 +527,7 @@
         <div><span class="modal-kicker">EXAMPLE QUALITY</span><h3>Local quality control</h3></div>
         <button class="btn secondary compact-btn" id="openQualityReports">Review reports</button>
       </div>
-      <p>Every displayed context is labeled by evidence source. Report examples that are incorrect, unnatural, mistranslated, badly leveled, or otherwise unhelpful. Reports are saved in your local profile and included in exports.</p>
+      <p>Report any example that looks wrong, unnatural, mistranslated, or placed at the wrong level. Your reports are saved with your local profile and included in backups.</p>
       <div id="qualitySummary" class="quality-summary"></div>
       <label class="quality-hide-toggle"><input id="hideReportedExamples" type="checkbox"/> Hide examples I have reported</label>
     </section>
@@ -634,7 +591,7 @@
 
   <dialog id="progressDialog" class="base-dialog progress-dialog">
     <button class="modal-close" data-action="close-progress" aria-label="Close"><span class="close-icon" aria-hidden="true"></span></button>
-    <div class="modal-kicker">LEARNING ANALYTICS</div>
+    <div class="modal-kicker">PROGRESS</div>
     <h2>Progress dashboard</h2>
     <div id="progressDashboard"></div>
   </dialog>
@@ -653,5 +610,6 @@
   <script src="data/casual_language.js"></script>
   <script src="vendor/ts-fsrs.umd.js"></script>
   <script src="app.js"></script>
+  <script src="ui-effects.js"></script>
 </body>
 </html>

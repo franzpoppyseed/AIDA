@@ -1,6 +1,19 @@
-# AIDA / 間 — Functional V14 Item-Specific Contexts
+# AIDA / 間 — Functional V18 Cyberpunk Usability Pass
 
 A local-first Japanese and Cantonese learning application. Both languages live on one website but remain independent tracks with separate targets, XP, daily goals, activity, mastery, and review schedules.
+
+
+## V18 changes
+
+- Rebuilt the default homepage into a simple poster-style introduction with only a small progress strip underneath.
+- Fixed scroll ownership in Usage Lab, Contexts, Review, Study, and Source Library dialogs.
+- Added Japanese furigana to revealed study/review content, context examples, the Source Library, and Usage Lab sentence output when readings are available.
+- Replaced the N5/N4/N3 Japanese reading bank with level-controlled passages and sentence sets: five passages and five sentences per level, all with readings, English translations, and comprehension questions.
+- Removed boxed styling from listen/pronunciation controls and centered button content consistently.
+- Moved visual effects into `ui-effects.js` and added restrained canvas lines, scroll reveals, tilt, glitch pulses, dialog glow, and button feedback.
+- Simplified visible copy so the interface sounds more natural and less like marketing language.
+
+See `quality/reading-level-audit.json` for the current N5/N4/N3 reading guardrail results.
 
 ## V14 context policy: specific or nothing
 

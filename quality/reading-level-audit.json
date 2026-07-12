@@ -1,0 +1,21 @@
+{
+  "levels": {
+    "N5": {
+      "passages": 5,
+      "sentences": 5,
+      "max_passage_chars": 62
+    },
+    "N4": {
+      "passages": 5,
+      "sentences": 5,
+      "max_passage_chars": 89
+    },
+    "N3": {
+      "passages": 5,
+      "sentences": 5,
+      "max_passage_chars": 120
+    }
+  },
+  "errors": [],
+  "warnings": []
+}
