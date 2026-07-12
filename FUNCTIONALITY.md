@@ -183,6 +183,7 @@ Search by term, reading, Jyutping, meaning, or grammar item. Review:
 Browser route:
 
 - Japanese browser voice selection
+- optional hosted Japanese neural TTS using full orthographic word/sentence input for better compound-aware pronunciation
 - Cantonese `yue-CN`, `yue-HK`, other `yue-*`, and `zh-HK` preference
 - manual voice selectors
 - long-form chunking
@@ -202,3 +203,14 @@ Hosted Cantonese route:
 - JSON export/import
 - clear progress with typed `CLEAR` confirmation
 - profile targets, goals, and retention setting preserved across clear-progress reset
+
+
+## V12 semantic vocabulary topics
+
+Japanese and Cantonese vocabulary can be filtered by 26 everyday semantic topics. The topic layer is additive to the original source metadata and includes vegetables, fruit, animals, transport, household objects, appliances, hygiene, tools, school, work, shopping, places, weather, health, cooking, and other daily-life domains.
+
+V12 also adds a curated bilingual everyday supplement where the original dictionaries lacked an exact entry: 83 Japanese items and 49 Cantonese items. Every supplemental word has an English meaning and a pronunciation field; Cantonese supplement entries have Jyutping.
+
+## V12 learner-facing English coverage
+
+English is mandatory for every learner-facing word, static sentence, static passage, casual item, and audited grammar context. Context Browser displays English under sentence and passage examples. Study/review continues to hide answers until reveal. Raw Cantonese corpus lines without translations remain internal parser/corpus evidence and are not surfaced as learning cards.

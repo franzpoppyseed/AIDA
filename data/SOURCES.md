@@ -55,3 +55,9 @@ Generated fallback text is labeled as AIDA fallback/generated context. It is not
 ## Original Japanese grammar context
 
 The Japanese corpus matching step did not produce usable sentence context for every grammar-library entry, especially abstract conjugation labels and highly specific advanced constructions. V7 therefore adds original AIDA-written application examples for the 221 grammar items without an imported corpus match. Imported grammar items with fewer than three corpus examples are padded with contextual variations of their matched sentence, so every Japanese grammar item exposes at least three non-meta contexts.
+
+## V12 everyday vocabulary supplement
+
+V12 keeps the original vocabulary imports intact and adds a small curated supplement only where an exact everyday surface form was missing from the bundled source dictionary. These entries are marked with `AIDA_Everyday_Core` / `AIDA curated everyday vocabulary supplement` provenance and semantic topic tags. Cantonese supplement Jyutping is stored directly on each learner-facing entry.
+
+The topic classifier and supplement are summarized in `../EVERYDAY_VOCABULARY.md` and audited in `../quality/everyday-vocabulary-audit.json`.

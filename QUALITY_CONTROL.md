@@ -33,3 +33,9 @@ python tools/audit_content.py
 The audit checks deterministic failures such as missing English translations, missing Cantonese Jyutping, duplicate casual pairs, incomplete grammar override sets, leaked placeholders, and structurally incomplete examples. The latest machine-readable result is written to `quality/audit-report.json`.
 
 This audit deliberately does **not** claim to solve semantic naturalness. That still requires corpus evidence, focused review, and learner reports.
+
+## V12 English-coverage gate
+
+`tools/audit_content.py` now also checks that every learner-facing vocabulary item, static sentence, static passage, casual item, and audited grammar context has English. Raw Cantonese corpus lines without English are retained only as parser/corpus evidence and are filtered out of learner-facing context cards.
+
+The same audit checks semantic-topic coverage and pronunciation fields on the curated everyday supplement.

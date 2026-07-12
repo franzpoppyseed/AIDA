@@ -164,7 +164,7 @@
       },
       lastSession: null,
       preferredStudyLanguage: "jp",
-      audio: { jpVoiceId: "", yueVoiceId: "" },
+      audio: { jpVoiceId: "", yueVoiceId: "", jpNeuralFirst: true },
       quality: { reports: {}, hideReported: true }
     };
   }
@@ -742,6 +742,7 @@
   }
 
   function yueVocabLevel(item) {
+    if (YUE_LEVELS.includes(item?.level)) return item.level;
     const rank = Number(item.frequency_rank) || Infinity;
     if (rank <= YUE_VOCAB_LIMITS.Beginner) return "Beginner";
     if (rank <= YUE_VOCAB_LIMITS.Intermediate) return "Intermediate";
@@ -755,10 +756,17 @@
 
   function japaneseVocabCollection(item) {
     const tags = String(item.tags || "");
+    if (tags.includes("AIDA_Everyday_Core")) return "Everyday core";
     if (tags.includes("Genki")) return "Genki";
     if (tags.includes("Intermediate_Japanese")) return "Intermediate Japanese";
     if (tags.includes("JLPT")) return "JLPT core";
     return "Other";
+  }
+
+  function itemTopics(kind, item) {
+    if (kind !== "jpV" && kind !== "yueV") return [];
+    const topics = Array.isArray(item?.topics) ? item.topics : [];
+    return [...new Set(topics.map(value => String(value || "").trim()).filter(Boolean))];
   }
 
   function cantoneseVocabBand(item) {
@@ -772,8 +780,8 @@
   function itemCategory(kind, item) {
     if (kind === "jpC" || kind === "yueC") return "Casual conversation";
     if (kind === "jpG" || kind === "yueG") return titleCase(item.category || "General");
-    if (kind === "jpV") return japaneseVocabCollection(item);
-    if (kind === "yueV") return cantoneseVocabBand(item);
+    if (kind === "jpV") return itemTopics(kind, item)[0] || japaneseVocabCollection(item);
+    if (kind === "yueV") return itemTopics(kind, item)[0] || cantoneseVocabBand(item);
     if (kind.endsWith("S")) return "Sentence comprehension";
     if (kind.endsWith("P")) return "Passage comprehension";
     return "General";
@@ -814,10 +822,12 @@
   }
 
   function metadataParts(kind, item) {
-    const parts = [itemLevel(kind, item), itemCategory(kind, item)];
+    const topics = itemTopics(kind, item);
+    const parts = [itemLevel(kind, item), ...(topics.length ? topics.slice(0, 2) : [itemCategory(kind, item)])];
+    if (kind === "jpV") parts.push(japaneseVocabCollection(item));
     if (kind === "yueG" && item.register) parts.push(`${titleCase(item.register)} register`);
     if (kind === "yueV" && item.frequency_rank) parts.push(`Frequency #${Number(item.frequency_rank).toLocaleString()}`);
-    return parts.filter(Boolean);
+    return [...new Set(parts.filter(Boolean))];
   }
 
   function displayMeta(kind, item) {
@@ -851,9 +861,9 @@
       const corpus = (CONTEXT.cantonese?.corpus?.[item.id] || []).map(example => ({
         text: example.text || "",
         reading: example.jyutping || "",
-        translation: "",
+        translation: example.translation || "",
         source: example.source || "HKCanCor via PyCantonese"
-      }));
+      })).filter(example => example.text && example.translation);
       return [...bundled, ...corpus];
     }
     return [];
@@ -961,6 +971,64 @@
     return true;
   }
 
+  function everydayVocabularyContexts(kind, item) {
+    if (kind !== "jpV" && kind !== "yueV") return [];
+    const topics = new Set(itemTopics(kind, item));
+    if (!topics.size) return [];
+    const edible = ["Vegetables", "Fruit", "Food & ingredients", "Drinks"].some(topic => topics.has(topic));
+    const animals = topics.has("Animals");
+    const vehicles = topics.has("Vehicles & transport");
+    const objectLike = ["Home & furniture", "Kitchen & dining", "Bathroom & hygiene", "Clothing & accessories", "Electronics & appliances", "Tools & repair", "Cleaning & laundry", "School & study", "Office & work"].some(topic => topics.has(topic));
+    const gloss = String(item.meaning || "").split(/[;,/]/)[0].trim();
+    if (kind === "jpV") {
+      const target = item.expression || "";
+      if (edible) return [
+        { text: `スーパーで${target}を買いました。`, translation: `I bought ${gloss || target} at the supermarket.`, source: "AIDA everyday-topic context" },
+        { text: `${target}を切って、夕飯の料理に入れました。`, translation: `I cut the ${gloss || target} and added it to dinner.`, source: "AIDA everyday-topic context" },
+        { text: `今日は${target}を使って料理しました。`, translation: `Today I cooked using ${gloss || target}.`, source: "AIDA everyday-topic context" }
+      ];
+      if (animals) return [
+        { text: `公園で${target}を見ました。`, translation: `I saw a ${gloss || target} in the park.`, source: "AIDA everyday-topic context" },
+        { text: `子どもが${target}を見て喜びました。`, translation: `The child was happy to see the ${gloss || target}.`, source: "AIDA everyday-topic context" },
+        { text: `写真を撮ろうとしたら、${target}がすぐに動きました。`, translation: `When I tried to take a picture, the ${gloss || target} moved right away.`, source: "AIDA everyday-topic context" }
+      ];
+      if (vehicles) return [
+        { text: `駅の近くで${target}を見ました。`, translation: `I saw a ${gloss || target} near the station.`, source: "AIDA everyday-topic context" },
+        { text: `今日は${target}を使って移動しました。`, translation: `Today I traveled using ${gloss || target}.`, source: "AIDA everyday-topic context" },
+        { text: `道路が混んでいて、${target}もゆっくり進んでいました。`, translation: `The road was crowded, and the ${gloss || target} was moving slowly too.`, source: "AIDA everyday-topic context" }
+      ];
+      if (objectLike) return [
+        { text: `新しい${target}を買いました。`, translation: `I bought a new ${gloss || target}.`, source: "AIDA everyday-topic context" },
+        { text: `${target}は家の中の決まった場所に置いてあります。`, translation: `The ${gloss || target} is kept in its usual place at home.`, source: "AIDA everyday-topic context" },
+        { text: `必要なときにすぐ使えるように、${target}を手の届く場所に置いています。`, translation: `I keep the ${gloss || target} within reach so I can use it when needed.`, source: "AIDA everyday-topic context" }
+      ];
+    } else {
+      const word = item.word || "";
+      const jy = item.jyutping || "";
+      if (edible) return [
+        { text: `我喺超級市場買咗${word}。`, reading: `ngo5 hai2 ciu1 kap1 si5 coeng4 maai5 zo2 ${jy}.`, translation: `I bought ${gloss || word} at the supermarket.`, source: "AIDA everyday-topic context" },
+        { text: `我切好${word}之後，就放落餸入面。`, reading: `ngo5 cit3 hou2 ${jy} zi1 hau6, zau6 fong3 lok6 sung3 jap6 min6.`, translation: `After cutting the ${gloss || word}, I added it to the dish.`, source: "AIDA everyday-topic context" },
+        { text: `我今日用${word}煮晚餐。`, reading: `ngo5 gam1 jat6 jung6 ${jy} zyu2 maan5 caan1.`, translation: `Today I cooked dinner using ${gloss || word}.`, source: "AIDA everyday-topic context" }
+      ];
+      if (animals) return [
+        { text: `我喺公園見到${word}。`, reading: `ngo5 hai2 gung1 jyun2 gin3 dou3 ${jy}.`, translation: `I saw a ${gloss || word} in the park.`, source: "AIDA everyday-topic context" },
+        { text: `個細路見到${word}之後好開心。`, reading: `go3 sai3 lou6 gin3 dou3 ${jy} zi1 hau6 hou2 hoi1 sam1.`, translation: `The child was very happy after seeing the ${gloss || word}.`, source: "AIDA everyday-topic context" },
+        { text: `我想影相嗰陣，${word}突然郁咗。`, reading: `ngo5 soeng2 jing2 soeng2 go2 zan6, ${jy} dat6 jin4 juk1 zo2.`, translation: `When I wanted to take a photo, the ${gloss || word} suddenly moved.`, source: "AIDA everyday-topic context" }
+      ];
+      if (vehicles) return [
+        { text: `我喺車站附近見到${word}。`, reading: `ngo5 hai2 ce1 zaam6 fu6 gan6 gin3 dou3 ${jy}.`, translation: `I saw a ${gloss || word} near the station.`, source: "AIDA everyday-topic context" },
+        { text: `我今日搭${word}去另一區。`, reading: `ngo5 gam1 jat6 daap3 ${jy} heoi3 ling6 jat1 keoi1.`, translation: `Today I took the ${gloss || word} to another district.`, source: "AIDA everyday-topic context" },
+        { text: `條路好塞，${word}都行得好慢。`, reading: `tiu4 lou6 hou2 sak1, ${jy} dou1 haang4 dak1 hou2 maan6.`, translation: `The road was congested, so the ${gloss || word} was moving very slowly too.`, source: "AIDA everyday-topic context" }
+      ];
+      if (objectLike) return [
+        { text: `我新買咗${word}。`, reading: `ngo5 san1 maai5 zo2 ${jy}.`, translation: `I bought a new ${gloss || word}.`, source: "AIDA everyday-topic context" },
+        { text: `我將${word}放喺屋企固定嘅位置。`, reading: `ngo5 zoeng1 ${jy} fong3 hai2 uk1 kei2 gu3 ding6 ge3 wai6 zi3.`, translation: `I keep the ${gloss || word} in a fixed place at home.`, source: "AIDA everyday-topic context" },
+        { text: `為咗需要嗰陣即刻用到，我將${word}放喺容易拎到嘅地方。`, reading: `wai6 zo2 seoi1 jiu3 go2 zan6 zik1 hak1 jung6 dou2, ngo5 zoeng1 ${jy} fong3 hai2 jung4 ji6 ling1 dou2 ge3 dei6 fong1.`, translation: `I keep the ${gloss || word} somewhere easy to reach so I can use it immediately when needed.`, source: "AIDA everyday-topic context" }
+      ];
+    }
+    return [];
+  }
+
   function japaneseFallbackContexts(kind, item) {
     const target = contextTargetLabel(kind, item);
     const meaning = meaningOf(item);
@@ -969,6 +1037,8 @@
       const reading = String(item.reading || item.expression || "");
       const looksVerb = /^to\s+/i.test(gloss) || /[うくぐすつぬぶむる]$/.test(reading) && /^to\b/i.test(String(meaning || ""));
       const looksAdjective = /adjective|\badj\.?\b|beautiful|good|bad|big|small|new|old|easy|difficult|busy|happy|sad|expensive|cheap/i.test(String(meaning || ""));
+      const everyday = everydayVocabularyContexts(kind, item);
+      if (!looksVerb && !looksAdjective && everyday.length) return everyday;
       if (looksVerb) {
         return [
           { text: `${target}ことは大切です。`, translation: `${gloss || target} is important.`, source: "AIDA generated usage context" },
@@ -1075,6 +1145,8 @@
     const gloss = String(meaning).split(/[;,/]/)[0].trim();
     const looksVerb = /^to\s+/i.test(gloss) || /\bverb\b/i.test(meaning);
     const looksAdjective = /adjective|\badj\.?\b|beautiful|good|bad|big|small|new|old|easy|difficult|busy|happy|sad|expensive|cheap/i.test(meaning);
+    const everyday = everydayVocabularyContexts(kind, item);
+    if (!looksVerb && !looksAdjective && everyday.length) return everyday;
     if (looksVerb) {
       const action = gloss.replace(/^to\s+/i, "") || word;
       return [
@@ -1818,8 +1890,9 @@
   }
 
   function speechText(kind, item) {
-    if (kind === "jpV") return item.reading || item.expression || "";
+    if (kind === "jpV") return item.expression || item.reading || "";
     if (kind === "yueV") return item.word || "";
+    if (kind === "jpC" || kind === "yueC") return item.casual || item.base || "";
     if (isComprehensionKind(kind)) return item.text || "";
     return stripTemplatePlaceholders(item.pattern || "");
   }
@@ -1835,11 +1908,12 @@
     const yue = pickVoice("yue");
     const yueCandidates = speechVoices.filter(voice => voiceScore(voice, "yue") > 0);
     container.innerHTML = `
-      <div class="audio-status-row ${jp ? "good" : "bad"}"><strong>Japanese</strong><span>${jp ? escapeHtml(`${jp.name} · ${jp.lang}`) : "No Japanese voice detected"}</span></div>
+      <div class="audio-status-row ${jp ? "good" : "neutral"}"><strong>Japanese browser voice</strong><span>${jp ? escapeHtml(`${jp.name} · ${jp.lang}`) : "No Japanese browser voice detected"}</span></div>
+      <div class="audio-status-row neutral"><strong>Japanese neural route</strong><span>/api/japanese-tts · ${state.audio?.jpNeuralFirst !== false ? "preferred when configured" : "available as fallback"} · receives full orthographic words and complete sentence chunks</span></div>
       <div class="audio-status-row ${yue ? "good" : "neutral"}"><strong>Cantonese</strong><span>${yue ? escapeHtml(`${yue.name} · ${yue.lang}`) : "No enumerated Cantonese voice · AIDA will still try the browser's yue-CN locale fallback"}</span></div>
       <div class="audio-status-row neutral"><strong>Detected voices</strong><span>${speechVoices.length} total · ${yueCandidates.length} Cantonese candidate${yueCandidates.length === 1 ? "" : "s"}</span></div>
-      <div class="audio-status-row neutral"><strong>Hosted fallback</strong><span>/api/cantonese-tts · used automatically when configured and no browser Cantonese voice is available</span></div>
-      ${yue ? "" : '<p class="audio-help">AIDA first looks for a genuine yue-CN / yue-HK / zh-HK browser voice. If none is exposed, it tries the included same-origin hosted TTS endpoint, then finally a browser yue-CN locale fallback. Configure the serverless endpoint for deterministic Cantonese audio.</p>'}`;
+      <div class="audio-status-row neutral"><strong>Hosted Cantonese</strong><span>/api/cantonese-tts · used automatically when configured and no browser Cantonese voice is available</span></div>
+      <p class="audio-help">For Japanese, AIDA no longer sends isolated kana readings to speech. It sends the actual written word or the complete sentence so the speech engine can analyze compounds in context. The optional Japanese neural endpoint is preferred by default because browser voices vary widely in prosody quality.</p>`;
     populateVoiceSelectors();
   }
 
@@ -1998,6 +2072,33 @@
     });
   }
 
+  let japaneseCloudAvailability = "unknown";
+
+  async function fetchJapaneseSpeech(text) {
+    if (!text || location.protocol === "file:" || japaneseCloudAvailability === "unavailable") return null;
+    try {
+      const response = await fetch("/api/japanese-tts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text })
+      });
+      if (!response.ok || !(response.headers.get("content-type") || "").startsWith("audio/")) {
+        if ([404, 405, 503].includes(response.status)) japaneseCloudAvailability = "unavailable";
+        return null;
+      }
+      japaneseCloudAvailability = "available";
+      return await response.blob();
+    } catch {
+      japaneseCloudAvailability = "unavailable";
+      return null;
+    }
+  }
+
+  async function speakJapaneseCloudHighlighted(text, host) {
+    const blob = await fetchJapaneseSpeech(text);
+    return blob ? await playAudioBlobHighlighted(blob, host) : false;
+  }
+
   async function speakCantoneseCloudHighlighted(text, host) {
     if (!text || location.protocol === "file:") return false;
     try {
@@ -2024,12 +2125,17 @@
     const voice = pickVoice(lang);
     window.speechSynthesis?.cancel?.();
     window.speechSynthesis?.resume?.();
+    if (lang === "jp" && state.audio?.jpNeuralFirst !== false) {
+      const cloud = await speakJapaneseCloudHighlighted(text, host);
+      if (cloud) return true;
+    }
     if (lang === "yue" && !voice) {
       const cloud = await speakCantoneseCloudHighlighted(text, host);
       if (cloud) return true;
     }
     if (!("speechSynthesis" in window)) return false;
     const success = await speakBrowserHighlighted(text, lang, voice, host);
+    if (!success && lang === "jp") return await speakJapaneseCloudHighlighted(text, host);
     if (!success && lang === "yue") return await speakCantoneseCloudHighlighted(text, host);
     return success;
   }
@@ -2065,6 +2171,11 @@
     });
   }
 
+  async function speakJapaneseCloud(text) {
+    const blob = await fetchJapaneseSpeech(text);
+    return blob ? await playAudioBlob(blob) : false;
+  }
+
   async function speakCantoneseCloud(text) {
     // Optional same-origin serverless fallback. It keeps the Azure key off the client.
     // On GitHub Pages or file:// this endpoint simply does not exist and AIDA falls back
@@ -2087,10 +2198,6 @@
   }
 
   async function speakItem(kind, item) {
-    if (!("speechSynthesis" in window)) {
-      showToast("Speech synthesis is not available in this browser.");
-      return;
-    }
     const lang = langFromKind(kind);
     const text = speechText(kind, item);
     if (!text) {
@@ -2099,17 +2206,42 @@
     }
     await ensureVoices();
     const voice = pickVoice(lang);
+    const chunks = splitSpeechChunks(text);
+
+    // Japanese pronunciation quality depends heavily on the speech front end. AIDA sends
+    // orthographic words and complete sentence chunks—not flattened kana or token-by-token
+    // fragments—so the engine can analyze compounds and surrounding syntax before synthesis.
+    if (lang === "jp" && state.audio?.jpNeuralFirst !== false) {
+      let cloudSuccess = true;
+      for (const chunk of chunks) {
+        if (!(await speakJapaneseCloud(chunk))) { cloudSuccess = false; break; }
+      }
+      if (cloudSuccess) {
+        showToast("Played with hosted Japanese neural speech using full-context text.");
+        return;
+      }
+    }
+
+    if (!("speechSynthesis" in window)) {
+      showToast(lang === "jp" ? "No Japanese speech route is available. Configure the hosted neural endpoint." : "Speech synthesis is not available in this browser.");
+      return;
+    }
     if (!voice && lang !== "yue") {
+      // One last hosted attempt when neural-first is disabled or the browser has no voice.
+      if (lang === "jp") {
+        let cloudSuccess = true;
+        for (const chunk of chunks) {
+          if (!(await speakJapaneseCloud(chunk))) { cloudSuccess = false; break; }
+        }
+        if (cloudSuccess) return;
+      }
       renderAudioStatus();
-      showToast("No Japanese voice is exposed by this browser.");
+      showToast("No Japanese voice is exposed by this browser and the hosted Japanese endpoint is unavailable.");
       return;
     }
     window.speechSynthesis.cancel();
     window.speechSynthesis.resume();
-    const chunks = splitSpeechChunks(text);
 
-    // A static browser page cannot manufacture a Cantonese voice. When no genuine
-    // Cantonese browser voice is exposed, try the optional same-origin Azure proxy first.
     if (lang === "yue" && !voice) {
       let cloudSuccess = true;
       for (const chunk of chunks) {
@@ -2123,13 +2255,20 @@
 
     let success = true;
     for (const chunk of chunks) {
-      // Sequential chunks are more reliable for long passages than one oversized utterance.
-      // For Cantonese only, a null voice still carries lang=yue-CN. Some browsers can
-      // route that locale to an installed system voice even when getVoices() did not enumerate it.
       if (!(await speakChunk(chunk, lang, voice))) { success = false; break; }
     }
 
-    // If an explicitly selected browser voice fails, give the hosted fallback one chance.
+    if (!success && lang === "jp") {
+      let cloudSuccess = true;
+      for (const chunk of chunks) {
+        if (!(await speakJapaneseCloud(chunk))) { cloudSuccess = false; break; }
+      }
+      if (cloudSuccess) {
+        showToast("The browser voice failed, so AIDA used hosted Japanese neural speech instead.");
+        return;
+      }
+    }
+
     if (!success && lang === "yue") {
       let cloudSuccess = true;
       for (const chunk of chunks) {
@@ -2142,8 +2281,8 @@
     }
 
     if (!success) {
-      const voiceLabel = voice?.name || "the browser's yue-CN locale fallback";
-      showToast(`The browser could not play ${languageName(lang)} with ${voiceLabel}. Configure the optional hosted TTS endpoint or choose another voice in Profile → Audio setup.`);
+      const voiceLabel = voice?.name || "the browser locale fallback";
+      showToast(`The browser could not play ${languageName(lang)} with ${voiceLabel}. Configure the hosted TTS endpoint or choose another voice in Profile → Audio setup.`);
     } else if (!voice && lang === "yue") {
       showToast("Played using the browser's yue-CN locale fallback. For guaranteed Cantonese, configure the optional hosted TTS endpoint included with this project.");
     }
@@ -3428,7 +3567,8 @@
       humanizedReading(kind, item),
       meaningOf(item),
       itemLevel(kind, item),
-      itemCategory(kind, item)
+      itemCategory(kind, item),
+      ...itemTopics(kind, item)
     ].filter(Boolean).join(" "));
   }
 
@@ -3522,9 +3662,8 @@
       ${qualityControlsHtml(meta)}
       <p class="${lang === "yue" ? "canto-ruby" : ""}">${target}</p>
       ${lang !== "yue" && reading ? `<small>${escapeHtml(reading)}</small>` : ""}
-      <details><summary>Show meaning${match.item.questions?.length ? " & questions" : ""}</summary>
-        <div class="direct-reading-reveal"><p>${escapeHtml(meaningOf(match.item))}</p>${(match.item.questions || []).map(renderContextQuestion).join("")}</div>
-      </details>
+      <div class="direct-reading-english"><span>ENGLISH</span><p>${escapeHtml(meaningOf(match.item))}</p></div>
+      ${match.item.questions?.length ? `<details><summary>Show comprehension questions</summary><div class="direct-reading-reveal">${(match.item.questions || []).map(renderContextQuestion).join("")}</div></details>` : ""}
     </article>`;
   }
 
@@ -3585,7 +3724,7 @@
             ${qualityControlsHtml(meta)}
             <p class="context-passage-text ${lang === "yue" ? "canto-ruby" : ""}" data-context-passage-sync="${index}">${lang === "yue" && passage.reading ? cantoneseRubyHtml(passage.text, passage.reading) : escapeHtml(passage.text)}</p>
             ${lang !== "yue" && passage.reading ? `<p class="context-review-reading">${escapeHtml(passage.reading)}</p>` : ""}
-            <details class="context-translation-details"><summary>Show passage translation</summary><p>${escapeHtml(passage.translation || "")}</p></details>
+            <div class="context-passage-english"><span>ENGLISH</span><p>${escapeHtml(passage.translation || "")}</p></div>
             <div class="context-question-list">${(passage.questions || []).map(renderContextQuestion).join("")}</div>
           </article>`; }).join("")}
         </div>
@@ -3764,18 +3903,18 @@
   const libraryDialog = $("#dataLibrary");
   const datasetConfig = {
     japaneseGrammar: { label: "Japanese grammar", items: source.jpG, kind: "jpG", categoryLabel: "Category" },
-    japaneseVocabulary: { label: "Japanese vocabulary", items: source.jpV, kind: "jpV", categoryLabel: "Collection" },
+    japaneseVocabulary: { label: "Japanese vocabulary", items: source.jpV, kind: "jpV", categoryLabel: "Topic" },
     cantoneseGrammar: { label: "Cantonese grammar", items: source.yueG, kind: "yueG", categoryLabel: "Category" },
-    cantoneseVocabulary: { label: "Cantonese vocabulary", items: source.yueV, kind: "yueV", categoryLabel: "Frequency band" }
+    cantoneseVocabulary: { label: "Cantonese vocabulary", items: source.yueV, kind: "yueV", categoryLabel: "Topic" }
   };
   let currentDataset = "japaneseGrammar";
   let librarySearchTimer;
 
   function searchText(kind, item) {
     if (kind === "jpG") return [item.pattern, item.meaning, item.level, item.category, item.course_group].join(" ");
-    if (kind === "jpV") return [item.expression, item.reading, item.meaning, item.level, japaneseVocabCollection(item)].join(" ");
+    if (kind === "jpV") return [item.expression, item.reading, item.meaning, item.level, japaneseVocabCollection(item), ...itemTopics(kind, item)].join(" ");
     if (kind === "yueG") return [item.pattern, item.jyutping, item.meaning, item.level, item.category, item.usage_note, item.register].join(" ");
-    return [item.word, item.jyutping, item.meaning, item.note, yueVocabLevel(item), cantoneseVocabBand(item), ...(item.examples || []).flatMap(example => [example.sentence, example.meaning, example.jyutping])].join(" ");
+    return [item.word, item.jyutping, item.meaning, item.note, yueVocabLevel(item), cantoneseVocabBand(item), ...itemTopics(kind, item), ...(item.examples || []).flatMap(example => [example.sentence, example.meaning, example.jyutping])].join(" ");
   }
 
   function availableLevels(config) {
@@ -3784,8 +3923,10 @@
   }
 
   function availableCategories(config) {
-    return [...new Set(config.items.map(item => itemCategory(config.kind, item)).filter(Boolean))]
-      .sort((a, b) => a.localeCompare(b));
+    const values = (config.kind === "jpV" || config.kind === "yueV")
+      ? config.items.flatMap(item => itemTopics(config.kind, item))
+      : config.items.map(item => itemCategory(config.kind, item));
+    return [...new Set(values.filter(Boolean))].sort((a, b) => a.localeCompare(b));
   }
 
   function librarySortOptions(kind) {
@@ -3833,7 +3974,7 @@
     const grammar = kind.endsWith("G");
     const guide = grammar ? grammarGuide(item) : "";
     const examples = kind === "yueV" && item.examples?.length
-      ? `<div class="library-example"><strong>Example</strong><span>${escapeHtml(item.examples[0].sentence || "")}${item.examples[0].jyutping ? ` · ${escapeHtml(item.examples[0].jyutping)}` : ""}</span></div>`
+      ? `<div class="library-example"><strong>Example</strong><span>${escapeHtml(item.examples[0].sentence || "")}${item.examples[0].jyutping ? ` · ${escapeHtml(item.examples[0].jyutping)}` : ""}</span><small>${escapeHtml(item.examples[0].meaning || "")}</small></div>`
       : "";
     let sourceLinks = "";
     if (kind === "jpG" && item.source_url) {
@@ -3876,7 +4017,10 @@
 
     let matches = config.items.filter(item => {
       if (selectedLevel !== "all" && itemLevel(config.kind, item) !== selectedLevel) return false;
-      if (selectedCategory !== "all" && itemCategory(config.kind, item) !== selectedCategory) return false;
+      if (selectedCategory !== "all") {
+        const categories = (config.kind === "jpV" || config.kind === "yueV") ? itemTopics(config.kind, item) : [itemCategory(config.kind, item)];
+        if (!categories.includes(selectedCategory)) return false;
+      }
       if (!terms.length) return true;
       const haystack = normalize(searchText(config.kind, item));
       return terms.every(term => haystack.includes(term));
@@ -4005,6 +4149,7 @@
       <div class="profile-stat"><strong>${state.xp.yue}</strong><span>Cantonese XP</span></div>
       <div class="profile-stat"><strong>${learnedEntries().length}</strong><span>base items encountered</span></div>
       <div class="profile-stat"><strong>${streak()}</strong><span>day streak</span></div>`;
+    $("#jpNeuralFirst").checked = state.audio?.jpNeuralFirst !== false;
     renderAudioStatus();
     ensureVoices().then(() => { populateVoiceSelectors(); renderAudioStatus(); });
     showDialog($("#profileDialog"));
@@ -4285,11 +4430,18 @@
 
   ["#jpVoiceSelect", "#yueVoiceSelect"].forEach(selector => {
     $(selector).addEventListener("change", event => {
-      state.audio ||= { jpVoiceId: "", yueVoiceId: "" };
+      state.audio ||= { jpVoiceId: "", yueVoiceId: "", jpNeuralFirst: true };
       state.audio[selector === "#jpVoiceSelect" ? "jpVoiceId" : "yueVoiceId"] = event.target.value;
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
       renderAudioStatus();
     });
+  });
+
+  $("#jpNeuralFirst").addEventListener("change", event => {
+    state.audio ||= { jpVoiceId: "", yueVoiceId: "", jpNeuralFirst: true };
+    state.audio.jpNeuralFirst = event.target.checked;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    renderAudioStatus();
   });
 
   $("#refreshAudioVoices").addEventListener("click", async () => {
@@ -4298,7 +4450,7 @@
     renderAudioStatus();
     showToast("Browser voice list refreshed.");
   });
-  $("#testJapaneseAudio").addEventListener("click", () => speakItem("jpS", { text: "日本語の音声を確認しています。" }));
+  $("#testJapaneseAudio").addEventListener("click", () => speakItem("jpS", { text: "東京都内の新しい地下鉄路線について、国際交流センターで説明を聞きました。", translation: "I listened to an explanation at the international exchange center about a new subway line in Tokyo." }));
   $("#testCantoneseAudio").addEventListener("click", () => speakItem("yueS", { text: "而家測試廣東話發音。" }));
 
   $("#fsrsRetentionInput").addEventListener("input", event => {

@@ -571,3 +571,10 @@ body::before{
   .quality-summary { grid-template-columns:1fr; }
   .quality-settings-head, .quality-report-row-head { flex-direction:column; }
 }
+
+/* V12: semantic topic library + always-visible English in the browsing workspace */
+.audio-engine-toggle{margin-top:12px}
+.context-passage-english,.direct-reading-english{display:grid;gap:6px;margin-top:15px;padding:13px 14px;border:1px solid #262626;border-radius:10px;background:#0a0a0a}
+.context-passage-english>span,.direct-reading-english>span{color:#70706c;font:750 9px/1 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.11em}
+.context-passage-english>p,.direct-reading-english>p{margin:0;color:#c8c8c2;font-size:14px;line-height:1.7}
+.library-example small{display:block;color:#bcbcb7;font-size:13px;line-height:1.55}

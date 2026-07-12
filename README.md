@@ -1,8 +1,8 @@
-# AIDA / 間 — Functional V10 Casual + Grammar Audit
+# AIDA / 間 — Functional V12 Japanese Prosody + Everyday Vocabulary
 
 A local-first Japanese and Cantonese learning application. Both languages live on one website, but remain independent tracks with separate targets, XP, daily goals, activity, mastery, and review schedules.
 
-## What V10 adds
+## Core learning engine
 
 ### 1. Coherent context progression
 
@@ -16,15 +16,15 @@ The passage engine no longer creates a “passage” by simply stacking unrelate
 
 Coverage:
 
-- 7,973 Japanese vocabulary items
+- 8,056 Japanese vocabulary items
 - 963 Japanese grammar items
-- 25,869 active Cantonese vocabulary items
+- 25,918 active Cantonese vocabulary items
 - 67 Cantonese grammar items
-- **34,872 active vocabulary/grammar items total**
-- **104,616 sentence variations**
-- **104,616 coherent item-linked passage variations**
+- **35,004 active vocabulary/grammar items total**
+- **105,012 sentence variations**
+- **105,012 coherent item-linked passage variations**
 
-The three generated passage variants were exhaustively validated for uniqueness and question coverage across all 34,872 active source items.
+The three generated passage variants were exhaustively validated for uniqueness and question coverage across the original 34,872 source set; V12 adds 132 curated everyday supplement entries that use the same three-variation runtime engine.
 
 ### 2. Six independent memory skills
 
@@ -60,7 +60,7 @@ Listening is now a first-class practice mode rather than only a pronunciation bu
 - Cantonese reveal uses Jyutping ruby text over Chinese characters.
 - Context Browser sentence and passage examples can also be played with synchronized highlighting.
 
-Browser speech boundary events are used when exposed. A timed synchronization fallback is used otherwise. For deterministic Cantonese TTS, the included serverless Azure Speech endpoint remains available; see `AUDIO_SETUP.md`.
+Browser speech boundary events are used when exposed. A timed synchronization fallback is used otherwise. V12 also adds a same-origin Japanese neural TTS route and changes Japanese playback to send the real written word or full sentence instead of flattening vocabulary to kana first. Cantonese keeps its hosted neural fallback; see `AUDIO_SETUP.md`.
 
 
 ### 5. Casual & conversational language
@@ -187,3 +187,55 @@ No fake local username/password system is included because browser-only credenti
 - `tools/audit_content.py` provides a deterministic pre-release content integrity audit; the latest result is stored in `quality/audit-report.json`.
 
 See `CASUAL_LANGUAGE.md` and `QUALITY_CONTROL.md`.
+
+
+## V12 — Japanese prosody, everyday topics, and English coverage
+
+### Japanese speech no longer destroys compound context
+
+Japanese vocabulary audio now sends the written surface form (`東京`, `地下鉄`, `国際交流`, etc.) to the speech engine instead of replacing it with a kana-only reading before synthesis. Sentence and passage audio is sent as complete orthographic sentence chunks, so the TTS front end can analyze compounds and surrounding syntax before speaking.
+
+The project now includes:
+
+```text
+api/japanese-tts.js
+```
+
+When configured, AIDA prefers the hosted Japanese neural route and falls back to the selected browser voice. The same Azure Speech key and region used for Cantonese can serve both endpoints. Exact pitch accent can still vary by voice/model, so the app no longer pretends that every browser voice is authoritative.
+
+### 26 semantic vocabulary topics
+
+Vocabulary can now be filtered by semantic topic rather than only source collection or frequency band. The current topic system includes:
+
+- vegetables and fruit
+- animals
+- vehicles and transport
+- home and furniture
+- kitchen and dining
+- food and drinks
+- bathroom and hygiene
+- clothing and accessories
+- electronics and appliances
+- tools and repair
+- school and study
+- office and work
+- shopping and money
+- places and buildings
+- city and street
+- weather and nature
+- body and health
+- cleaning and laundry
+- cooking
+- time and calendar
+- family and people
+- colors and appearance
+- sports and exercise
+- travel
+
+The original dictionaries are retained. V12 additionally adds **83 Japanese** and **49 Cantonese** curated everyday vocabulary entries where the bundled source data did not contain an exact matching form, including vegetables, household objects, appliances, hygiene items, animals, vehicles, and electronics.
+
+### English is mandatory on learner-facing content
+
+Every learner-facing vocabulary item, static sentence, static passage, casual item, and audited grammar context now has an English meaning or translation. Context Browser shows English directly under sentences and passages. Study and review still hide the answer until reveal so comprehension is not spoiled.
+
+The raw HKCanCor corpus remains available internally as segmentation/context evidence, but untranslated raw corpus lines are no longer surfaced as learning examples. The release audit checks this policy in `tools/audit_content.py`.

@@ -4,11 +4,11 @@
 
 | Track | Type | Items | Sentence variants | Coherent passage variants |
 |---|---:|---:|---:|---:|
-| Japanese | Vocabulary | 7,973 | 23,919 | 23,919 |
+| Japanese | Vocabulary | 8,056 | 24,168 | 24,168 |
 | Japanese | Grammar | 963 | 2,889 | 2,889 |
-| Cantonese | Vocabulary | 25,869 | 77,607 | 77,607 |
+| Cantonese | Vocabulary | 25,918 | 77,754 | 77,754 |
 | Cantonese | Grammar | 67 | 201 | 201 |
-| **Total** |  | **34,872** | **104,616** | **104,616** |
+| **Total** |  | **35,004** | **105,012** | **105,012** |
 
 Context is materialized on demand rather than stored as hundreds of thousands of duplicate runtime cards.
 
@@ -57,7 +57,7 @@ The three variants are not simple concatenations of the three sentence cards.
 
 ## Exhaustive validation
 
-The V9 validation pass generated all three passage variants for all 34,872 active vocabulary/grammar items:
+The V9 validation pass generated all three passage variants for the original 34,872 active vocabulary/grammar items; V12 adds 132 curated everyday supplement entries that use the same runtime generation system:
 
 - 104,616 generated passage variants checked
 - 348,720 generated comprehension questions checked
@@ -102,13 +102,20 @@ Generated/original material is identified as AIDA material rather than corpus-au
 
 ## Imported/bundled coverage before fallback
 
-- Japanese vocabulary with imported context: 6,991 / 7,973
+- Japanese vocabulary with imported context: 6,991 / 8,056 (new everyday supplement items use generated/curated runtime context)
 - Japanese grammar with imported corpus context: 742 / 963
 - Japanese grammar with at least three non-meta contexts after AIDA supplementation: 963 / 963
-- Cantonese vocabulary with bundled examples: 24,927 / 25,869
-- Cantonese vocabulary with HKCanCor context: 4,224 / 25,869
-- Cantonese vocabulary covered by bundled examples or HKCanCor: 25,130 / 25,869
+- Cantonese vocabulary with bundled examples: 24,927 / 25,918
+- Cantonese vocabulary with HKCanCor context: 4,224 / 25,918
+- Cantonese vocabulary covered by bundled examples or HKCanCor: 25,130 / 25,918
 
 ## Cantonese pronunciation coverage
 
-The learner-facing active Cantonese dataset contains 25,869 vocabulary items and 67 grammar items. Active items retain learner-visible Jyutping/pronunciation data. Generated Cantonese passage support lines also include Jyutping so answer reveal and synchronized transcript rendering can annotate characters.
+The learner-facing active Cantonese dataset contains 25,918 vocabulary items and 67 grammar items. Active items retain learner-visible Jyutping/pronunciation data. Generated Cantonese passage support lines also include Jyutping so answer reveal and synchronized transcript rendering can annotate characters.
+
+
+## V12 semantic topic expansion
+
+V12 adds 26 semantic topic labels across the existing vocabulary dictionaries and a curated 108-concept bilingual everyday supplement. Exact missing entries were added only when the bundled dictionary lacked the corresponding surface form: 83 Japanese items and 49 Cantonese items. All supplement entries have English meanings; Cantonese supplement entries also have Jyutping.
+
+Untranslated raw HKCanCor lines remain in the corpus file for parser/context evidence, but the learner-facing context selector filters them out. Every sentence or passage shown as a learning example has an English translation.

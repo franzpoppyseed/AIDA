@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-07-12T03:45:31.202198+00:00",
+  "generated_at_utc": "2026-07-12T04:04:34.577921+00:00",
   "purpose": "Deterministic structural audit; not a substitute for linguistic review.",
   "summary": {
     "japanese_casual": {
@@ -23,6 +23,84 @@
       "cards": 67,
       "examples": 201,
       "incomplete_sets": 0
+    },
+    "japanese_vocabulary": {
+      "items": 8056,
+      "missing_english": 0,
+      "items_with_semantic_topics": 1410,
+      "supplemental_everyday_items": 83,
+      "supplemental_missing_pronunciation": 0
+    },
+    "cantonese_vocabulary": {
+      "items": 25918,
+      "missing_english": 0,
+      "items_with_semantic_topics": 3917,
+      "supplemental_everyday_items": 49,
+      "supplemental_missing_pronunciation": 0
+    },
+    "japanese_sentences": {
+      "items": 8,
+      "missing_english": 0
+    },
+    "japanese_passages": {
+      "items": 5,
+      "missing_english": 0
+    },
+    "japanese_reading_passages": {
+      "items": 10,
+      "missing_english": 0
+    },
+    "cantonese_sentences": {
+      "items": 8,
+      "missing_english": 0
+    },
+    "cantonese_passages": {
+      "items": 5,
+      "missing_english": 0
+    },
+    "cantonese_reading_passages": {
+      "items": 7,
+      "missing_english": 0
+    },
+    "japanese_context_examples": {
+      "examples": 22494,
+      "missing_english": 0
+    },
+    "cantonese_raw_corpus_context": {
+      "examples": 8845,
+      "with_english": 0,
+      "learner_facing_policy": "Untranslated raw corpus lines are excluded from context cards and retained only as corpus/parser evidence."
+    },
+    "semantic_topics": {
+      "count": 26,
+      "topics": [
+        "Animals",
+        "Bathroom & hygiene",
+        "Body & health",
+        "City & street",
+        "Cleaning & laundry",
+        "Clothing & accessories",
+        "Colors & appearance",
+        "Cooking",
+        "Drinks",
+        "Electronics & appliances",
+        "Family & people",
+        "Food & ingredients",
+        "Fruit",
+        "Home & furniture",
+        "Kitchen & dining",
+        "Office & work",
+        "Places & buildings",
+        "School & study",
+        "Shopping & money",
+        "Sports & exercise",
+        "Time & calendar",
+        "Tools & repair",
+        "Travel",
+        "Vegetables",
+        "Vehicles & transport",
+        "Weather & nature"
+      ]
     }
   },
   "issue_counts": {

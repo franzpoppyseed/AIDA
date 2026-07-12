@@ -552,14 +552,15 @@
       </div>
       <div id="audioStatus" class="audio-status"></div>
       <div class="voice-picker-grid">
-        <label>Japanese voice
+        <label>Japanese browser voice
           <select id="jpVoiceSelect"><option value="">Automatic</option></select>
         </label>
-        <label>Cantonese voice
+        <label>Cantonese browser voice
           <select id="yueVoiceSelect"><option value="">Automatic</option></select>
         </label>
       </div>
-      <p class="audio-picker-note">Cantonese first uses a genuine browser <strong>yue-CN</strong>, <strong>yue-HK</strong>, or <strong>zh-HK</strong> voice. When none is exposed, AIDA can automatically use the included <code>/api/cantonese-tts</code> hosted fallback after it is configured.</p>
+      <label class="quality-hide-toggle audio-engine-toggle"><input id="jpNeuralFirst" type="checkbox" checked/> Prefer hosted Japanese neural speech when configured</label>
+      <p class="audio-picker-note">Japanese audio now sends the <strong>actual written word or complete sentence</strong> instead of flattening vocabulary into kana before speech. When the optional <code>/api/japanese-tts</code> route is configured, AIDA prefers neural full-context synthesis and falls back to the selected browser voice. Cantonese uses a genuine browser <strong>yue-CN</strong>, <strong>yue-HK</strong>, or <strong>zh-HK</strong> voice when available, with <code>/api/cantonese-tts</code> as the hosted fallback.</p>
       <div class="audio-test-row">
         <button class="btn secondary" id="testJapaneseAudio">Test Japanese</button>
         <button class="btn secondary" id="testCantoneseAudio">Test Cantonese</button>

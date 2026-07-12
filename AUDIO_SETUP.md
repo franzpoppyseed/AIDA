@@ -1,23 +1,84 @@
 # Japanese and Cantonese audio setup
 
-AIDA now supports two speech paths:
+AIDA supports three speech routes:
 
-1. browser-native Web Speech, which requires no API key
-2. an optional same-origin hosted Cantonese TTS endpoint for deterministic playback
+1. browser-native Web Speech
+2. optional same-origin hosted Japanese neural TTS
+3. optional same-origin hosted Cantonese neural TTS
 
-## Why Cantonese may still fail in a browser even when Microsoft lists the voice
+The hosted routes keep speech credentials off the browser and can be deployed with the included Vercel serverless functions.
 
-A webpage can directly select only voices that the browser exposes through `speechSynthesis.getVoices()`. A Microsoft online voice can exist in a Microsoft product or speech catalog without appearing in that JavaScript voice list.
+---
 
-That is why an entry such as:
+# Japanese pronunciation and compound handling
+
+## What changed in V12
+
+Older builds used the vocabulary `reading` field as the speech input for Japanese words. That is convenient for displaying kana, but it can remove lexical information that a TTS front end uses to analyze a written compound.
+
+V12 now follows these rules:
+
+- vocabulary audio sends the actual written expression first
+- sentence audio sends the complete Japanese sentence
+- passage audio is split only at sentence boundaries when it becomes too long for one request
+- AIDA does not synthesize a sentence by speaking dictionary tokens one by one
+- kana readings remain available for the learner, but are not substituted for the full written sentence before TTS
+
+Example:
 
 ```text
-Microsoft 晓敏 Online (Natural) - Chinese (Cantonese, Simplified) · yue-CN
+DISPLAY READING
+とうきょうとない
+
+SPEECH INPUT
+東京都内
 ```
 
-may work in one Microsoft speech surface but still be absent from Chrome or Edge Web Speech on a particular machine.
+For a sentence:
 
-## Browser-native setup
+```text
+東京都内の新しい地下鉄路線について、国際交流センターで説明を聞きました。
+```
+
+AIDA sends the complete sentence rather than concatenating isolated readings.
+
+This gives the speech engine the best chance to analyze compound boundaries and phrase-level prosody. It does **not** make every browser voice linguistically authoritative; browser speech quality still depends on the voice installed or exposed on that device.
+
+## Hosted Japanese neural speech
+
+The project includes:
+
+```text
+api/japanese-tts.js
+```
+
+The endpoint uses the same Azure Speech resource as the Cantonese endpoint. The default Japanese voice is:
+
+```text
+ja-JP-NanamiNeural
+```
+
+Optional override:
+
+```text
+AZURE_JAPANESE_VOICE=ja-JP-NanamiNeural
+```
+
+In **Profile → Audio setup**, keep:
+
+```text
+Prefer hosted Japanese neural speech when configured
+```
+
+checked to try the hosted Japanese route before a browser voice.
+
+When the endpoint is unavailable, AIDA falls back to the selected Japanese browser voice.
+
+---
+
+# Cantonese browser voices
+
+A webpage can directly select only voices that the browser exposes through `speechSynthesis.getVoices()`.
 
 AIDA recognizes and prioritizes:
 
@@ -40,87 +101,96 @@ To test:
 1. Open **Profile**.
 2. Go to **Audio setup**.
 3. Press **Refresh voices**.
-4. Open the **Cantonese voice** dropdown.
-5. Select an exact `yue-CN`, `yue-HK`, or `zh-HK` voice when one appears.
-6. Press **Test Cantonese**.
+4. Choose a Cantonese browser voice when one appears.
+5. Press **Test Cantonese**.
 
-If a voice was installed or enabled recently, fully close all browser windows before reopening the site and refreshing the voice list.
+If a voice was installed or enabled recently, fully close all browser windows before reopening the site and refreshing the list.
 
-When no Cantonese voice is enumerated, AIDA still tries a `lang=yue-CN` browser-locale request. This is only a best-effort fallback because the browser ultimately chooses the engine.
+---
 
-# Guaranteed Cantonese audio with the included serverless endpoint
+# Hosted neural audio with Vercel + Azure Speech
 
-The project now includes:
+The project includes:
 
 ```text
+api/japanese-tts.js
 api/cantonese-tts.js
 vercel.json
 ```
 
-The frontend automatically calls:
-
-```text
-/api/cantonese-tts
-```
-
-when no genuine Cantonese browser voice is available. The endpoint synthesizes Cantonese speech with Azure Speech and returns MP3 audio. The default hosted voice is:
-
-```text
-yue-CN-XiaoMinNeural
-```
-
-## Vercel deployment
-
-1. Push this complete project to GitHub.
-2. Import that GitHub repository into Vercel.
-3. Create an Azure Speech resource and copy its key and region.
-4. In the Vercel project, add these environment variables:
+## Required environment variables
 
 ```text
 AZURE_SPEECH_KEY=<your key>
 AZURE_SPEECH_REGION=<your Azure region, for example eastus>
 ```
 
-Optional:
+Optional voice overrides:
 
 ```text
+AZURE_JAPANESE_VOICE=ja-JP-NanamiNeural
 AZURE_CANTONESE_VOICE=yue-CN-XiaoMinNeural
 ```
 
-5. Redeploy the Vercel project.
-6. Open **Profile → Audio setup → Test Cantonese**.
+## Deployment
 
-No Azure key is stored in `app.js`, HTML, or any other public browser file.
+1. Push the complete repository to GitHub.
+2. Import the repository into Vercel.
+3. Create an Azure Speech resource.
+4. Add the environment variables above in the Vercel project.
+5. Redeploy.
+6. Open **Profile → Audio setup** and test both languages.
 
-## What happens at runtime
+No Azure key belongs in `app.js`, HTML, or any public repository file.
 
-For Cantonese, AIDA now tries in this order:
+---
 
-1. a manually selected genuine Cantonese browser voice
-2. the best automatically detected `yue-CN` / `yue-HK` / `zh-HK` browser voice
-3. the configured `/api/cantonese-tts` hosted endpoint when no browser Cantonese voice is available
+# Runtime order
+
+## Japanese
+
+By default:
+
+1. hosted `/api/japanese-tts` neural speech, when configured
+2. selected or automatically detected Japanese browser voice
+3. hosted Japanese route as a final fallback if a browser voice errors
+
+The learner can disable neural-first behavior in Profile.
+
+## Cantonese
+
+AIDA tries:
+
+1. a selected genuine Cantonese browser voice
+2. the best automatically detected Cantonese/Hong Kong browser voice
+3. hosted `/api/cantonese-tts` when no usable browser Cantonese voice is exposed
 4. a browser `yue-CN` locale-only fallback
 
-If an explicitly selected browser voice errors during playback, AIDA also gives the hosted endpoint a fallback attempt.
+If a selected browser voice fails, AIDA also gives the hosted endpoint a fallback attempt.
 
-## GitHub Pages limitation
+---
 
-GitHub Pages serves static files only. It cannot execute `api/cantonese-tts.js`, so a GitHub Pages deployment uses only browser-native speech.
+# GitHub Pages limitation
 
-For the included hosted fallback, deploy the same repository to a platform that runs serverless functions, such as Vercel.
+GitHub Pages serves static files only. It cannot execute:
 
-## Security
+```text
+api/japanese-tts.js
+api/cantonese-tts.js
+```
 
-Do not place `AZURE_SPEECH_KEY` directly in `app.js` or commit it to GitHub. Keep it in deployment environment variables.
+On GitHub Pages, AIDA uses browser-native speech only.
 
-## V9 contextual listening and highlighting
+For the included hosted speech routes, deploy the repository to a platform that runs serverless functions, such as Vercel.
 
-V9 uses the selected speech voice for full sentence and passage listening practice.
+---
 
-- Before reveal, the transcript can remain hidden.
-- After reveal, AIDA can replay the transcript with synchronized highlighting.
+# Listening highlight synchronization
+
+AIDA can replay revealed sentence and passage text with synchronized highlighting.
+
 - Browser speech uses boundary events when the browser exposes them.
-- When boundary events are unavailable, AIDA uses a token-weighted timing approximation.
-- The hosted Cantonese endpoint currently returns audio only, so highlighting follows audio playback progress rather than word-boundary metadata.
+- Otherwise AIDA uses a token-weighted timing approximation.
+- Hosted MP3 playback currently maps highlighting to playback progress.
 
-For exact production-grade word timings, the next backend step would be returning Azure Speech word-boundary metadata alongside the audio. The current implementation intentionally provides a robust visual fallback instead of pretending approximate browser timing is exact.
+Exact production-grade word timing would require the backend to return word-boundary metadata with the synthesized audio. The current interface deliberately distinguishes this approximation from exact alignment.
