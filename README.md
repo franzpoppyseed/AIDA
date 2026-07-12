@@ -1,8 +1,8 @@
-# AIDA / 間 — Functional V9 Learning Engine
+# AIDA / 間 — Functional V10 Casual + Grammar Audit
 
 A local-first Japanese and Cantonese learning application. Both languages live on one website, but remain independent tracks with separate targets, XP, daily goals, activity, mastery, and review schedules.
 
-## What V9 adds
+## What V10 adds
 
 ### 1. Coherent context progression
 
@@ -26,7 +26,7 @@ Coverage:
 
 The three generated passage variants were exhaustively validated for uniqueness and question coverage across all 34,872 active source items.
 
-### 2. Five independent memory skills
+### 2. Six independent memory skills
 
 A source item no longer has one universal “mastery” state. A learner can recognize a word while still being unable to produce it or understand it in speech.
 
@@ -37,6 +37,7 @@ AIDA tracks these independently:
 - Listening
 - Reading comprehension
 - Grammar usage/understanding
+- Casual register
 
 The Progress dashboard shows a separate mastery and due-review state for each skill in each language.
 
@@ -61,6 +62,31 @@ Listening is now a first-class practice mode rather than only a pronunciation bu
 
 Browser speech boundary events are used when exposed. A timed synchronization fallback is used otherwise. For deterministic Cantonese TTS, the included serverless Azure Speech endpoint remains available; see `AUDIO_SETUP.md`.
 
+
+### 5. Casual & conversational language
+
+Japanese and Cantonese now have a dedicated conversational register system with its own memory state and review schedule. Practice rotates through:
+
+```text
+TRANSFORM → NOTICE → REGISTER JUDGMENT
+```
+
+Japanese coverage includes plain forms, context-dependent omission of `を / は / が / に`, casual questions, and common spoken contractions such as `てる`, `って`, `じゃ`, `ちゃう`, `なきゃ`, and `とく`. Cantonese coverage includes sentence-final particles, recoverable omission, aspectual spoken forms, colloquial questions, and spoken-vs-written lexical choices. Cantonese forms show Jyutping on reveal.
+
+Casual language is tracked as its own FSRS skill, so knowing the formal grammar does not automatically mark the conversational form as mastered. See `CASUAL_LANGUAGE.md` for the full practice model and coverage.
+
+### 6. Grammar-context audit
+
+The grammar context selector was rebuilt after the old `い-Adjectives` card exposed a serious false-match problem. A sentence must now represent the target construction rather than merely contain a matching character.
+
+- **963 Japanese grammar cards** checked
+- **150 high-risk Japanese cards** given 3 manual audited examples each
+- **8 broad class/inflection cards** handled by dedicated concept validators
+- **805 remaining Japanese cards** passed a stricter offline morphology/construction-signature audit with at least 3 validated source contexts each
+- **67 / 67 Cantonese grammar cards** given 3 manual audited examples each, including Jyutping
+
+See `GRAMMAR_CONTEXT_AUDIT.md`.
+
 ## Progressive difficulty
 
 The selected target is an upper ceiling, never an exact-only filter.
@@ -79,11 +105,12 @@ Sessions are sampled from allowed levels and ordered from easier material toward
 - Production
 - Contextual listening
 - Grammar understanding
+- Casual & conversational language
 - Vocabulary recognition
 - Sentence comprehension
 - Passage comprehension
 
-Adaptive mixed practice deliberately includes all five memory skills instead of letting the largest vocabulary dataset crowd out listening, production, or reading.
+Adaptive mixed practice deliberately includes all active memory skills instead of letting the largest vocabulary dataset crowd out listening, production, or reading.
 
 ## Comprehension testing
 

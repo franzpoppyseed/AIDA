@@ -5,6 +5,7 @@
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
   const DATA = window.AIDA_DATA || {};
   const CONTEXT = DATA.contextExamples || {};
+  const GRAMMAR_OVERRIDES = DATA.grammarOverrides || {};
   const STORAGE_KEY = "aida.functional.v3.state";
   const DAY = 86_400_000;
 
@@ -16,7 +17,9 @@
     jpS: DATA.comprehension?.japanese?.sentences || [],
     jpP: [...(DATA.comprehension?.japanese?.passages || []), ...(DATA.readingPassages?.japanese || [])],
     yueS: DATA.comprehension?.cantonese?.sentences || [],
-    yueP: [...(DATA.comprehension?.cantonese?.passages || []), ...(DATA.readingPassages?.cantonese || [])]
+    yueP: [...(DATA.comprehension?.cantonese?.passages || []), ...(DATA.readingPassages?.cantonese || [])],
+    jpC: DATA.casualLanguage?.japanese || [],
+    yueC: DATA.casualLanguage?.cantonese || []
   };
 
   const byId = new Map();
@@ -28,13 +31,14 @@
   const YUE_LEVELS = ["Beginner", "Intermediate", "Advanced"];
   const YUE_VOCAB_LIMITS = { Beginner: 3000, Intermediate: 12000, Advanced: Infinity };
   const XP_AWARDS = { 1: 2, 2: 5, 4: 9, 5: 12 };
-  const SKILLS = ["recognition", "production", "listening", "reading", "grammar"];
+  const SKILLS = ["recognition", "production", "listening", "reading", "grammar", "casual"];
   const SKILL_LABELS = {
     recognition: "Recognition",
     production: "Production",
     listening: "Listening",
     reading: "Reading",
-    grammar: "Grammar"
+    grammar: "Grammar",
+    casual: "Casual register"
   };
   const UI_TO_FSRS_RATING = { 1: 1, 2: 2, 4: 3, 5: 4 };
 
@@ -105,6 +109,7 @@
   }
 
   function legacySkillForKey(key) {
+    if (/^(jp|yue)C:/.test(key)) return "casual";
     if (/^(jp|yue)G:/.test(key)) return "grammar";
     if (/^(jp|yue)[SP]:/.test(key)) return "reading";
     return "recognition";
@@ -300,6 +305,7 @@
     const mode = entry?.practiceMode || entry?.item?.practiceMode || entry?.contextMode;
     const base = sourceEntryFor(entry);
     if (mode === "listening" || mode === "listening-sentence" || mode === "listening-passage") return ["listening"];
+    if (mode === "casual" || base.kind.endsWith("C")) return ["casual"];
     if (mode === "production") return base.kind.endsWith("G") ? ["production", "grammar"] : ["production"];
     if (entry?.kind?.endsWith("S") || entry?.kind?.endsWith("P")) return ["reading"];
     if (base.kind.endsWith("G")) return ["grammar"];
@@ -650,6 +656,7 @@
   }
 
   function humanizedPattern(kind, item) {
+    if (kind === "jpC" || kind === "yueC") return item.casual || item.base || item.title || "";
     if (kind === "jpG" || kind === "yueG") return humanizeTemplate(item.pattern, item);
     if (isComprehensionKind(kind)) return item.text || "";
     return kind === "jpV" ? item.expression : item.word;
@@ -658,6 +665,7 @@
   function humanizedReading(kind, item) {
     if (kind === "jpV") return item.reading || "";
     if (kind === "yueV") return item.jyutping || "";
+    if (kind === "jpC" || kind === "yueC") return item.reading || "";
     if (kind === "yueG") return humanizeTemplate(item.jyutping || "", item);
     if (isComprehensionKind(kind)) return item.reading || "";
     return "";
@@ -696,6 +704,7 @@
   }
 
   function itemCategory(kind, item) {
+    if (kind === "jpC" || kind === "yueC") return "Casual conversation";
     if (kind === "jpG" || kind === "yueG") return titleCase(item.category || "General");
     if (kind === "jpV") return japaneseVocabCollection(item);
     if (kind === "yueV") return cantoneseVocabBand(item);
@@ -759,7 +768,13 @@
 
   function authenticContexts(kind, item) {
     if (kind === "jpV") return CONTEXT.japanese?.vocabulary?.[item.id] || [];
-    if (kind === "jpG") return CONTEXT.japanese?.grammar?.[item.id] || [];
+    if (kind === "jpG") return [
+      ...(GRAMMAR_OVERRIDES.japanese?.[item.id] || []),
+      ...(CONTEXT.japanese?.grammar?.[item.id] || [])
+    ];
+    if (kind === "yueG") return [
+      ...(GRAMMAR_OVERRIDES.cantonese?.[item.id] || [])
+    ];
     if (kind === "yueV") {
       const bundled = (item.examples || []).map(example => ({
         text: example.sentence || "",
@@ -776,6 +791,108 @@
       return [...bundled, ...corpus];
     }
     return [];
+  }
+
+
+  const JP_CURATED_GRAMMAR_CONTEXTS = {
+    "い-adjectives": [
+      { text: "この本は面白い。", translation: "This book is interesting.", source: "AIDA validated grammar example" },
+      { text: "今日は昨日より暑いです。", translation: "Today is hotter than yesterday.", source: "AIDA validated grammar example" },
+      { text: "その問題は難しくない。", translation: "That problem is not difficult.", source: "AIDA validated grammar example" }
+    ],
+    "な-adjectives": [
+      { text: "この町は静かだ。", translation: "This town is quiet.", source: "AIDA validated grammar example" },
+      { text: "便利なアプリを使っています。", translation: "I use a convenient app.", source: "AIDA validated grammar example" },
+      { text: "彼はとても親切です。", translation: "He is very kind.", source: "AIDA validated grammar example" }
+    ],
+    "る-Verbs": [
+      { text: "毎朝パンを食べる。", translation: "I eat bread every morning.", source: "AIDA validated grammar example" },
+      { text: "夜十一時に寝る。", translation: "I go to sleep at eleven at night.", source: "AIDA validated grammar example" },
+      { text: "駅で友達を見る。", translation: "I see a friend at the station.", source: "AIDA validated grammar example" }
+    ],
+    "う-Verbs": [
+      { text: "毎日日記を書く。", translation: "I write a diary every day.", source: "AIDA validated grammar example" },
+      { text: "週末に友達と話す。", translation: "I talk with friends on weekends.", source: "AIDA validated grammar example" },
+      { text: "朝七時に起きる前に水を飲む。", translation: "I drink water before getting up at seven.", source: "AIDA validated grammar example" }
+    ]
+  };
+
+  function japaneseClassGrammarContexts(item) {
+    const slug = String(item.slug || "");
+    const pattern = String(item.pattern || "");
+    const combined = `${slug} ${pattern} ${item.meaning || ""}`;
+    if (slug === "い-adjectives" || /い-?Adjectives?/i.test(pattern)) return JP_CURATED_GRAMMAR_CONTEXTS["い-adjectives"];
+    if (slug === "な-adjectives" || /な-?Adjectives?/i.test(pattern)) return JP_CURATED_GRAMMAR_CONTEXTS["な-adjectives"];
+    if (slug === "る-Verbs" || /る-?Verb\s*\(Dictionary\)/i.test(pattern)) return JP_CURATED_GRAMMAR_CONTEXTS["る-Verbs"];
+    if (slug === "う-Verbs" || /う-?Verb\s*\(Dictionary\)/i.test(pattern)) return JP_CURATED_GRAMMAR_CONTEXTS["う-Verbs"];
+    if (/い.?Adjective/i.test(combined) && /くない|Negative/i.test(combined)) return [
+      { text: "この部屋は広くない。", translation: "This room is not spacious.", source: "AIDA validated grammar example" },
+      { text: "今日は寒くないです。", translation: "It is not cold today.", source: "AIDA validated grammar example" },
+      { text: "その映画はあまり面白くなかった。", translation: "That movie was not very interesting.", source: "AIDA validated grammar example" }
+    ];
+    if (/い.?Adjective/i.test(combined) && /かった|Past/i.test(combined)) return [
+      { text: "昨日は暑かった。", translation: "It was hot yesterday.", source: "AIDA validated grammar example" },
+      { text: "旅行は楽しかったです。", translation: "The trip was fun.", source: "AIDA validated grammar example" },
+      { text: "試験は思ったより難しかった。", translation: "The exam was harder than I expected.", source: "AIDA validated grammar example" }
+    ];
+    if (/い.?Adjective/i.test(combined) && /く Change|Adverb|く\b/i.test(combined)) return [
+      { text: "もっと早く歩いてください。", translation: "Please walk faster.", source: "AIDA validated grammar example" },
+      { text: "部屋を明るくした。", translation: "I made the room brighter.", source: "AIDA validated grammar example" },
+      { text: "野菜を小さく切ります。", translation: "I cut the vegetables small.", source: "AIDA validated grammar example" }
+    ];
+    if (/な.?Adjective/i.test(combined) && /に Change|Adverb|に\b/i.test(combined)) return [
+      { text: "静かに話してください。", translation: "Please speak quietly.", source: "AIDA validated grammar example" },
+      { text: "部屋をきれいにしました。", translation: "I made the room clean.", source: "AIDA validated grammar example" },
+      { text: "もっと簡単に説明します。", translation: "I will explain it more simply.", source: "AIDA validated grammar example" }
+    ];
+    return [];
+  }
+
+  function grammarLiteralCandidates(kind, item) {
+    const raw = String(item.pattern || "").replace(/[\[\](){}]/g, " ");
+    const parts = raw.includes("→") ? raw.split("→").reverse() : [raw];
+    const stop = new Set(["辞書形", "ます形", "普通形", "動詞", "名詞", "形容詞", "文", "節", "長音", "助詞", "命令形", "他動詞", "自動詞"]);
+    const chunks = parts.flatMap(part => part.match(/[ぁ-んァ-ヶ一-龠々〆ヵヶ]+/g) || []);
+    return [...new Set(chunks.map(x => x.replace(/[～〜]/g, "").trim()).filter(x => x && !stop.has(x)))].sort((a,b)=>b.length-a.length);
+  }
+
+  function japaneseParticleContextMatches(sentence, particle) {
+    const curated = {
+      "は": /(?:私|今日|これ|それ|彼|彼女|この\S+|その\S+)は/,
+      "が": /(?:誰|何|雨|風|人|友達|彼|彼女|猫|犬)が/,
+      "を": /(?:本|ご飯|水|映画|音楽|仕事|宿題|コーヒー|何)を/,
+      "に": /(?:駅|学校|会社|家|東京|時間|ため|前|後)に/,
+      "で": /(?:駅|学校|会社|家|電車|バス|日本語)で/,
+      "へ": /(?:駅|学校|会社|家|東京)へ/,
+      "と": /(?:友達|家族|先生|彼|彼女)と|と言/,
+      "も": /(?:私|今日|これ|それ|彼|彼女)も/,
+      "の": /\Sの\S/,
+      "か": /か[。！？?]?$/
+    };
+    return curated[particle] ? curated[particle].test(sentence) : sentence.includes(particle);
+  }
+
+  function grammarContextMatches(kind, item, candidate) {
+    const text = String(candidate?.text || "");
+    if (!text) return false;
+    if (candidate?.auditVerified === true || candidate?.source === "AIDA audited grammar override") return true;
+    if (kind === "jpG") {
+      const classExamples = japaneseClassGrammarContexts(item);
+      if (classExamples.length) return classExamples.some(example => example.text === text);
+      const literals = grammarLiteralCandidates(kind, item);
+      if (!literals.length) return false;
+      const meaningful = literals.filter(token => token.length >= 2);
+      if (meaningful.length) return meaningful.some(token => text.includes(token));
+      if (literals.length === 1) return japaneseParticleContextMatches(text, literals[0]);
+      return literals.some(token => text.includes(token));
+    }
+    if (kind === "yueG") {
+      const literals = grammarLiteralCandidates(kind, item).filter(token => token.length >= 1);
+      if (!literals.length) return false;
+      const long = literals.filter(token => token.length >= 2);
+      return (long.length ? long : literals).some(token => text.includes(token));
+    }
+    return true;
   }
 
   function japaneseFallbackContexts(kind, item) {
@@ -806,22 +923,22 @@
         { text: `最近、${target}に興味があります。`, translation: `Recently, I have been interested in ${gloss || target}.`, source: "AIDA generated usage context" }
       ];
     }
-    return [
-      { text: `この例では「${target}」という文型に注目します。`, translation: `This example focuses on the grammar pattern “${target}” (${meaning}).`, source: "AIDA generated grammar context" },
-      { text: `「${target}」が文の意味にどう関わるか考えてみましょう。`, translation: `Consider how “${target}” contributes the meaning: ${meaning}.`, source: "AIDA generated grammar context" },
-      { text: `別の文でも「${target}」を見つけられるように練習します。`, translation: `Practice recognizing “${target}” with the meaning: ${meaning}.`, source: "AIDA generated grammar context" }
-    ];
+    const classContexts = japaneseClassGrammarContexts(item);
+    if (classContexts.length) return classContexts;
+    // Do not invent a sentence merely because it contains the same characters as a
+    // grammar label. Unverified grammar cards intentionally show no context tile.
+    return [];
   }
 
   const YUE_PLACEHOLDER_SETS = [
-    { A: "我", B: "學生", S: "我", O: "呢本書", X: "今日", Y: "聽日", SUBJECT: "我", PLACE: "屋企", CLASSIFIER: "個", PRONOUN: "我", "DIRECT OBJECT": "呢本書", "INDIRECT OBJECT": "朋友", CLAUSE: "我今日返工", LOCATION: "屋企", TIME: "今日", PERSON: "朋友", SOURCE: "公司", VP: "食飯", PHRASE: "好快", "REDUPLICATED ADVERB": "慢慢", RESULT: "好攰", NUMBER: "三", "STATIVE VERB": "鍾意", "RELATIVE CLAUSE": "我昨日買", YEAR: "二零二六", MONTH: "七", DAY: "十一", HOUR: "三", MINUTES: "十五", DURATION: "兩", REQUEST: "幫我開門", VERB: "食飯", V: "食飯", NOUN: "朋友", N: "朋友", ADJ: "開心", CL: "個" },
-    { A: "佢", B: "老師", S: "佢", O: "杯茶", X: "朝早", Y: "夜晚", SUBJECT: "佢", PLACE: "公司", CLASSIFIER: "本", PRONOUN: "佢", "DIRECT OBJECT": "杯茶", "INDIRECT OBJECT": "阿媽", CLAUSE: "佢聽日放假", LOCATION: "公司", TIME: "朝早", PERSON: "阿媽", SOURCE: "學校", VP: "返工", PHRASE: "好清楚", "REDUPLICATED ADVERB": "快快", RESULT: "好開心", NUMBER: "兩", "STATIVE VERB": "明白", "RELATIVE CLAUSE": "佢頭先講", YEAR: "二零二五", MONTH: "十二", DAY: "二十四", HOUR: "八", MINUTES: "三十", DURATION: "三", REQUEST: "畀杯水我", VERB: "返工", V: "返工", NOUN: "工作", N: "工作", ADJ: "方便", CL: "本" },
-    { A: "我哋", B: "香港人", S: "我哋", O: "個問題", X: "而家", Y: "下次", SUBJECT: "我哋", PLACE: "學校", CLASSIFIER: "件", PRONOUN: "我哋", "DIRECT OBJECT": "個問題", "INDIRECT OBJECT": "老師", CLAUSE: "我哋學緊廣東話", LOCATION: "學校", TIME: "而家", PERSON: "老師", SOURCE: "屋企", VP: "學廣東話", PHRASE: "好自然", "REDUPLICATED ADVERB": "靜靜", RESULT: "好成功", NUMBER: "五", "STATIVE VERB": "需要", "RELATIVE CLAUSE": "我哋一齊做", YEAR: "二零二四", MONTH: "三", DAY: "一", HOUR: "十", MINUTES: "四十五", DURATION: "一", REQUEST: "再講一次", VERB: "學廣東話", V: "學廣東話", NOUN: "方法", N: "方法", ADJ: "重要", CL: "件" }
+    { A: "我", B: "學生", S: "我", O: "呢本書", X: "今日", Y: "聽日", SUBJECT: "我", PLACE: "屋企", CLASSIFIER: "個", PRONOUN: "我", "DIRECT OBJECT": "呢本書", "INDIRECT OBJECT": "朋友", CLAUSE: "我今日返工", LOCATION: "屋企", TIME: "今日", PERSON: "朋友", SOURCE: "公司", VP: "食飯", PHRASE: "好快", "REDUPLICATED ADVERB": "慢慢", RESULT: "好攰", NUMBER: "三", "STATIVE VERB": "鍾意", "RELATIVE CLAUSE": "我昨日買", YEAR: "二零二六", MONTH: "七", DAY: "十一", HOUR: "三", MINUTES: "十五", DURATION: "兩", REQUEST: "幫我開門", VERB: "食", V: "食", NOUN: "朋友", N: "朋友", ADJ: "開心", CL: "個" },
+    { A: "佢", B: "老師", S: "佢", O: "杯茶", X: "朝早", Y: "夜晚", SUBJECT: "佢", PLACE: "公司", CLASSIFIER: "本", PRONOUN: "佢", "DIRECT OBJECT": "杯茶", "INDIRECT OBJECT": "阿媽", CLAUSE: "佢聽日放假", LOCATION: "公司", TIME: "朝早", PERSON: "阿媽", SOURCE: "學校", VP: "返工", PHRASE: "好清楚", "REDUPLICATED ADVERB": "快快", RESULT: "好開心", NUMBER: "兩", "STATIVE VERB": "明白", "RELATIVE CLAUSE": "佢頭先講", YEAR: "二零二五", MONTH: "十二", DAY: "二十四", HOUR: "八", MINUTES: "三十", DURATION: "三", REQUEST: "畀杯水我", VERB: "講", V: "講", NOUN: "工作", N: "工作", ADJ: "方便", CL: "本" },
+    { A: "我哋", B: "香港人", S: "我哋", O: "個問題", X: "而家", Y: "下次", SUBJECT: "我哋", PLACE: "學校", CLASSIFIER: "件", PRONOUN: "我哋", "DIRECT OBJECT": "個問題", "INDIRECT OBJECT": "老師", CLAUSE: "我哋學緊廣東話", LOCATION: "學校", TIME: "而家", PERSON: "老師", SOURCE: "屋企", VP: "學廣東話", PHRASE: "好自然", "REDUPLICATED ADVERB": "靜靜", RESULT: "好成功", NUMBER: "五", "STATIVE VERB": "需要", "RELATIVE CLAUSE": "我哋一齊做", YEAR: "二零二四", MONTH: "三", DAY: "一", HOUR: "十", MINUTES: "四十五", DURATION: "一", REQUEST: "再講一次", VERB: "做", V: "做", NOUN: "方法", N: "方法", ADJ: "重要", CL: "件" }
   ];
   const YUE_JYUTPING_PLACEHOLDER_SETS = [
-    { A: "ngo5", B: "hok6 saang1", S: "ngo5", O: "ni1 bun2 syu1", X: "gam1 jat6", Y: "ting1 jat6", SUBJECT: "ngo5", PLACE: "uk1 kei2", CLASSIFIER: "go3", PRONOUN: "ngo5", "DIRECT OBJECT": "ni1 bun2 syu1", "INDIRECT OBJECT": "pang4 jau5", CLAUSE: "ngo5 gam1 jat6 faan1 gung1", LOCATION: "uk1 kei2", TIME: "gam1 jat6", PERSON: "pang4 jau5", SOURCE: "gung1 si1", VP: "sik6 faan6", PHRASE: "hou2 faai3", "REDUPLICATED ADVERB": "maan6 maan6", RESULT: "hou2 gui6", NUMBER: "saam1", "STATIVE VERB": "zung1 ji3", "RELATIVE CLAUSE": "ngo5 zok6 jat6 maai5", YEAR: "ji6 ling4 ji6 luk6", MONTH: "cat1", DAY: "sap6 jat1", HOUR: "saam1", MINUTES: "sap6 ng5", DURATION: "loeng5", REQUEST: "bong1 ngo5 hoi1 mun4", VERB: "sik6 faan6", V: "sik6 faan6", NOUN: "pang4 jau5", N: "pang4 jau5", ADJ: "hoi1 sam1", CL: "go3" },
-    { A: "keoi5", B: "lou5 si1", S: "keoi5", O: "bui1 caa4", X: "ziu1 zou2", Y: "je6 maan5", SUBJECT: "keoi5", PLACE: "gung1 si1", CLASSIFIER: "bun2", PRONOUN: "keoi5", "DIRECT OBJECT": "bui1 caa4", "INDIRECT OBJECT": "aa3 maa1", CLAUSE: "keoi5 ting1 jat6 fong3 gaa3", LOCATION: "gung1 si1", TIME: "ziu1 zou2", PERSON: "aa3 maa1", SOURCE: "hok6 haau6", VP: "faan1 gung1", PHRASE: "hou2 cing1 co2", "REDUPLICATED ADVERB": "faai3 faai3", RESULT: "hou2 hoi1 sam1", NUMBER: "loeng5", "STATIVE VERB": "ming4 baak6", "RELATIVE CLAUSE": "keoi5 tau4 sin1 gong2", YEAR: "ji6 ling4 ji6 ng5", MONTH: "sap6 ji6", DAY: "ji6 sap6 sei3", HOUR: "baat3", MINUTES: "saam1 sap6", DURATION: "saam1", REQUEST: "bei2 bui1 seoi2 ngo5", VERB: "faan1 gung1", V: "faan1 gung1", NOUN: "gung1 zok3", N: "gung1 zok3", ADJ: "fong1 bin6", CL: "bun2" },
-    { A: "ngo5 dei6", B: "hoeng1 gong2 jan4", S: "ngo5 dei6", O: "go3 man6 tai4", X: "ji4 gaa1", Y: "haa6 ci3", SUBJECT: "ngo5 dei6", PLACE: "hok6 haau6", CLASSIFIER: "gin6", PRONOUN: "ngo5 dei6", "DIRECT OBJECT": "go3 man6 tai4", "INDIRECT OBJECT": "lou5 si1", CLAUSE: "ngo5 dei6 hok6 gan2 gwong2 dung1 waa2", LOCATION: "hok6 haau6", TIME: "ji4 gaa1", PERSON: "lou5 si1", SOURCE: "uk1 kei2", VP: "hok6 gwong2 dung1 waa2", PHRASE: "hou2 zi6 jin4", "REDUPLICATED ADVERB": "zing6 zing6", RESULT: "hou2 sing4 gung1", NUMBER: "ng5", "STATIVE VERB": "seoi1 jiu3", "RELATIVE CLAUSE": "ngo5 dei6 jat1 cai4 zou6", YEAR: "ji6 ling4 ji6 sei3", MONTH: "saam1", DAY: "jat1", HOUR: "sap6", MINUTES: "sei3 sap6 ng5", DURATION: "jat1", REQUEST: "zoi3 gong2 jat1 ci3", VERB: "hok6 gwong2 dung1 waa2", V: "hok6 gwong2 dung1 waa2", NOUN: "fong1 faat3", N: "fong1 faat3", ADJ: "zung6 jiu3", CL: "gin6" }
+    { A: "ngo5", B: "hok6 saang1", S: "ngo5", O: "ni1 bun2 syu1", X: "gam1 jat6", Y: "ting1 jat6", SUBJECT: "ngo5", PLACE: "uk1 kei2", CLASSIFIER: "go3", PRONOUN: "ngo5", "DIRECT OBJECT": "ni1 bun2 syu1", "INDIRECT OBJECT": "pang4 jau5", CLAUSE: "ngo5 gam1 jat6 faan1 gung1", LOCATION: "uk1 kei2", TIME: "gam1 jat6", PERSON: "pang4 jau5", SOURCE: "gung1 si1", VP: "sik6 faan6", PHRASE: "hou2 faai3", "REDUPLICATED ADVERB": "maan6 maan6", RESULT: "hou2 gui6", NUMBER: "saam1", "STATIVE VERB": "zung1 ji3", "RELATIVE CLAUSE": "ngo5 zok6 jat6 maai5", YEAR: "ji6 ling4 ji6 luk6", MONTH: "cat1", DAY: "sap6 jat1", HOUR: "saam1", MINUTES: "sap6 ng5", DURATION: "loeng5", REQUEST: "bong1 ngo5 hoi1 mun4", VERB: "sik6", V: "sik6", NOUN: "pang4 jau5", N: "pang4 jau5", ADJ: "hoi1 sam1", CL: "go3" },
+    { A: "keoi5", B: "lou5 si1", S: "keoi5", O: "bui1 caa4", X: "ziu1 zou2", Y: "je6 maan5", SUBJECT: "keoi5", PLACE: "gung1 si1", CLASSIFIER: "bun2", PRONOUN: "keoi5", "DIRECT OBJECT": "bui1 caa4", "INDIRECT OBJECT": "aa3 maa1", CLAUSE: "keoi5 ting1 jat6 fong3 gaa3", LOCATION: "gung1 si1", TIME: "ziu1 zou2", PERSON: "aa3 maa1", SOURCE: "hok6 haau6", VP: "faan1 gung1", PHRASE: "hou2 cing1 co2", "REDUPLICATED ADVERB": "faai3 faai3", RESULT: "hou2 hoi1 sam1", NUMBER: "loeng5", "STATIVE VERB": "ming4 baak6", "RELATIVE CLAUSE": "keoi5 tau4 sin1 gong2", YEAR: "ji6 ling4 ji6 ng5", MONTH: "sap6 ji6", DAY: "ji6 sap6 sei3", HOUR: "baat3", MINUTES: "saam1 sap6", DURATION: "saam1", REQUEST: "bei2 bui1 seoi2 ngo5", VERB: "gong2", V: "gong2", NOUN: "gung1 zok3", N: "gung1 zok3", ADJ: "fong1 bin6", CL: "bun2" },
+    { A: "ngo5 dei6", B: "hoeng1 gong2 jan4", S: "ngo5 dei6", O: "go3 man6 tai4", X: "ji4 gaa1", Y: "haa6 ci3", SUBJECT: "ngo5 dei6", PLACE: "hok6 haau6", CLASSIFIER: "gin6", PRONOUN: "ngo5 dei6", "DIRECT OBJECT": "go3 man6 tai4", "INDIRECT OBJECT": "lou5 si1", CLAUSE: "ngo5 dei6 hok6 gan2 gwong2 dung1 waa2", LOCATION: "hok6 haau6", TIME: "ji4 gaa1", PERSON: "lou5 si1", SOURCE: "uk1 kei2", VP: "hok6 gwong2 dung1 waa2", PHRASE: "hou2 zi6 jin4", "REDUPLICATED ADVERB": "zing6 zing6", RESULT: "hou2 sing4 gung1", NUMBER: "ng5", "STATIVE VERB": "seoi1 jiu3", "RELATIVE CLAUSE": "ngo5 dei6 jat1 cai4 zou6", YEAR: "ji6 ling4 ji6 sei3", MONTH: "saam1", DAY: "jat1", HOUR: "sap6", MINUTES: "sei3 sap6 ng5", DURATION: "jat1", REQUEST: "zoi3 gong2 jat1 ci3", VERB: "zou6", V: "zou6", NOUN: "fong1 faat3", N: "fong1 faat3", ADJ: "zung6 jiu3", CL: "gin6" }
   ];
 
   function replaceAsciiPlaceholders(text, replacements, joiner = "") {
@@ -937,6 +1054,7 @@
     for (const candidate of candidates) {
       const text = String(candidate.text || "").trim();
       if (!text || seen.has(text)) continue;
+      if (kind.endsWith("G") && !grammarContextMatches(kind, item, candidate)) continue;
       seen.add(text);
       unique.push({
         text,
@@ -1167,6 +1285,7 @@
     const allVariants = contextVariations(baseEntry.kind, baseEntry.item);
     const lang = langFromKind(baseEntry.kind);
     const passageKind = lang === "jp" ? "jpP" : "yueP";
+    const casualKind = lang === "jp" ? "jpC" : "yueC";
     const focus = humanizedPattern(baseEntry.kind, baseEntry.item);
     const meaning = meaningOf(baseEntry.item);
     const normalizedIndex = ((variantIndex % 3) + 3) % 3;
@@ -1256,11 +1375,32 @@
     return markListeningEntry(contextual);
   }
 
+
+  function materializeCasualEntry(baseEntry, variantIndex = 0) {
+    const base = sourceEntryFor(baseEntry);
+    const modes = ["transform", "notice", "judgment"];
+    const exercise = modes[((variantIndex % modes.length) + modes.length) % modes.length];
+    return {
+      ...base,
+      practiceMode: "casual",
+      studySkills: ["casual"],
+      item: {
+        ...base.item,
+        practiceMode: "casual",
+        studySkills: ["casual"],
+        casualExercise: exercise,
+        _sourceKind: base.kind,
+        _sourceId: base.item.id
+      }
+    };
+  }
+
   function materializeStudyEntry(entry, index = 0) {
     const base = sourceEntryFor(entry);
     const skill = primarySkillForEntry(entry);
     const exposure = skillRecordFor(itemKey(base.kind, base.item), skill)?.seen || srsFor(itemKey(base.kind, base.item)).seen || 0;
     const progressiveVariant = exposure % 3;
+    if (base.kind.endsWith("C")) return materializeCasualEntry(entry, progressiveVariant);
     if (entry.contextMode === "sentence") return contextSentenceEntry(entry, progressiveVariant);
     if (entry.contextMode === "passage") return contextPassageEntry(entry, progressiveVariant);
     if (entry.contextMode === "production") return materializeProductionEntry(entry, progressiveVariant);
@@ -1270,12 +1410,31 @@
     return entry;
   }
 
+
+  function casualReflectionHtml(item, lang) {
+    const tags = Array.isArray(item.tags) ? item.tags : [];
+    return `
+      <div class="casual-reflection-panel">
+        <div class="context-section-head"><span>Reflect on the register shift</span><small>notice what changed before rating yourself</small></div>
+        <div class="casual-pair-grid">
+          <article><span>NEUTRAL / EXPLICIT</span><p>${escapeHtml(item.base || "")}</p></article>
+          <article><span>CASUAL / CONVERSATIONAL</span><p class="${lang === "yue" ? "canto-ruby" : ""}">${lang === "yue" && item.reading ? cantoneseRubyHtml(item.casual || "", item.reading) : escapeHtml(item.casual || "")}</p></article>
+        </div>
+        <div class="casual-reflection-prompts">
+          <p><strong>What changed?</strong> ${escapeHtml(item.whatChanged || "")}</p>
+          <p><strong>Where is it natural?</strong> ${escapeHtml(item.when || "")}</p>
+          ${item.caution ? `<p><strong>Do not overgeneralize:</strong> ${escapeHtml(item.caution)}</p>` : ""}
+        </div>
+        ${tags.length ? `<div class="casual-tags">${tags.map(tag => `<span>${escapeHtml(tag)}</span>`).join("")}</div>` : ""}
+      </div>`;
+  }
+
   function contextHtml(kind, item) {
     const examples = contextVariations(kind, item);
     if (!examples.length) return "";
     const readingLabel = kind.startsWith("yue") ? "Jyutping" : "Reading";
     return `
-      <div class="context-section-head"><span>Context variations</span><small>3 ways to meet this item in context</small></div>
+      <div class="context-section-head"><span>Validated context variations</span><small>${examples.length} concept-matched ${examples.length === 1 ? "example" : "examples"}</small></div>
       <div class="context-variation-grid">
         ${examples.map((example, index) => `
           <article class="context-variation-card">
@@ -1313,6 +1472,7 @@
 
   function inTarget(kind, item, lang) {
     if (lang === "jp") return allowedJapaneseLevels(state.profile.jpTarget).includes(item.level);
+    if (kind === "yueC") return allowedCantoneseLevels(state.profile.yueTarget).includes(item.level);
     if (kind === "yueV") return Number(item.frequency_rank) <= YUE_VOCAB_LIMITS[state.profile.yueTarget];
     return allowedCantoneseLevels(state.profile.yueTarget).includes(item.level);
   }
@@ -1331,15 +1491,18 @@
     const vocabKind = lang === "jp" ? "jpV" : "yueV";
     const sentenceKind = lang === "jp" ? "jpS" : "yueS";
     const passageKind = lang === "jp" ? "jpP" : "yueP";
+    const casualKind = lang === "jp" ? "jpC" : "yueC";
     const grammar = source[grammarKind].filter(item => inTarget(grammarKind, item, lang)).map(item => ({ kind: grammarKind, item }));
     const vocabulary = source[vocabKind].filter(item => inTarget(vocabKind, item, lang)).map(item => ({ kind: vocabKind, item }));
     const sentences = source[sentenceKind].filter(item => inTarget(sentenceKind, item, lang)).map(item => ({ kind: sentenceKind, item }));
     const passages = source[passageKind].filter(item => inTarget(passageKind, item, lang)).map(item => ({ kind: passageKind, item }));
+    const casual = source[casualKind].filter(item => inTarget(casualKind, item, lang)).map(item => ({ kind: casualKind, item, practiceMode: "casual", studySkills: ["casual"] }));
     const bases = [...grammar, ...vocabulary];
     if (focus === "recognition") return vocabulary;
     if (focus === "grammar") return grammar;
     if (focus === "vocabulary") return vocabulary;
     if (focus === "production") return bases.map(entry => ({ ...entry, contextMode: "production" }));
+    if (focus === "casual") return casual;
     if (focus === "listening") {
       const bank = [
         ...sentences.map(entry => ({ ...entry, practiceMode: "listening", studySkills: ["listening"] })),
@@ -1355,7 +1518,7 @@
     // Context is materialized only after sampling, so the app does not duplicate the full generated corpus in memory.
     if (focus === "sentences") return [...sentences, ...bases.map(entry => ({ ...entry, contextMode: "sentence" }))];
     if (focus === "passages") return [...passages, ...bases.map(entry => ({ ...entry, contextMode: "passage" }))];
-    return [...grammar, ...vocabulary, ...sentences, ...passages];
+    return [...grammar, ...vocabulary, ...sentences, ...passages, ...casual];
   }
 
   function shuffled(items) {
@@ -1437,19 +1600,20 @@
     // the same card format repeatedly. Quotas are minimum targets; the fallback fills
     // any rounding gaps while preserving the easier-to-harder level progression.
     const buckets = [
-      { focus: "recognition", weight: 0.24 },
-      { focus: "grammar", weight: 0.18 },
-      { focus: "production", weight: 0.16 },
-      { focus: "listening", weight: 0.16 },
-      { focus: "sentences", weight: 0.13 },
-      { focus: "passages", weight: 0.13 }
+      { focus: "recognition", weight: 0.20 },
+      { focus: "grammar", weight: 0.17 },
+      { focus: "production", weight: 0.14 },
+      { focus: "listening", weight: 0.14 },
+      { focus: "casual", weight: 0.12 },
+      { focus: "sentences", weight: 0.115 },
+      { focus: "passages", weight: 0.115 }
     ].map(bucket => ({ ...bucket, entries: studyPool(lang, bucket.focus) }));
 
     const selected = [];
     const used = new Set();
     buckets.forEach(bucket => {
       let quota = Math.floor(count * bucket.weight);
-      if (["production", "listening", "sentences", "passages"].includes(bucket.focus) && count >= 6) quota = Math.max(1, quota);
+      if (["production", "listening", "casual", "sentences", "passages"].includes(bucket.focus) && count >= 6) quota = Math.max(1, quota);
       progressiveSample(bucket.entries, quota, lang).forEach(entry => {
         const key = `${entry.contextMode || entry.practiceMode || bucket.focus}:${baseItemKey(entry)}`;
         if (!used.has(key)) { used.add(key); selected.push(entry); }
@@ -1965,6 +2129,7 @@
   }
 
   function studyTypeLabel(kind) {
+    if (kind.endsWith("C")) return "CASUAL LANGUAGE";
     if (kind.endsWith("G")) return "GRAMMAR";
     if (kind.endsWith("V")) return "VOCABULARY";
     if (kind.endsWith("P")) return "PASSAGE";
@@ -2071,11 +2236,12 @@
     const practiceMode = entry.practiceMode || item.practiceMode || "";
     const listening = practiceMode === "listening";
     const production = practiceMode === "production";
+    const casual = practiceMode === "casual" || kind.endsWith("C");
     study.revealed = false;
 
     $("#sessionProgressBar").style.width = `${percent}%`;
     $("#studySessionProgress").textContent = `${study.index + 1} / ${study.items.length}`;
-    $("#studyItemType").textContent = listening ? (passage ? "LISTENING PASSAGE" : "LISTENING") : production ? "PRODUCTION" : studyTypeLabel(kind);
+    $("#studyItemType").textContent = listening ? (passage ? "LISTENING PASSAGE" : "LISTENING") : production ? "PRODUCTION" : casual ? "CASUAL LANGUAGE" : studyTypeLabel(kind);
     $("#studyItemLevel").textContent = itemLevel(kind, item);
     setStudySkillBadge(entry);
 
@@ -2089,15 +2255,31 @@
 
     $("#studyLanguageLabel").textContent = study.lang === "jp" ? "日本語 · JAPANESE" : "廣東話 · CANTONESE";
     $("#listeningChallenge").classList.toggle("hidden", !listening);
-    $("#productionChallenge").classList.toggle("hidden", !production);
+    $("#productionChallenge").classList.toggle("hidden", !production && !casual);
     $("#productionInput").value = "";
+    $("#productionInput").placeholder = casual ? "Rewrite it the way you would actually say it casually…" : "Type the target-language sentence before revealing…";
     $("#productionMatch").classList.add("hidden");
     $("#listeningResponse").value = "";
     $("#listeningMatch").classList.add("hidden");
     $("#studySyncTranscript").classList.add("hidden");
     $("#studySyncTranscriptText").innerHTML = "";
 
-    if (listening) {
+    if (casual) {
+      const exercise = item.casualExercise || "transform";
+      if (exercise === "notice") {
+        $("#studyMain").textContent = item.casual || "";
+        $("#studyQuestion").textContent = `What changed from the more explicit version “${item.base || ""}”? Identify omissions, contractions, particles, or register shifts.`;
+        $("#productionInput").placeholder = "Write what you notice before revealing…";
+      } else if (exercise === "judgment") {
+        $("#studyMain").textContent = item.casual || "";
+        $("#studyQuestion").textContent = "Where would this sound natural, and what would be risky to overgeneralize? Think about relationship, setting, and nuance.";
+        $("#productionInput").placeholder = "Write your register judgment before revealing…";
+      } else {
+        $("#studyMain").textContent = item.title || "Make it conversational.";
+        $("#studyQuestion").textContent = `Rewrite this naturally for casual conversation: ${item.base || ""}`;
+        $("#productionInput").placeholder = "Rewrite it the way you would actually say it casually…";
+      }
+    } else if (listening) {
       $("#studyMain").textContent = "Listen to the full sentence.";
       $("#studyQuestion").textContent = "Reconstruct the meaning before revealing the transcript. Replay as often as needed.";
     } else if (production) {
@@ -2112,10 +2294,25 @@
     $("#studyReadingLabel").textContent = study.lang === "yue" ? "Jyutping" : "Reading";
     $("#studyReading").textContent = reading;
     $("#studyReadingBlock").classList.toggle("hidden", !reading);
-    $("#studyMeaning").textContent = production ? humanizedPattern(kind, item) : meaningOf(item);
+    if (casual) {
+      const exercise = item.casualExercise || "transform";
+      $("#studyMeaning").textContent = exercise === "notice"
+        ? (item.whatChanged || "")
+        : exercise === "judgment"
+          ? [item.when, item.caution].filter(Boolean).join(" ")
+          : (item.casual || "");
+    } else {
+      $("#studyMeaning").textContent = production ? humanizedPattern(kind, item) : meaningOf(item);
+    }
     $("#studyMeta").textContent = [displayMeta(kind, item), item.contextSource].filter(Boolean).join(" · ");
 
-    const guide = production
+    const guide = casual
+      ? (item.casualExercise === "notice"
+          ? [item.when ? `Use: ${item.when}` : "", item.caution ? `Watch out: ${item.caution}` : ""].filter(Boolean).join(" ")
+          : item.casualExercise === "judgment"
+            ? item.whatChanged || ""
+            : [item.whatChanged, item.when ? `Use: ${item.when}` : "", item.caution ? `Watch out: ${item.caution}` : ""].filter(Boolean).join(" "))
+      : production
       ? `Model meaning: ${meaningOf(item)}`
       : comprehension
         ? `Answer: ${item.answer}`
@@ -2124,7 +2321,7 @@
     $("#studyGuide").textContent = guide;
 
     const base = sourceEntryFor(entry);
-    const contexts = /^(jp|yue)[GV]$/.test(base.kind) && !listening && !production ? contextHtml(base.kind, base.item) : "";
+    const contexts = /^(jp|yue)[GV]$/.test(base.kind) && !listening && !production && !casual ? contextHtml(base.kind, base.item) : casual ? casualReflectionHtml(item, study.lang) : "";
     $("#studyContexts").classList.toggle("hidden", !contexts);
     $("#studyContexts").innerHTML = contexts;
     $("#speakCurrent").disabled = !speechText(kind, item);
@@ -2146,7 +2343,25 @@
     const practiceMode = entry.practiceMode || entry.item.practiceMode || "";
     const reading = humanizedReading(entry.kind, entry.item);
 
-    if (practiceMode === "listening") {
+    if (practiceMode === "casual") {
+      const typed = $("#productionInput").value.trim();
+      const exercise = entry.item.casualExercise || "transform";
+      if (typed && exercise === "transform") {
+        const expected = { ...entry, item: { ...entry.item, text: entry.item.casual || "" } };
+        const estimate = productionMatchEstimate(typed, expected);
+        if (estimate !== null) {
+          $("#productionMatch").classList.remove("hidden");
+          $("#productionMatch").innerHTML = `<strong>${estimate}%</strong><span>surface-form similarity to the conversational model — compare the actual omissions, contractions, and register choices yourself</span>`;
+        }
+      } else if (typed) {
+        $("#productionMatch").classList.remove("hidden");
+        $("#productionMatch").innerHTML = `<strong>Reflect</strong><span>Compare your observation with the explanation below. Register judgments are contextual, so the app does not pretend there is one exact typed answer.</span>`;
+      }
+      if (study.lang === "yue" && reading) {
+        if (exercise === "transform") $("#studyMeaning").innerHTML = cantoneseRubyHtml(entry.item.casual || "", reading);
+        else $("#studyMain").innerHTML = cantoneseRubyHtml(entry.item.casual || "", reading);
+      }
+    } else if (practiceMode === "listening") {
       const response = $("#listeningResponse").value.trim();
       if (response) {
         const meaningAnswer = meaningOf(entry.item) || entry.item.answer || "";
@@ -3197,6 +3412,7 @@
     if (!surface) return [];
     const sentenceKind = lang === "jp" ? "jpS" : "yueS";
     const passageKind = lang === "jp" ? "jpP" : "yueP";
+    const casualKind = lang === "jp" ? "jpC" : "yueC";
     return [
       ...source[sentenceKind].filter(item => String(item.text || "").includes(surface)).map(item => ({ kind: sentenceKind, item })),
       ...source[passageKind].filter(item => String(item.text || "").includes(surface)).map(item => ({ kind: passageKind, item }))
@@ -3636,7 +3852,9 @@
       ["Japanese grammar", "jpG"],
       ["Japanese vocabulary", "jpV"],
       ["Cantonese grammar", "yueG"],
-      ["Cantonese vocabulary", "yueV"]
+      ["Cantonese vocabulary", "yueV"],
+      ["Japanese casual language", "jpC"],
+      ["Cantonese casual language", "yueC"]
     ];
     const retention = Math.round((Number(state.profile.fsrsRetention) || 0.90) * 100);
     $("#progressDashboard").innerHTML = `
@@ -3716,6 +3934,7 @@
       else if (action === "open-study" || action === "new-session") openStudy();
       else if (action === "close-study") closeDialog(studyDialog);
       else if (action === "review") openReview();
+      else if (action === "casual-lab") { openStudy(); $("#studyFocus").value = "casual"; }
       else if (action === "close-review") closeDialog(reviewDialog);
       else if (action === "usage-lab") { setLabMode(labMode); showDialog(usageDialog); }
       else if (action === "close-usage") closeDialog(usageDialog);

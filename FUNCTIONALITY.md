@@ -1,4 +1,4 @@
-# AIDA V9 functionality map
+# AIDA V10 functionality map
 
 ## Independent language tracks
 
@@ -12,17 +12,18 @@ Japanese and Cantonese have separate:
 - skill mastery
 - FSRS schedules
 
-## Five learning skills
+## Six learning skills
 
-Each source item can have independent memory state for:
+Each relevant source item can have independent memory state for:
 
 1. Recognition
 2. Production
 3. Listening
 4. Reading comprehension
 5. Grammar
+6. Casual register
 
-One strong skill does not automatically make the other four “mastered.”
+Strength in one skill does not automatically mark the others as mastered.
 
 ## Study modes
 
@@ -34,17 +35,55 @@ One strong skill does not automatically make the other four “mastered.”
 - Vocabulary recognition
 - Sentence comprehension
 - Passage comprehension
+- Casual & conversational language
 
-Adaptive mixed sessions reserve space for every skill family.
+Adaptive mixed sessions reserve space for multiple skill families rather than letting the vocabulary dataset dominate the session.
+
+## Casual & conversational system
+
+A dedicated top-level **Casual** entry opens conversational practice without mixing Japanese and Cantonese together.
+
+Japanese includes:
+
+- plain forms
+- particle omission when meaning remains recoverable
+- casual question formation
+- spoken contractions such as `てる`, `って`, `じゃ`, `ちゃう`, `なきゃ`, `とく`
+- register and relationship judgments
+
+Cantonese includes:
+
+- sentence-final particles
+- recoverable subject/object omission
+- aspectual spoken forms
+- common colloquial question patterns
+- spoken-vs-written lexical choices
+- Jyutping on reveal
+
+Practice cycles through transformation, noticing, and register judgment. Casual mastery has its own FSRS state.
+
+## Grammar-context audit
+
+Grammar examples are validated before display.
+
+- Japanese grammar cards checked: **963**
+- 150 high-risk Japanese cards: 3 manual audited examples each
+- 8 broad class/inflection cards: dedicated concept validators
+- remaining 805 Japanese cards: 3 source contexts each after stricter construction-signature audit
+- Cantonese grammar cards: **67 / 67** with 3 manual audited examples each
+
+The old `い-Adjectives` error is specifically regression-tested. Sentences that merely contain the character `い` do not qualify as い-adjective examples.
+
+See `GRAMMAR_CONTEXT_AUDIT.md`.
 
 ## Coherent context engine
 
-Every active vocabulary and grammar item has:
+Every active vocabulary and grammar item can provide:
 
 - 3 sentence variations
 - 3 coherent passage variations
 
-Passages use a semantic-domain scenario, a target-containing anchor context, and progressive discourse framing. The harder variants require more interpretation and inference rather than simply adding more unrelated sentences.
+Passages use a semantic-domain scenario, a target-containing anchor context, and progressive discourse framing. Harder variants require more interpretation and inference rather than simply adding unrelated sentences.
 
 ## Production practice
 
@@ -100,18 +139,19 @@ AIDA vendors `ts-fsrs` and schedules each practiced item × skill independently.
 - production reviews prompt production
 - listening reviews hide the transcript
 - reading reviews use sentence/passage context
-- grammar and recognition remain separate
+- grammar, recognition, and casual register remain separate
 - drag-and-drop queue reordering remains available
 
 ## Progress dashboard
 
-For each language, the dashboard shows independent mastery and due counts for:
+For each language, the dashboard tracks independent mastery and due counts for:
 
 - Recognition
 - Production
 - Listening
 - Reading
 - Grammar
+- Casual register
 
 It also retains aggregate base-item coverage and XP summaries.
 
@@ -119,7 +159,7 @@ It also retains aggregate base-item coverage and XP summaries.
 
 Search by term, reading, Jyutping, meaning, or grammar item. Review:
 
-- 3 sentence variants
+- 3 validated sentence variants
 - 3 coherent passage variants
 - meaningful comprehension questions
 - exact reading-bank matches

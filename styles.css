@@ -499,3 +499,17 @@ body::before{
 .listening-response-label{width:min(620px,100%);margin-top:8px;color:#8b8b85!important;font-size:10px!important;font-family:ui-monospace,SFMono-Regular,Consolas,monospace!important;font-weight:700!important;letter-spacing:.09em;text-align:left;text-transform:uppercase}.listening-response{width:min(620px,100%);min-height:82px;resize:vertical;border:1px solid #303030;border-radius:11px;background:#070707;color:#f0f0ec;padding:12px 13px;font:500 15px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif;outline:none;transition:border-color .2s ease,box-shadow .2s ease}.listening-response:focus{border-color:#777;box-shadow:0 0 0 4px rgba(255,255,255,.045)}.listening-challenge>.production-match{width:min(620px,100%);text-align:left}
 /* Keep long analytics/profile content reachable on shorter screens. */
 .profile-dialog,.progress-dialog{max-height:94vh;overflow:auto;overscroll-behavior:contain;scrollbar-gutter:stable}
+
+/* V10: conversational register practice */
+.casual-reflection-panel{margin-top:1.5rem;border-top:1px solid var(--line);padding-top:1.25rem}
+.casual-pair-grid{display:grid;grid-template-columns:1fr 1fr;gap:.9rem;margin-top:.9rem}
+.casual-pair-grid article{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:18px;padding:1.05rem 1.1rem;background:linear-gradient(145deg,rgba(255,255,255,.025),rgba(255,255,255,.005));min-height:132px}
+.casual-pair-grid article::after{content:"";position:absolute;inset:auto -30% -70% 30%;height:120px;background:radial-gradient(circle,rgba(255,255,255,.08),transparent 68%);pointer-events:none}
+.casual-pair-grid span,.casual-tags span{font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.casual-pair-grid p{font-family:var(--serif);font-size:clamp(1.2rem,2vw,1.7rem);line-height:1.55;margin:.65rem 0 0}
+.casual-reflection-prompts{display:grid;gap:.65rem;margin-top:.9rem}
+.casual-reflection-prompts p{margin:0;padding:.9rem 1rem;border:1px solid var(--line);border-radius:14px;color:var(--muted);line-height:1.55}
+.casual-reflection-prompts strong{color:var(--text)}
+.casual-tags{display:flex;flex-wrap:wrap;gap:.45rem;margin-top:.85rem}
+.casual-tags span{border:1px solid var(--line);border-radius:999px;padding:.4rem .62rem;background:rgba(255,255,255,.02)}
+@media(max-width:760px){.casual-pair-grid{grid-template-columns:1fr}}

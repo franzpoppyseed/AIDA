@@ -1,18 +1,10 @@
-# AIDA V9 learning engine
+# AIDA V10 learning engine
 
-## Why one mastery number was removed
+## Independent skill model
 
-Language knowledge is not one-dimensional. A learner may:
+Language knowledge is not one-dimensional. A learner may recognize a word on sight, fail to produce it, miss it in speech, understand it only in context, or know a formal form without being able to use the conversational equivalent.
 
-- recognize a word on sight
-- fail to produce it from meaning
-- miss it in fast speech
-- understand it inside a passage
-- misuse its grammar
-
-V9 therefore stores separate memory cards for five skills.
-
-## Skill model
+V10 therefore tracks six independent skills:
 
 ```text
 recognition
@@ -20,9 +12,10 @@ production
 listening
 reading
 grammar
+casual
 ```
 
-Each base vocabulary or grammar item can have zero to five active skill records. A skill record contains its own:
+Each vocabulary, grammar, or casual-language item can have its own memory record for the skill being practiced. A skill record contains its own:
 
 - FSRS card state
 - seen count
@@ -31,7 +24,7 @@ Each base vocabulary or grammar item can have zero to five active skill records.
 - last rating
 - local history
 
-The old aggregate `state.srs` object remains as a derived compatibility layer for dashboards and older exports. `state.skillSrs` is the authoritative multi-skill memory store.
+`state.skillSrs` is the authoritative multi-skill memory store. The older aggregate `state.srs` object remains only as a compatibility/summary layer.
 
 ## FSRS implementation
 
@@ -59,13 +52,75 @@ AIDA configures:
 - learning steps of 1 minute and 10 minutes
 - relearning step of 10 minutes
 
-The UI keeps the familiar learner labels:
+The learner still rates reviews with:
 
 ```text
 Again / Hard / Good / Easy
 ```
 
-These map to the corresponding FSRS ratings. The predicted next interval is shown on each rating button.
+The predicted next interval is displayed before the rating is chosen.
+
+## Casual & conversational language
+
+Casual language is not treated as a hidden variant of a formal grammar card. It is a separate skill family with explicit contrast and its own FSRS state.
+
+### Japanese coverage
+
+The casual bank includes progressive practice with:
+
+- `です / ます` → plain forms
+- casual questions without sentence-final `か`
+- recoverable omission of `を`, `は`, `が`, and `に`
+- `ている → てる`
+- `という → って`
+- `では → じゃ`
+- `てしまう → ちゃう / じゃう`
+- `なくては → なくちゃ`
+- `なければ → なきゃ`
+- `ておく → とく`
+- `ておいて → といて`
+- `ては → ちゃ`
+- `というか → っていうか`
+- conversational `もの → もん`
+- request softening and omitted material when context makes the meaning recoverable
+- selected colloquial potential forms with explicit caution about register
+
+Particle omission is taught as **context-dependent ellipsis**, not as a rule that particles can always be deleted.
+
+### Cantonese coverage
+
+The Cantonese casual bank includes:
+
+- common sentence-final particles and particle stacks
+- subject/object omission when recoverable
+- aspect particles such as `緊`, `住`, and `咗`
+- spoken-vs-written lexical choices
+- common contractions and colloquial question forms
+- conversational demonstratives and quantity forms
+- topic continuation and discourse particles
+
+Jyutping is shown on reveal for Cantonese casual forms.
+
+### Three-stage casual practice cycle
+
+Repeated encounters rotate through:
+
+1. **Transform** — rewrite the explicit/neutral form naturally for casual conversation.
+2. **Notice** — identify what was omitted, contracted, or changed in register.
+3. **Register judgment** — explain where the casual form is natural and what should not be overgeneralized.
+
+This is intentionally more than memorizing `formal → casual` pairs. The learner is asked to notice recoverability, relationship, setting, and pragmatic effect.
+
+## Grammar-context validation
+
+Grammar context tiles now use a validation layer before they appear.
+
+- 150 high-risk Japanese grammar cards have 3 manual audited examples each.
+- 8 broad Japanese class/inflection cards use dedicated concept validators.
+- The remaining 805 Japanese grammar cards passed a stricter offline morphology/construction-signature audit with at least 3 validated source contexts each.
+- All 67 Cantonese grammar cards have 3 manual audited examples each, including Jyutping.
+
+See `GRAMMAR_CONTEXT_AUDIT.md` for the full methodology and counts.
 
 ## Migration
 
@@ -74,27 +129,21 @@ Older AIDA state used one memory record per base item. During migration:
 - vocabulary defaults to Recognition
 - grammar defaults to Grammar
 - sentence/passage items default to Reading
+- casual items create a Casual skill record when first practiced
 
-The old record is converted into a reasonable initial FSRS-like card instead of being discarded. Future practice creates additional skill records as needed.
+Older records are converted into reasonable initial FSRS-like cards rather than discarded.
 
 ## Adaptive mixed practice
 
-Mixed study deliberately samples multiple modes rather than drawing uniformly from the huge vocabulary pool. The current intended composition is approximately:
+Mixed study samples multiple modes rather than drawing uniformly from the huge vocabulary pool. The composition deliberately includes recognition, grammar, production, listening, reading, and casual/register practice while respecting the selected language target ceiling.
 
-- 24% recognition
-- 18% grammar
-- 16% production
-- 16% listening
-- 13% sentence reading
-- 13% passage reading
-
-The actual session is still constrained by the selected language target ceiling and then ordered from easier level bands toward harder bands.
+The session is then ordered from easier level bands toward harder bands.
 
 ## Production
 
 Production cards use a context sentence tied to the base item. The learner sees meaning first and must produce the target language. Typed input receives a surface-form similarity estimate, but the estimate is explicitly advisory because valid language can have multiple correct forms.
 
-Grammar production updates both Production and Grammar memory. XP is awarded once per practice event rather than twice.
+Grammar production can update both Production and Grammar memory while awarding XP once per practice event.
 
 ## Listening
 
@@ -126,7 +175,7 @@ A base item can have several skill records. The review queue chooses the most ur
 2. earliest due time
 3. lower mastery as a tie-breaker
 
-The review format is then materialized for that skill. A production-due item becomes a production review; a listening-due item becomes a hidden-transcript listening review.
+The review format is materialized for that skill. A production-due item becomes a production review; a listening-due item becomes a hidden-transcript listening review; a casual-due item becomes conversational transformation/noticing/register practice.
 
 ## Local-only architecture
 

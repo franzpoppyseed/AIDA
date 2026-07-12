@@ -15,15 +15,17 @@
     "V7 Cantonese audio recognizes yue-CN, yue-HK, other yue locales, and zh-HK, with manual browser voice selection.",
     "V7 learner-facing Cantonese vocabulary excludes source rows with no definition, explicit deletion/editing markers, or no usable pronunciation; excluded rows are preserved in exports/cantonese_vocabulary_excluded.csv.",
     "Every learner-facing Cantonese vocabulary item now has both a non-empty meaning and a pronunciation/Jyutping field.",
-    "All 963 Japanese grammar items now have at least three non-meta context examples: corpus examples where available and original AIDA grammar examples for the 221 items with no imported corpus match.",
-    "Imported Japanese grammar items with only one or two corpus examples are padded to three by contextual variations of the corpus sentence rather than meta-linguistic placeholder cards.",
     "V7 provides three progressive sentence contexts and three progressive mini-passage variations for every active vocabulary and grammar source item; repeated encounters advance through easier, build, and harder variants.",
     "Cantonese pronunciation data is normalized for learner display; all active vocabulary items and all displayed bundled Cantonese examples have usable pronunciation/Jyutping, while unrecoverable source rows remain in the excluded audit CSV.",
     "V7 includes an optional same-origin Vercel serverless Cantonese TTS endpoint backed by Azure Speech; browser-native yue-CN/yue-HK/zh-HK remains the no-key fallback.",
     "V9 replaces concatenated mini-passages with a coherent scenario engine that embeds the target context in a semantic-domain setup, development, and consequence.",
     "V9 tracks recognition, production, listening, reading, and grammar as independent memory skills.",
     "V9 vendors ts-fsrs and schedules each practiced item-skill memory independently with configurable desired retention.",
-    "V9 adds transcript-hidden sentence and passage listening practice with synchronized reveal highlighting and Cantonese ruby Jyutping."
+    "V9 adds transcript-hidden sentence and passage listening practice with synchronized reveal highlighting and Cantonese ruby Jyutping.",
+    "V10 adds a dedicated casual/conversational skill for Japanese and Cantonese with independent FSRS memory and transform, notice, and register-judgment practice.",
+    "V10 Japanese casual practice explicitly covers context-dependent particle omission as well as common spoken contractions; omission is taught as recoverability-dependent rather than a blanket deletion rule.",
+    "V10 grammar context selection no longer accepts broad substring hits: 150 high-risk Japanese grammar cards have manual audited override sets, 8 broad class/inflection cards use dedicated validators, and the remaining 805 source-driven cards passed a stricter offline construction-signature audit with at least three validated contexts each.",
+    "V10 provides manual audited context sets for all 67 Cantonese grammar cards, three examples per card with Jyutping."
   ],
   "sources": {
     "japanese_grammar_primary": "https://bunpro.jp/grammar_points",
@@ -53,7 +55,13 @@
     "japanese_original_grammar_context_items": 221,
     "runtime_mini_passage_variations": 104616,
     "cantonese_bundled_context_items": 24927,
-    "cantonese_bundled_or_hkcancor_context_items": 25130
+    "cantonese_bundled_or_hkcancor_context_items": 25130,
+    "japanese_casual_items": 30,
+    "cantonese_casual_items": 30,
+    "japanese_grammar_manual_override_items": 150,
+    "japanese_grammar_class_validator_items": 8,
+    "japanese_grammar_audited_source_items": 805,
+    "cantonese_grammar_manual_override_items": 67
   },
-  "version": "V9 Multi-Skill Learning Engine"
+  "version": "V10 Casual + Grammar Audit"
 }
