@@ -53,7 +53,7 @@
 
   const QUALITY_LABELS = {
     curated: "CURATED",
-    corpus: "VERIFIED",
+    corpus: "CORPUS AUTHENTIC",
     audited: "AUDITED",
     validated: "RULE VALIDATED",
     generated: "GENERATED",
@@ -108,7 +108,8 @@
 
   function qualityControlsHtml(meta) {
     registerQualityExample(meta);
-    return `<div class="quality-controls"><button type="button" class="quality-report-button" data-report-example="${escapeHtml(meta.key)}">Report issue</button></div>`;
+    const status = qualityStatusFor(meta);
+    return `<div class="quality-controls">${qualityBadgeHtml(status, meta.key)}<button type="button" class="quality-report-button" data-report-example="${escapeHtml(meta.key)}">Report issue</button></div>`;
   }
 
 
@@ -1197,11 +1198,11 @@
     }).filter(row => !shouldHideQualityExample(row.key));
     if (!visible.length) return `<div class="quality-all-hidden"><strong>All context examples for this item are hidden.</strong><span>Open Profile → Example quality to review your reports.</span></div>`;
     return `
-      <div class="context-section-head"><span>Examples</span><small>${visible.length} visible concept-matched ${visible.length === 1 ? "example" : "examples"}</small></div>
+      <div class="context-section-head"><span>Validated context variations</span><small>${visible.length} visible concept-matched ${visible.length === 1 ? "example" : "examples"}</small></div>
       <div class="context-variation-grid">
         ${visible.map(({ example, index, meta }) => `
           <article class="context-variation-card">
-            <div class="context-card-topline"><span>Example ${index + 1}</span>${qualityControlsHtml(meta)}</div>
+            <div class="context-card-topline"><span>${["EASIER", "BUILD", "HARDER"][index] || String(index + 1).padStart(2, "0")}</span>${qualityControlsHtml(meta)}</div>
             <p class="context-target ${kind.startsWith("yue") ? "canto-ruby" : ""}">${kind.startsWith("yue") && example.reading ? cantoneseRubyHtml(example.text, example.reading) : escapeHtml(example.text)}</p>
             ${example.reading ? `<p class="context-reading"><b>${readingLabel}</b>${escapeHtml(example.reading)}</p>` : ""}
             ${example.translation ? `<p class="context-translation">${escapeHtml(example.translation)}</p>` : ""}
@@ -3317,14 +3318,14 @@
       </div>
 
       <section class="context-review-section">
-        <div class="context-review-section-head"><div><span>01</span><h4>Verified sentence examples</h4></div><p>Only examples already checked against the target word or grammar point are shown.</p></div>
+        <div class="context-review-section-head"><div><span>01</span><h4>Verified sentence examples</h4></div><p>Only corpus-backed, bundled, or manually audited examples are shown.</p></div>
         <div class="context-review-sentence-grid">
           ${sentences.length ? sentences.map((example, index) => {
             const key = qualityKey("sentence", kind, item.id, index, example.text || "");
             if (shouldHideQualityExample(key)) return "";
             const meta = { key, scope: "sentence", kind, itemId: item.id, index, text: example.text || "", reading: example.reading || "", translation: example.translation || "", source: example.source || "AIDA context", qualityStatus: example.qualityStatus, target: humanizedPattern(kind, item) };
             return `<article class="context-review-card">
-              <div class="context-audio-head"><span class="context-difficulty">Sentence ${index + 1}</span><button type="button" class="context-audio-button" data-context-sentence-audio="${index}">Listen ↗</button></div>
+              <div class="context-audio-head"><span class="context-difficulty">${["EASIER", "BUILD", "HARDER"][index]}</span><button type="button" class="context-audio-button" data-context-sentence-audio="${index}">Listen ↗</button></div>
               ${qualityControlsHtml(meta)}
               <p class="context-review-target ${lang === "yue" ? "canto-ruby" : ""}" data-context-sentence-sync="${index}">${lang === "yue" && example.reading ? cantoneseRubyHtml(example.text, example.reading) : escapeHtml(example.text)}</p>
               ${lang !== "yue" && example.reading ? `<p class="context-review-reading">${escapeHtml(example.reading)}</p>` : ""}
@@ -3342,7 +3343,7 @@
             if (shouldHideQualityExample(key)) return "";
             const meta = { key, scope: "passage", kind, itemId: item.id, index, text: passage.text || "", reading: passage.reading || "", translation: passage.translation || "", source: passage.contextSource || "Curated reading bank", qualityStatus: passage.qualityStatus || "curated", target: humanizedPattern(kind, item) };
             return `<article class="context-passage-card">
-            <div class="context-passage-head"><span>Passage ${index + 1}</span><div><strong>${passage.questions?.length || 0} comprehension prompts</strong><button type="button" class="context-audio-button" data-context-passage-audio="${index}">Listen with highlighting ↗</button></div></div>
+            <div class="context-passage-head"><span>${["EASIER", "BUILD", "HARDER"][index]}</span><div><strong>${passage.questions?.length || 0} comprehension prompts</strong><button type="button" class="context-audio-button" data-context-passage-audio="${index}">Listen with highlighting ↗</button></div></div>
             ${qualityControlsHtml(meta)}
             <p class="context-passage-text ${lang === "yue" ? "canto-ruby" : ""}" data-context-passage-sync="${index}">${lang === "yue" && passage.reading ? cantoneseRubyHtml(passage.text, passage.reading) : escapeHtml(passage.text)}</p>
             ${lang !== "yue" && passage.reading ? `<p class="context-review-reading">${escapeHtml(passage.reading)}</p>` : ""}

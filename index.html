@@ -9,12 +9,6 @@
   <link rel="stylesheet" href="styles.css"/>
 </head>
 <body>
-  <canvas id="motionCanvas" class="motion-canvas" aria-hidden="true"></canvas>
-  <div id="introVeil" class="intro-veil" aria-hidden="true">
-    <div class="intro-veil-mark">間</div>
-    <div class="intro-veil-line"><i></i></div>
-  </div>
-  <div id="cursorAura" class="cursor-aura" aria-hidden="true"></div>
   <header class="topbar">
     <button class="brand" data-action="home" aria-label="Go to home">
       <span class="brand-mark">間</span>
@@ -53,84 +47,119 @@
     </div>
   </header>
 
-  <main id="top" class="shell home-shell">
-    <section class="home-hero" aria-labelledby="intro-title">
-      <div class="hero-signal" aria-hidden="true">AIDA / 間</div>
-      <div class="hero-copy">
-        <p class="eyebrow motion-reveal">JAPANESE + CANTONESE · TWO SEPARATE TRACKS</p>
-        <div class="hero-mark motion-reveal glitch-mark" data-text="間">間</div>
-        <h1 id="intro-title" class="motion-reveal">Learn both.<br/><span>Never mix the tracks.</span></h1>
-        <p class="intro-text motion-reveal">AIDA keeps Japanese and Cantonese in one place while treating them as separate languages: separate targets, XP, daily goals, review history, and progress. Open a tool from the navigation bar when you are ready to study.</p>
-        <div class="hero-fade-row motion-reveal" aria-label="Available tools">
-          <span>Study</span><span>Review</span><span>Casual</span><span>Usage Lab</span><span>Contexts</span><span>Source Library</span>
-        </div>
+  <main id="top" class="shell">
+    <section class="intro" aria-labelledby="intro-title">
+      <div class="intro-copy">
+        <p class="eyebrow">JAPANESE AND CANTONESE</p>
+        <h1 id="intro-title">Study both languages in one place.<br/><span>Keep them separate.</span></h1>
+        <p class="intro-text">AIDA gives Japanese and Cantonese their own goals, XP, review history, and study sessions. Pick a language, study, and come back to review what you learned.</p>
       </div>
-      <div class="hero-orbit" aria-hidden="true">
-        <i></i><i></i><i></i>
+      <div class="intro-actions split-actions">
+        <button class="btn primary" data-study-language="jp">Study Japanese <span aria-hidden="true">↗</span></button>
+        <button class="btn secondary" data-study-language="yue">Study Cantonese <span aria-hidden="true">↗</span></button>
       </div>
-      <div class="hero-scroll-cue motion-reveal"><span>Use the hotbar above</span><i></i></div>
     </section>
 
-    <section class="home-status" aria-label="Learning overview">
-      <article class="status-card status-jp motion-card motion-reveal" data-track="jp">
-        <div class="status-card-head">
-          <span>01 / 日本語</span>
-          <strong>Japanese</strong>
+    <section class="track-grid" aria-label="Language tracks">
+      <article class="panel track-card" data-track="jp">
+        <div class="panel-head">
+          <div>
+            <span class="section-index">01 / 日本語</span>
+            <h2>Japanese</h2>
+          </div>
+          <button class="text-button" data-study-language="jp">Study ↗</button>
         </div>
-        <div class="status-metrics">
+        <div class="track-stat-row">
           <div><span>Target</span><strong id="jpTargetCard">N5</strong></div>
           <div><span>XP</span><strong id="jpXpCard">0</strong></div>
           <div><span>Mastery</span><strong id="jpProgressValue">0%</strong></div>
         </div>
-        <div class="status-goal">
-          <div><span>Today</span><strong id="jpGoalText">0 / 30 items</strong></div>
+        <div class="goal-block">
+          <div class="goal-copy"><span>Today</span><strong id="jpGoalText">0 / 30 items</strong></div>
           <div class="goal-rail"><i id="jpGoalBar"></i></div>
         </div>
-        <p id="jpScopeText">N5 material only</p>
+        <div class="track-footer">
+          <span id="jpScopeText">N5 material only</span>
+          <button data-library-dataset="japaneseVocabulary">Open Japanese library</button>
+        </div>
       </article>
 
-      <article class="status-card status-yue motion-card motion-reveal" data-track="yue">
-        <div class="status-card-head">
-          <span>02 / 廣東話</span>
-          <strong>Cantonese</strong>
+      <article class="panel track-card" data-track="yue">
+        <div class="panel-head">
+          <div>
+            <span class="section-index">02 / 廣東話</span>
+            <h2>Cantonese</h2>
+          </div>
+          <button class="text-button" data-study-language="yue">Study ↗</button>
         </div>
-        <div class="status-metrics">
+        <div class="track-stat-row">
           <div><span>Target</span><strong id="yueTargetCard">Beginner</strong></div>
           <div><span>XP</span><strong id="yueXpCard">0</strong></div>
           <div><span>Mastery</span><strong id="yueProgressValue">0%</strong></div>
         </div>
-        <div class="status-goal">
-          <div><span>Today</span><strong id="yueGoalText">0 / 30 items</strong></div>
+        <div class="goal-block">
+          <div class="goal-copy"><span>Today</span><strong id="yueGoalText">0 / 30 items</strong></div>
           <div class="goal-rail"><i id="yueGoalBar"></i></div>
         </div>
-        <p id="yueScopeText">Beginner material only</p>
-      </article>
-
-      <article class="status-card status-review motion-card motion-reveal">
-        <div class="status-card-head">
-          <span>03 / REVIEW</span>
-          <strong>Queue</strong>
+        <div class="track-footer">
+          <span id="yueScopeText">Beginner material only</span>
+          <button data-library-dataset="cantoneseVocabulary">Open Cantonese library</button>
         </div>
-        <div class="review-summary status-review-grid">
+      </article>
+    </section>
+
+    <section class="workspace-grid" aria-label="Learning workspace">
+      <article class="panel review-card">
+        <div class="panel-head">
+          <div>
+            <span class="section-index">03</span>
+            <h2>Full review queue</h2>
+          </div>
+          <button class="text-button" data-action="review">Open queue ↗</button>
+        </div>
+        <p class="panel-description">Everything you study stays in the review queue. Due items come first, but you can go back to any card whenever you want.</p>
+        <div class="review-summary">
           <div><strong id="reviewAllCount">0</strong><span>learned</span></div>
           <div><strong id="reviewDueCount">0</strong><span>due now</span></div>
           <div><strong id="reviewJpCount">0</strong><span>Japanese</span></div>
           <div><strong id="reviewYueCount">0</strong><span>Cantonese</span></div>
         </div>
-        <p>Open Review from the hotbar to work through everything you have studied.</p>
+        <div class="review-list" id="reviewList"></div>
+      </article>
+
+      <article class="panel activity-card">
+        <div class="panel-head">
+          <div>
+            <span class="section-index">04</span>
+            <h2>Last 7 days</h2>
+          </div>
+          <button class="text-button" data-action="progress">Details ↗</button>
+        </div>
+        <div class="activity-legend"><span><i class="legend-solid"></i>Japanese</span><span><i class="legend-outline"></i>Cantonese</span></div>
+        <div class="week-chart" id="weekChart" aria-label="Seven day activity chart"></div>
+        <p class="panel-description" id="weeklyProgressText">Start your first study session.</p>
+      </article>
+
+      <article class="panel tools-card">
+        <div class="panel-head">
+          <div>
+            <span class="section-index">05</span>
+            <h2>Tools</h2>
+          </div>
+        </div>
+        <div class="tool-links">
+          <button data-action="usage-lab"><span><strong>Usage Lab</strong><small>Break down a Japanese or Cantonese sentence.</small></span><em>↗</em></button>
+          <button data-action="context-browser"><span><strong>Context browser</strong><small>Find sentences and passages that use a specific word or grammar point.</small></span><em>↗</em></button>
+          <button data-action="data-library"><span><strong>Source Library</strong><small>Search and filter the full grammar and vocabulary library.</small></span><em>↗</em></button>
+          <button data-action="profile"><span><strong>Profile & backup</strong><small>Change your goals and back up your progress.</small></span><em>↗</em></button>
+        </div>
       </article>
     </section>
-
-    <div class="dashboard-runtime" aria-hidden="true">
-      <div id="reviewList"></div>
-      <div id="weekChart"></div>
-      <p id="weeklyProgressText"></p>
-    </div>
   </main>
 
   <footer class="site-footer">
     <span>AIDA / 間</span>
-    <span>Local-first Japanese & Cantonese learning</span>
+    <span>Japanese and Cantonese, kept separate.</span>
   </footer>
 
   <dialog id="dataLibrary" class="base-dialog library-dialog">
@@ -183,7 +212,7 @@
       <div>
         <div class="modal-kicker">CONTEXT BROWSER</div>
         <h2>Sentences & passages by word</h2>
-        <p>Search a word or grammar point, then review verified contexts that actually use it.</p>
+        <p>Search a word or grammar point, then review progressively harder contexts that actually use it.</p>
       </div>
       <button class="modal-close static-close" data-action="close-context-browser" aria-label="Close"><span class="close-icon" aria-hidden="true"></span></button>
     </div>
