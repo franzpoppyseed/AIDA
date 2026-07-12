@@ -1,121 +1,164 @@
-# AIDA V8 functionality map
+# AIDA V9 functionality map
 
-## Separate learning tracks
+## Independent language tracks
 
-Japanese and Cantonese remain independent for target level, XP, daily goal, activity history, SRS/mastery, and review filtering.
+Japanese and Cantonese have separate:
+
+- target ceilings
+- XP
+- daily goals
+- activity history
+- review filtering
+- skill mastery
+- FSRS schedules
+
+## Five learning skills
+
+Each source item can have independent memory state for:
+
+1. Recognition
+2. Production
+3. Listening
+4. Reading comprehension
+5. Grammar
+
+One strong skill does not automatically make the other four “mastered.”
 
 ## Study modes
 
-- Mixed learning
-- Grammar only
-- Vocabulary only
+- Adaptive mixed practice
+- Recognition
+- Production
+- Contextual listening
+- Grammar understanding
+- Vocabulary recognition
 - Sentence comprehension
 - Passage comprehension
 
-Every active vocabulary and grammar source item can participate in sentence and passage practice.
+Adaptive mixed sessions reserve space for every skill family.
 
-## Progressive difficulty
+## Coherent context engine
 
-Japanese:
+Every active vocabulary and grammar item has:
 
-```text
-N5 → N4 → N3 → N2 → N1
-```
+- 3 sentence variations
+- 3 coherent passage variations
 
-Cantonese:
+Passages use a semantic-domain scenario, a target-containing anchor context, and progressive discourse framing. The harder variants require more interpretation and inference rather than simply adding more unrelated sentences.
 
-```text
-Beginner → Intermediate → Advanced
-```
+## Production practice
 
-The selected target is the upper ceiling. Sessions are stratified across allowed bands and ordered from easier to harder. Each source item also has three sentence contexts and three passage variants that advance with repeated exposure.
+The learner sees the meaning and must produce the Japanese or Cantonese sentence before reveal. Typing is optional; speaking aloud is valid. If text is entered, AIDA provides only a surface-form similarity hint. The model answer is then revealed for self-assessment.
 
-## Answer reveal
+## Contextual listening
 
-Before reveal:
+Sentence mode:
 
-- target-language prompt
-- recall/comprehension question
-- pronunciation button
+- transcript hidden
+- replay audio as needed
+- optionally type the meaning, the words heard, or both
+- reveal transcript and answer
+- replay with synchronized highlighting
 
-After reveal:
+Passage mode:
 
-- Japanese reading or Cantonese Jyutping
-- meaning/translation
-- grammar explanation when relevant
-- three context variations for direct vocabulary/grammar cards
-- Again / Hard / Good / Easy
+- complete transcript hidden during the listening phase
+- typed comprehension assessment
+- transcript and translation revealed after completion
+- synchronized replay after assessment
 
-Cantonese Jyutping remains hidden until reveal.
+Cantonese uses ruby annotations so Jyutping sits above the Chinese characters after reveal.
 
-## Passage assessment
+## Passage comprehension
 
-- read target-language passage first
-- answer typed comprehension questions
-- view an advisory local match estimate
-- compare with the reference answer
-- self-confirm correct/incorrect
-- final score maps to SRS rating
-- reading/Jyutping and translation reveal after completion
+Generated questions are discourse-level:
+
+- central detail
+- sequence/purpose
+- change in view
+- evidence/inference
+- context/reasoning
+- implication/summary
+
+The local text matcher is advisory only. The learner makes the final correctness decision after comparing with the reference answer.
+
+## FSRS review scheduling
+
+AIDA vendors `ts-fsrs` and schedules each practiced item × skill independently.
+
+- desired retention: configurable 80%–97%
+- default: 90%
+- Again / Hard / Good / Easy map to FSRS ratings
+- next interval preview appears directly on rating buttons
+- older item-level state migrates into a sensible initial skill
+
+## Review queue
+
+- all encountered base items can be reviewed
+- due items are prioritized
+- the next-due skill determines the review form
+- production reviews prompt production
+- listening reviews hide the transcript
+- reading reviews use sentence/passage context
+- grammar and recognition remain separate
+- drag-and-drop queue reordering remains available
+
+## Progress dashboard
+
+For each language, the dashboard shows independent mastery and due counts for:
+
+- Recognition
+- Production
+- Listening
+- Reading
+- Grammar
+
+It also retains aggregate base-item coverage and XP summaries.
+
+## Context Browser
+
+Search by term, reading, Jyutping, meaning, or grammar item. Review:
+
+- 3 sentence variants
+- 3 coherent passage variants
+- meaningful comprehension questions
+- exact reading-bank matches
+- synchronized context audio
 
 ## Usage Lab
 
-Japanese and Cantonese now use:
-
+- romaji → kana interpretation
 - global dynamic-programming word segmentation
-- a whole-word length score that prevents known words from being split into attractive one-character fragments
-- context-aware sense ranking
-- imported-context overlap
-- nearby semantic-domain reranking for ambiguous homophones
+- whole-word scoring
+- conjugation matching
+- context/corpus overlap
+- grammatical-cue reranking
+- semantic-domain reranking
 - alternative-sense display
-- token-boundary-aware structure and grammar matching
-
-Japanese additionally supports romaji-to-kana interpretation and common conjugation matching.
-
-Examples such as `ashita tomodachi to eki de au`, all-kana `はしでごはんをたべる`, and bridge context `かわにかかるはしをわたる` are explicitly covered by the validation tests.
-
-Multi-sentence input is analyzed sentence by sentence. The result pane scrolls independently and includes sentence jump navigation.
+- token-boundary-aware grammar matching
+- sentence-by-sentence passage analysis
 
 ## Audio
 
-Browser-native path:
+Browser route:
 
 - Japanese browser voice selection
-- Cantonese recognition for `yue-CN`, `yue-HK`, other `yue-*`, and `zh-HK`
-- explicit XiaoMin / 晓敏 and YunSong / 云松 recognition
+- Cantonese `yue-CN`, `yue-HK`, other `yue-*`, and `zh-HK` preference
 - manual voice selectors
-- chunked long-form speech
+- long-form chunking
+- synchronized highlighting when browser boundaries are exposed
+- timing-based synchronization fallback
 
-Hosted fallback path:
+Hosted Cantonese route:
 
 - `api/cantonese-tts.js`
-- same-origin automatic fallback when no browser Cantonese voice is exposed
-- Azure Speech credentials remain in server environment variables rather than frontend JavaScript
-- default hosted voice: `yue-CN-XiaoMinNeural`
-
-## Review
-
-- all learned items, not only due items
-- due items prioritized
-- Japanese/Cantonese filters
-- drag-and-drop queue reordering
-- reading/Jyutping shown only after reveal
-
-## Source Library
-
-- separate Japanese grammar/vocabulary and Cantonese grammar/vocabulary datasets
-- search
-- level filtering
-- category/frequency/collection filtering
-- sorting
+- same-origin fallback
+- Azure credentials remain server-side
+- configurable Cantonese neural voice
 
 ## Progress controls
 
-- local browser persistence
+- browser-local persistence
 - JSON export/import
-- separate language XP and goals
-- clear learning progress with typed `CLEAR` confirmation
-
-## Context browser
-
-A dedicated Contexts tab lets the learner search a vocabulary or grammar item and inspect its sentence and passage variants. Source Library items also link directly into this browser. Cantonese context text uses per-character ruby annotations so Jyutping appears above the Chinese characters.
+- clear progress with typed `CLEAR` confirmation
+- profile targets, goals, and retention setting preserved across clear-progress reset

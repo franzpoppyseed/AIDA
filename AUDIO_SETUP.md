@@ -112,3 +112,15 @@ For the included hosted fallback, deploy the same repository to a platform that 
 ## Security
 
 Do not place `AZURE_SPEECH_KEY` directly in `app.js` or commit it to GitHub. Keep it in deployment environment variables.
+
+## V9 contextual listening and highlighting
+
+V9 uses the selected speech voice for full sentence and passage listening practice.
+
+- Before reveal, the transcript can remain hidden.
+- After reveal, AIDA can replay the transcript with synchronized highlighting.
+- Browser speech uses boundary events when the browser exposes them.
+- When boundary events are unavailable, AIDA uses a token-weighted timing approximation.
+- The hosted Cantonese endpoint currently returns audio only, so highlighting follows audio playback progress rather than word-boundary metadata.
+
+For exact production-grade word timings, the next backend step would be returning Azure Speech word-boundary metadata alongside the audio. The current implementation intentionally provides a robust visual fallback instead of pretending approximate browser timing is exact.

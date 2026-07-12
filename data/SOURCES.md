@@ -21,8 +21,6 @@ Normalized from the user-supplied files:
 - `all.csv` — Japanese
 - `Most Common Cantonese Words (Frequency List) - 40kExport.csv.csv` — Cantonese
 
-One supplemental everyday Japanese item, `うんち`, was added in V7 because it is a concrete learner/parser test case and was explicitly required by the project behavior.
-
 ### Cantonese learner-facing cleanup
 
 The original Cantonese frequency export includes rows that cannot function as useful study cards. V7 excludes 18,566 rows with blank definitions, explicit source deletion/editing markers, or unrecoverable pronunciation data. The excluded records are preserved in `exports/cantonese_vocabulary_excluded.csv` with an `exclusion_reason` column.
@@ -50,7 +48,7 @@ HKCanCor is used for conversational Cantonese context, word segmentation, and Jy
 
 ## Generated context
 
-The application guarantees three progressive sentence contexts and three progressive mini-passage variations for every vocabulary and grammar item by generating deterministic fallback context when fewer than three corpus/bundled examples are available.
+The application guarantees three progressive sentence contexts and three coherent mini-passage variations for every vocabulary and grammar item. Imported or bundled target-containing examples are preferred as anchors; when coverage is incomplete, deterministic original fallback context is used. The V9 passage engine places the anchor inside a semantic-domain scenario with setup, development, and consequence rather than concatenating unrelated example sentences.
 
 Generated fallback text is labeled as AIDA fallback/generated context. It is not represented as corpus-authentic language.
 

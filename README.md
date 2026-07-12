@@ -1,204 +1,150 @@
-# AIDA / 間 — Functional V8 Context Review
+# AIDA / 間 — Functional V9 Learning Engine
 
-A local-first Japanese and Cantonese learning application. Japanese and Cantonese share one website, but remain completely separate learning tracks with separate targets, XP, daily goals, activity, and review history.
+A local-first Japanese and Cantonese learning application. Both languages live on one website, but remain independent tracks with separate targets, XP, daily goals, activity, mastery, and review schedules.
 
-## Exhaustive sentence and passage coverage
+## What V9 adds
 
-The learner-facing source library contains **34,872 vocabulary and grammar items**:
+### 1. Coherent context progression
+
+Every active vocabulary and grammar source item can generate three linked sentence contexts and three coherent mini-passage variants:
+
+```text
+EASIER → BUILD → HARDER
+```
+
+The passage engine no longer creates a “passage” by simply stacking unrelated example sentences. It selects a real/bundled target example where available, assigns a semantic domain, and places the target example inside a scenario with a setup, development, and consequence. Harder variants add reconsideration, evidence, and inference.
+
+Coverage:
 
 - 7,973 Japanese vocabulary items
 - 963 Japanese grammar items
-- 25,869 learner-facing Cantonese vocabulary items
+- 25,869 active Cantonese vocabulary items
 - 67 Cantonese grammar items
+- **34,872 active vocabulary/grammar items total**
+- **104,616 sentence variations**
+- **104,616 coherent item-linked passage variations**
 
-Every one of those source items has runtime access to:
+The three generated passage variants were exhaustively validated for uniqueness and question coverage across all 34,872 active source items.
 
-- **3 sentence variations** ordered **EASIER → BUILD → HARDER**
-- **3 mini-passage variations** that become progressively denser
-- sentence-comprehension practice
-- typed passage-comprehension assessment
+### 2. Five independent memory skills
 
-That is **104,616 sentence variations** and **104,616 item-linked mini-passage variations** available from the source library. The app materializes the context when needed instead of copying 209,232 near-duplicate cards into the repository.
+A source item no longer has one universal “mastery” state. A learner can recognize a word while still being unable to produce it or understand it in speech.
 
-Repeated encounters advance through the three context variants using the source item's SRS exposure count. The target level remains a ceiling, while sessions themselves move from easier bands to harder bands:
+AIDA tracks these independently:
+
+- Recognition
+- Production
+- Listening
+- Reading comprehension
+- Grammar usage/understanding
+
+The Progress dashboard shows a separate mastery and due-review state for each skill in each language.
+
+### 3. FSRS-based scheduling
+
+AIDA now vendors `ts-fsrs` and keeps a separate FSRS memory card for each active item × skill combination. The learner can set desired retention from 80% to 97% in Profile settings. Rating buttons show the predicted next interval before the learner chooses.
+
+Existing V4/V5 item-level progress is migrated into the most sensible initial skill bucket instead of being discarded.
+
+See `LEARNING_ENGINE.md` and `vendor/TS-FSRS-LICENSE.txt`.
+
+### 4. Contextual listening
+
+Listening is now a first-class practice mode rather than only a pronunciation button.
+
+- Sentence listening begins with the transcript hidden.
+- Passage listening begins with the entire transcript hidden.
+- The learner can type the meaning, the words heard, or both before reveal; the local match score is advisory.
+- Revealed text can replay with synchronized word/character highlighting.
+- Cantonese reveal uses Jyutping ruby text over Chinese characters.
+- Context Browser sentence and passage examples can also be played with synchronized highlighting.
+
+Browser speech boundary events are used when exposed. A timed synchronization fallback is used otherwise. For deterministic Cantonese TTS, the included serverless Azure Speech endpoint remains available; see `AUDIO_SETUP.md`.
+
+## Progressive difficulty
+
+The selected target is an upper ceiling, never an exact-only filter.
 
 ```text
 Japanese:  N5 → N4 → N3 → N2 → N1
 Cantonese: Beginner → Intermediate → Advanced
 ```
 
-So an N3 target still progresses N5 → N4 → N3; it does not randomly throw N3 and N5 material together.
+Sessions are sampled from allowed levels and ordered from easier material toward harder material. Repeated encounters with the same source item also rotate through EASIER, BUILD, and HARDER context variants for the skill being practiced.
 
-## Imported and original context
+## Study modes
 
-`data/context_examples.js` contains selected real context where available:
+- Adaptive mixed practice
+- Recognition
+- Production
+- Contextual listening
+- Grammar understanding
+- Vocabulary recognition
+- Sentence comprehension
+- Passage comprehension
 
-- Japanese: selected Japanese–English sentence pairs from the Tatoeba/Tanaka-WWWJDIC export
+Adaptive mixed practice deliberately includes all five memory skills instead of letting the largest vocabulary dataset crowd out listening, production, or reading.
+
+## Comprehension testing
+
+Passage questions test discourse rather than asking for isolated word definitions. Question types include:
+
+- central detail
+- sequence
+- purpose
+- change in viewpoint
+- evidence
+- inference
+- context
+- reasoning
+- implication
+- summary
+
+The learner answers in free text, receives a local match estimate as a hint, compares against a reference answer, and makes the final correct/incorrect judgment.
+
+## Context Browser
+
+The Contexts tab lets the learner search any vocabulary or grammar item and review:
+
+- 3 progressively harder sentence variations
+- 3 progressively harder coherent passage variations
+- meaningful comprehension prompts
+- exact matches from the bundled reading bank where available
+- synchronized sentence and passage audio
+
+Cantonese Jyutping appears above Chinese characters with ruby annotation.
+
+## Usage Lab
+
+Usage Lab uses global dynamic-programming segmentation, conjugation handling, imported-context overlap, nearby grammatical evidence, semantic-domain reranking, and alternative-sense display. It remains an offline heuristic parser rather than a neural dependency parser, but it uses whole-sentence context instead of accepting the first dictionary match.
+
+## Data and imported context
+
+`data/context_examples.js` contains selected context where available:
+
+- Japanese: selected Japanese–English pairs from the Tatoeba/Tanaka-WWWJDIC export
 - Cantonese: selected conversational utterances from HKCanCor via PyCantonese
 
-Coverage before deterministic fallback:
+Generated/original fallback material is identified as AIDA content rather than corpus-authentic text. Third-party attribution is in `THIRD_PARTY_CONTEXT_LICENSES.md`.
 
-- 6,991 / 7,973 Japanese vocabulary items have imported context
-- 742 / 963 Japanese grammar items have imported corpus context
-- all 963 Japanese grammar items have at least three non-meta usage contexts after 221 uncovered grammar points received original AIDA-written examples
-- 24,927 / 25,869 active Cantonese vocabulary items have bundled examples
-- 4,224 / 25,869 have HKCanCor context
-- 25,130 / 25,869 have bundled examples, HKCanCor context, or both
+## Cantonese audio
 
-Fallback material is explicitly identified as AIDA-generated/original context. It is not presented as corpus-authentic text.
-
-## Cantonese cleanup and Jyutping
-
-The raw Cantonese export contained **18,566 rows that could not function as reliable study cards**: blank definitions, explicit deletion/edit artifacts, or unrecoverable pronunciation data. Those rows remain available for audit in:
-
-```text
-exports/cantonese_vocabulary_excluded.csv
-```
-
-All **25,869 active Cantonese vocabulary items** now have a learner-visible pronunciation/Jyutping field, and all bundled Cantonese examples shown by the app have usable pronunciation data.
-
-For Cantonese study and review:
-
-- the prompt remains clean before reveal
-- Jyutping appears only after reveal
-- context variations reveal their Jyutping
-- passage Jyutping appears after completing the assessment
-
-## Usage Lab parser
-
-The Usage Lab no longer uses greedy left-to-right matching. It now combines:
-
-- Japanese romaji → kana interpretation
-- global dynamic-programming segmentation
-- a strongly super-additive whole-word score to prevent known words from being broken into attractive one-character matches
-- dictionary-form and common conjugation matching
-- candidate ranking by frequency/level, particles, word type, imported context overlap, and nearby semantic domains
-- a second contextual reranking pass for ambiguous homophones
-- conservative grammar matching with token-boundary checks so particles inside ordinary words do not trigger false grammar matches
-- alternative-sense display when the parser is not certain
-
-Examples now handled correctly:
-
-```text
-ashita tomodachi to eki de au
-→ あしたともだちとえきであう
-→ あした / ともだち / と / えき / で / あう
-```
-
-```text
-はしでごはんをたべる
-→ 箸 / で / 御飯 / を / 食べる
-```
-
-```text
-かわにかかるはしをわたる
-→ 川 / に / かかる / 橋 / を / 渡る
-```
-
-For Cantonese, question-final context can also stop a longer statement-only lexical chunk from swallowing a genuine final particle, so context such as `點解你冇嚟嘅？` keeps the relevant final `嘅` sense visible.
-
-This remains an offline heuristic parser rather than a full neural morphological/dependency model, but it now uses the surrounding sentence rather than only the first dictionary match.
-
-## Cantonese audio: browser voice + hosted fallback
-
-AIDA now has two Cantonese speech paths.
-
-### 1. Browser-native, no key
-
-It recognizes and prioritizes:
-
-1. `yue-CN`
-2. `yue-HK`
-3. other `yue-*` voices
-4. `zh-HK`
-
-It explicitly recognizes names such as Microsoft XiaoMin / 晓敏 and YunSong / 云松. Profile → Audio setup includes manual Japanese and Cantonese selectors.
-
-### 2. Deterministic hosted fallback
-
-The project now includes:
+AIDA prioritizes genuine Cantonese/Hong Kong browser voices and supports a hosted same-origin fallback:
 
 ```text
 api/cantonese-tts.js
-vercel.json
 ```
 
-When the browser exposes no genuine Cantonese voice, AIDA automatically tries `/api/cantonese-tts`. The included serverless function uses Azure Speech with `yue-CN-XiaoMinNeural` by default and keeps the API key off the public frontend.
+For reliable cross-device Cantonese audio, deploy with the serverless endpoint and configure the environment variables documented in `AUDIO_SETUP.md`.
 
-Set these deployment environment variables:
+## Local progress
 
-```text
-AZURE_SPEECH_KEY
-AZURE_SPEECH_REGION
-AZURE_CANTONESE_VOICE   # optional; defaults to yue-CN-XiaoMinNeural
-```
+The site stores progress in the browser and supports:
 
-See `AUDIO_SETUP.md` for deployment steps. On plain GitHub Pages the serverless endpoint does not run, so the site falls back to browser speech only.
+- JSON export/import
+- clear-progress confirmation
+- separate Japanese/Cantonese XP
+- independent skill-level FSRS histories
+- preserved profile targets and daily goals when progress is cleared
 
-## Existing behavior retained
-
-- Separate Japanese and Cantonese targets, XP, daily goals, and progress
-- Cumulative target scopes
-- Answer and rating controls hidden until reveal
-- Typed passage-comprehension assessment
-- Full review queue with drag-and-drop ordering
-- Searchable, filterable, sortable Source Library
-- Clear progress with typed `CLEAR` confirmation
-- Local JSON progress export/import
-
-## Persistence
-
-Progress is stored in browser `localStorage` under:
-
-```text
-aida.functional.v3.state
-```
-
-## Run locally
-
-From inside this folder:
-
-```bash
-python -m http.server 8000
-```
-
-Then open:
-
-```text
-http://localhost:8000/
-```
-
-The local static server supports all learning features and browser-native speech. The hosted Cantonese TTS route requires a serverless deployment such as Vercel.
-
-## Project structure
-
-```text
-AIDA_FUNCTIONAL_V3/
-├── index.html
-├── styles.css
-├── app.js
-├── vercel.json
-├── api/
-│   └── cantonese-tts.js
-├── AUDIO_SETUP.md
-├── CONTEXT_COVERAGE.md
-├── THIRD_PARTY_CONTEXT_LICENSES.md
-├── assets/
-├── data/
-│   ├── japanese_grammar.js
-│   ├── japanese_vocabulary.js
-│   ├── cantonese_grammar.js
-│   ├── cantonese_vocabulary.js
-│   ├── comprehension.js
-│   ├── reading_passages.js
-│   ├── context_examples.js
-│   ├── manifest.json
-│   └── SOURCES.md
-├── exports/
-├── FUNCTIONALITY.md
-└── README.md
-```
-
-## V8 context review
-
-The **Contexts** workspace lets you search any Japanese or Cantonese vocabulary or grammar item and review three progressively harder sentence variations plus three passage variations built around that item. Passage cards use comprehension prompts about events, details, development, and summary rather than isolated “what does this word mean?” questions. Cantonese contexts display Jyutping directly above Han characters with ruby annotations.
+No fake local username/password system is included because browser-only credentials would not provide real account security or cross-device account retrieval.

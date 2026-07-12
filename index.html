@@ -271,9 +271,12 @@
           </div>
           <label>Session focus
             <select id="studyFocus">
-              <option value="mixed">Mixed learning</option>
-              <option value="grammar">Grammar only</option>
-              <option value="vocabulary">Vocabulary only</option>
+              <option value="mixed">Adaptive mixed practice</option>
+              <option value="recognition">Recognition</option>
+              <option value="production">Production</option>
+              <option value="listening">Contextual listening</option>
+              <option value="grammar">Grammar understanding</option>
+              <option value="vocabulary">Vocabulary recognition</option>
               <option value="sentences">Sentence comprehension</option>
               <option value="passages">Passage comprehension</option>
             </select>
@@ -290,6 +293,7 @@
         <article class="study-card panel-lite">
           <div class="study-card-top">
             <span id="studyItemType">VOCABULARY</span>
+            <span id="studySkillBadge" class="study-skill-badge">RECOGNITION</span>
             <span id="studyItemLevel">N5</span>
           </div>
 
@@ -299,10 +303,27 @@
                 <div class="study-lang-label" id="studyLanguageLabel">日本語 · JAPANESE</div>
                 <h3 id="studyMain"></h3>
                 <p id="studyQuestion" class="study-question"></p>
+                <div id="listeningChallenge" class="listening-challenge hidden">
+                  <div class="listening-pulse" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+                  <strong>Listen first. The transcript is hidden.</strong>
+                  <small>Replay as needed. Type what you understood in English or the target language, then reveal.</small>
+                  <label class="listening-response-label" for="listeningResponse">What did you understand?</label>
+                  <textarea id="listeningResponse" class="listening-response" rows="3" autocomplete="off" spellcheck="false" placeholder="Type the meaning, the words you heard, or both…"></textarea>
+                  <div id="listeningMatch" class="production-match hidden"></div>
+                </div>
+                <div id="productionChallenge" class="production-challenge hidden">
+                  <label for="productionInput">Your answer <small>Optional — speaking aloud also counts</small></label>
+                  <textarea id="productionInput" rows="3" autocomplete="off" spellcheck="false" placeholder="Type the target-language sentence before revealing…"></textarea>
+                  <div id="productionMatch" class="production-match hidden"></div>
+                </div>
                 <button class="speak-btn" id="speakCurrent">Play pronunciation</button>
                 <div id="studyRevealHint" class="reveal-hint"><span>Click card to reveal</span><i>↘</i></div>
               </div>
               <div id="studyAnswer" class="study-card-answer hidden">
+                <div id="studySyncTranscript" class="sync-transcript-wrap hidden">
+                  <div class="sync-transcript-head"><span>Transcript</span><button type="button" class="speak-btn compact-audio" id="replaySyncTranscript">Replay with highlighting</button></div>
+                  <div id="studySyncTranscriptText" class="sync-transcript"></div>
+                </div>
                 <div id="studyReadingBlock" class="answer-reading hidden">
                   <span id="studyReadingLabel">Reading</span>
                   <div id="studyReading" class="study-reading"></div>
@@ -324,7 +345,12 @@
 
           <section id="passageStudyExperience" class="passage-assessment hidden" aria-live="polite">
             <div class="passage-reading-stage" id="passageReadingStage">
-              <div class="passage-test-kicker">READ FIRST · NO TRANSLATION</div>
+              <div class="passage-test-kicker" id="passageStageKicker">READ FIRST · NO TRANSLATION</div>
+              <div id="passageListeningPrompt" class="passage-listening-prompt hidden">
+                <div class="listening-pulse large" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+                <strong>Transcript hidden during the listening assessment</strong>
+                <small>Replay the full passage as often as needed before answering.</small>
+              </div>
               <p id="passageText" class="passage-test-text"></p>
               <div class="passage-read-actions">
                 <button class="speak-btn" id="speakPassage">Play passage audio</button>
@@ -334,9 +360,10 @@
             </div>
 
             <div class="passage-question-stage hidden" id="passageQuestionStage">
-              <details class="passage-reference" open>
-                <summary>Passage</summary>
+              <details class="passage-reference" open id="passageReferenceDetails">
+                <summary id="passageReferenceSummary">Passage</summary>
                 <p id="passageReferenceText"></p>
+                <button type="button" class="speak-btn compact-audio hidden" id="replayListeningPassage">Replay audio</button>
               </details>
               <div class="passage-question-progress">
                 <span id="passageQuestionCount">Question 1 of 3</span>
@@ -363,6 +390,10 @@
               <div class="passage-score-orb" id="passageScoreOrb">0%</div>
               <h4>Passage complete</h4>
               <p id="passageResultSummary"></p>
+              <div id="passageResultTranscriptWrap" class="passage-result-transcript hidden">
+                <div class="sync-transcript-head"><span>Transcript</span><button type="button" class="speak-btn compact-audio" id="replayPassageResult">Replay with highlighting</button></div>
+                <div id="passageResultTranscript" class="sync-transcript passage-sync-transcript"></div>
+              </div>
               <div class="passage-review-reveal">
                 <div><span id="passageResultReadingLabel">Reading</span><p id="passageResultReading"></p></div>
                 <div><span>Translation</span><p id="passageResultTranslation"></p></div>
@@ -505,6 +536,10 @@
           <input id="yueDailyGoalInput" type="number" min="1" step="1" inputmode="numeric"/>
         </label>
       </fieldset>
+      <label class="full-row retention-control">FSRS desired retention
+        <div class="retention-input-row"><input id="fsrsRetentionInput" type="range" min="80" max="97" step="1" value="90"/><output id="fsrsRetentionValue">90%</output></div>
+        <small>Higher retention means more frequent reviews. 90% is a strong default.</small>
+      </label>
     </div>
 
 
@@ -568,6 +603,7 @@
   <script src="data/comprehension.js"></script>
   <script src="data/reading_passages.js"></script>
   <script src="data/context_examples.js"></script>
+  <script src="vendor/ts-fsrs.umd.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

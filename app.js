@@ -28,6 +28,15 @@
   const YUE_LEVELS = ["Beginner", "Intermediate", "Advanced"];
   const YUE_VOCAB_LIMITS = { Beginner: 3000, Intermediate: 12000, Advanced: Infinity };
   const XP_AWARDS = { 1: 2, 2: 5, 4: 9, 5: 12 };
+  const SKILLS = ["recognition", "production", "listening", "reading", "grammar"];
+  const SKILL_LABELS = {
+    recognition: "Recognition",
+    production: "Production",
+    listening: "Listening",
+    reading: "Reading",
+    grammar: "Grammar"
+  };
+  const UI_TO_FSRS_RATING = { 1: 1, 2: 2, 4: 3, 5: 4 };
 
   const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
   const normalize = value => String(value ?? "").normalize("NFKC").toLocaleLowerCase();
@@ -69,17 +78,21 @@
 
   function defaultState() {
     return {
-      version: 5,
+      version: 6,
       profile: {
         name: "Learner",
         jpTarget: "N5",
         yueTarget: "Beginner",
         jpDailyGoal: 30,
-        yueDailyGoal: 30
+        yueDailyGoal: 30,
+        fsrsRetention: 0.90
       },
       xp: { jp: 0, yue: 0 },
       activity: { jp: {}, yue: {} },
+      // Item-level aggregate kept for fast dashboards and backwards-compatible exports.
       srs: {},
+      // Independent memory states. One source item can have several active skill cards.
+      skillSrs: {},
       sessions: { jp: 0, yue: 0 },
       answers: {
         jp: { correct: 0, wrong: 0 },
@@ -91,12 +104,67 @@
     };
   }
 
+  function legacySkillForKey(key) {
+    if (/^(jp|yue)G:/.test(key)) return "grammar";
+    if (/^(jp|yue)[SP]:/.test(key)) return "reading";
+    return "recognition";
+  }
+
+  function serializeFsrsCard(card) {
+    if (!card) return null;
+    return {
+      ...card,
+      due: card.due instanceof Date ? card.due.getTime() : Number(card.due) || Date.now(),
+      last_review: card.last_review instanceof Date ? card.last_review.getTime() : (card.last_review ? Number(card.last_review) : null)
+    };
+  }
+
+  function hydrateFsrsCard(card) {
+    if (!card) return null;
+    return {
+      ...card,
+      due: new Date(Number(card.due) || Date.now()),
+      last_review: card.last_review ? new Date(Number(card.last_review)) : undefined
+    };
+  }
+
+  function legacyRecordFromAggregate(srs) {
+    const seen = Number(srs?.seen) || Number(srs?.reps) || 0;
+    if (!seen) return null;
+    const interval = Math.max(0.001, Number(srs?.interval) || 0.2);
+    const last = Number(srs?.last) || Date.now();
+    const due = Number(srs?.due) || (last + interval * DAY);
+    const card = {
+      due,
+      stability: Math.max(0.2, interval),
+      difficulty: clamp(6 - ((Number(srs?.ease) || 2.5) - 2.5) * 1.8, 1, 10),
+      elapsed_days: 0,
+      scheduled_days: Math.max(0, Math.round(interval)),
+      reps: Number(srs?.reps) || seen,
+      lapses: Number(srs?.wrong) || 0,
+      learning_steps: 0,
+      state: (Number(srs?.reps) || 0) > 0 ? 2 : 1,
+      last_review: last
+    };
+    return {
+      card,
+      seen,
+      correct: Number(srs?.correct) || 0,
+      wrong: Number(srs?.wrong) || 0,
+      mastery: Number(srs?.mastery) || 0,
+      last,
+      lastRating: srs?.lastRating ?? null,
+      history: []
+    };
+  }
+
   function migrateState(raw) {
     const fresh = defaultState();
     if (!raw || typeof raw !== "object") return fresh;
 
-    if (raw.version === 5 || raw.version === 4) {
-      return {
+    // V4/V5 already had independent language tracks but only one memory score per item.
+    if ([4, 5, 6].includes(raw.version)) {
+      const migrated = {
         ...fresh,
         ...raw,
         profile: { ...fresh.profile, ...(raw.profile || {}) },
@@ -105,14 +173,24 @@
           jp: { ...(raw.activity?.jp || {}) },
           yue: { ...(raw.activity?.yue || {}) }
         },
+        srs: { ...(raw.srs || {}) },
+        skillSrs: { ...(raw.skillSrs || {}) },
         sessions: { ...fresh.sessions, ...(raw.sessions || {}) },
         answers: {
           jp: { ...fresh.answers.jp, ...(raw.answers?.jp || {}) },
           yue: { ...fresh.answers.yue, ...(raw.answers?.yue || {}) }
         },
         audio: { ...fresh.audio, ...(raw.audio || {}) },
-        version: 5
+        version: 6
       };
+      if (!Object.keys(migrated.skillSrs).length) {
+        Object.entries(migrated.srs).forEach(([key, srs]) => {
+          const record = legacyRecordFromAggregate(srs);
+          if (record) migrated.skillSrs[key] = { [legacySkillForKey(key)]: record };
+        });
+      }
+      migrated.profile.fsrsRetention = clamp(Number(migrated.profile.fsrsRetention) || 0.90, 0.80, 0.97);
+      return migrated;
     }
 
     // Version 3 used paired Japanese/Cantonese sessions, one shared XP total,
@@ -125,8 +203,7 @@
       splitActivity.jp[date] = Math.ceil(count / 2);
       splitActivity.yue[date] = Math.floor(count / 2);
     });
-
-    return {
+    const migrated = {
       ...fresh,
       profile: {
         ...fresh.profile,
@@ -154,6 +231,11 @@
         }
       }
     };
+    Object.entries(migrated.srs).forEach(([key, srs]) => {
+      const record = legacyRecordFromAggregate(srs);
+      if (record) migrated.skillSrs[key] = { [legacySkillForKey(key)]: record };
+    });
+    return migrated;
   }
 
   function loadState() {
@@ -165,6 +247,25 @@
   }
 
   let state = loadState();
+  let fsrsSchedulerCache = null;
+  let fsrsSchedulerRetention = null;
+
+  function fsrsScheduler() {
+    const retention = clamp(Number(state.profile?.fsrsRetention) || 0.90, 0.80, 0.97);
+    if (!window.FSRS?.fsrs) return null;
+    if (!fsrsSchedulerCache || fsrsSchedulerRetention !== retention) {
+      fsrsSchedulerRetention = retention;
+      fsrsSchedulerCache = window.FSRS.fsrs({
+        request_retention: retention,
+        maximum_interval: 36500,
+        enable_fuzz: true,
+        enable_short_term: true,
+        learning_steps: ["1m", "10m"],
+        relearning_steps: ["10m"]
+      });
+    }
+    return fsrsSchedulerCache;
+  }
 
   function saveState() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
@@ -193,14 +294,140 @@
     return itemKey(base.kind, base.item);
   }
 
-  function scheduleEntry(entry, rating) {
+  function skillsForEntry(entry) {
+    const explicit = entry?.studySkills || entry?.item?.studySkills;
+    if (Array.isArray(explicit) && explicit.length) return [...new Set(explicit.filter(skill => SKILLS.includes(skill)))];
+    const mode = entry?.practiceMode || entry?.item?.practiceMode || entry?.contextMode;
     const base = sourceEntryFor(entry);
-    return schedule(base.kind, base.item, rating);
+    if (mode === "listening" || mode === "listening-sentence" || mode === "listening-passage") return ["listening"];
+    if (mode === "production") return base.kind.endsWith("G") ? ["production", "grammar"] : ["production"];
+    if (entry?.kind?.endsWith("S") || entry?.kind?.endsWith("P")) return ["reading"];
+    if (base.kind.endsWith("G")) return ["grammar"];
+    return ["recognition"];
+  }
+
+  function primarySkillForEntry(entry) {
+    return skillsForEntry(entry)[0] || "recognition";
+  }
+
+  function emptySkillRecord() {
+    return { card: null, seen: 0, correct: 0, wrong: 0, mastery: 0, last: 0, lastRating: null, history: [] };
+  }
+
+  function skillRecordFor(key, skill, create = false) {
+    const bucket = state.skillSrs[key];
+    if (bucket?.[skill]) return bucket[skill];
+    if (!create) return null;
+    state.skillSrs[key] ||= {};
+    state.skillSrs[key][skill] = emptySkillRecord();
+    return state.skillSrs[key][skill];
+  }
+
+  function cardMastery(record) {
+    if (!record?.seen || !record.card) return 0;
+    const card = hydrateFsrsCard(record.card);
+    const scheduler = fsrsScheduler();
+    let retrievability = 0.75;
+    try {
+      if (scheduler && card?.state !== 0) retrievability = Number(scheduler.get_retrievability(card, new Date(), false));
+    } catch { /* use conservative fallback */ }
+    if (!Number.isFinite(retrievability)) retrievability = 0.75;
+    const stability = Math.max(0, Number(card?.stability) || 0);
+    const stabilityStrength = 1 - Math.exp(-stability / 21);
+    return clamp(Math.round((retrievability * 0.58 + stabilityStrength * 0.42) * 100), 0, 100);
+  }
+
+  function fallbackScheduleCard(record, rating, now = Date.now()) {
+    const previous = record.card || {};
+    const reps = (Number(previous.reps) || 0) + 1;
+    const oldStability = Math.max(0.2, Number(previous.stability) || 0.2);
+    const multipliers = { 1: 0.35, 2: 1.2, 4: 2.4, 5: 4.5 };
+    const stability = rating === 1 ? Math.max(0.2, oldStability * 0.35) : Math.max(0.5, oldStability * (multipliers[rating] || 2));
+    const intervalDays = rating === 1 ? 1 / 1440 : rating === 2 ? 10 / 1440 : Math.max(1, Math.round(stability * (rating === 5 ? 1.35 : 0.9)));
+    return {
+      due: now + intervalDays * DAY,
+      stability,
+      difficulty: clamp((Number(previous.difficulty) || 5) + (rating === 1 ? 0.6 : rating === 2 ? 0.15 : rating === 5 ? -0.25 : -0.08), 1, 10),
+      elapsed_days: 0,
+      scheduled_days: Math.max(0, Math.round(intervalDays)),
+      reps,
+      lapses: (Number(previous.lapses) || 0) + (rating === 1 ? 1 : 0),
+      learning_steps: 0,
+      state: intervalDays >= 1 ? 2 : 1,
+      last_review: now
+    };
+  }
+
+  function scheduleSkill(key, skill, rating) {
+    const record = { ...emptySkillRecord(), ...(skillRecordFor(key, skill, true) || {}) };
+    const now = new Date();
+    const scheduler = fsrsScheduler();
+    let nextCard;
+    if (scheduler && window.FSRS?.createEmptyCard) {
+      try {
+        const currentCard = record.card ? hydrateFsrsCard(record.card) : window.FSRS.createEmptyCard();
+        nextCard = scheduler.next(currentCard, now, UI_TO_FSRS_RATING[rating] || window.FSRS.Rating.Good).card;
+      } catch (error) {
+        console.warn("FSRS scheduling fallback", error);
+        nextCard = fallbackScheduleCard(record, rating, now.getTime());
+      }
+    } else nextCard = fallbackScheduleCard(record, rating, now.getTime());
+
+    record.card = serializeFsrsCard(nextCard);
+    record.seen = (Number(record.seen) || 0) + 1;
+    record.correct = (Number(record.correct) || 0) + (rating > 1 ? 1 : 0);
+    record.wrong = (Number(record.wrong) || 0) + (rating <= 1 ? 1 : 0);
+    record.last = now.getTime();
+    record.lastRating = rating;
+    record.mastery = cardMastery(record);
+    record.history = [...(record.history || []), { at: now.getTime(), rating, due: Number(record.card?.due) || now.getTime(), stability: Number(record.card?.stability) || 0, difficulty: Number(record.card?.difficulty) || 0 }].slice(-60);
+    state.skillSrs[key][skill] = record;
+    return record;
+  }
+
+  function aggregateSrsForKey(key) {
+    const records = Object.values(state.skillSrs[key] || {}).filter(record => (Number(record?.seen) || 0) > 0);
+    if (!records.length) return state.srs[key] || null;
+    const lastRecord = [...records].sort((a, b) => (Number(b.last) || 0) - (Number(a.last) || 0))[0];
+    const dueValues = records.map(record => Number(record.card?.due) || Date.now());
+    const aggregate = {
+      interval: Math.max(0, ...records.map(record => Number(record.card?.scheduled_days) || 0)),
+      reps: records.reduce((sum, record) => sum + (Number(record.card?.reps) || 0), 0),
+      due: Math.min(...dueValues),
+      seen: records.reduce((sum, record) => sum + (Number(record.seen) || 0), 0),
+      correct: records.reduce((sum, record) => sum + (Number(record.correct) || 0), 0),
+      wrong: records.reduce((sum, record) => sum + (Number(record.wrong) || 0), 0),
+      mastery: Math.round(records.reduce((sum, record) => sum + (Number(record.mastery) || 0), 0) / records.length),
+      last: Number(lastRecord?.last) || 0,
+      lastRating: lastRecord?.lastRating ?? null,
+      skills: Object.keys(state.skillSrs[key] || {}).filter(skill => (state.skillSrs[key][skill]?.seen || 0) > 0)
+    };
+    state.srs[key] = aggregate;
+    return aggregate;
+  }
+
+  function refreshAllAggregates() {
+    Object.keys(state.skillSrs || {}).forEach(aggregateSrsForKey);
+  }
+
+  refreshAllAggregates();
+
+  function scheduleEntry(entry, rating, options = {}) {
+    const base = sourceEntryFor(entry);
+    const key = itemKey(base.kind, base.item);
+    const skills = skillsForEntry(entry);
+    skills.forEach(skill => scheduleSkill(key, skill, rating));
+    const aggregate = aggregateSrsForKey(key);
+    if (options.award !== false) {
+      const lang = langFromKind(base.kind);
+      state.xp[lang] += XP_AWARDS[rating] || 0;
+      markActivity(lang, 1);
+    }
+    return aggregate;
   }
 
   function srsFor(key) {
     return state.srs[key] || {
-      ease: 2.5,
       interval: 0,
       reps: 0,
       due: Date.now(),
@@ -209,7 +436,8 @@
       wrong: 0,
       mastery: 0,
       last: 0,
-      lastRating: null
+      lastRating: null,
+      skills: []
     };
   }
 
@@ -218,48 +446,9 @@
     state.activity[lang][key] = (state.activity[lang][key] || 0) + points;
   }
 
+  // Compatibility wrapper for older internal call sites.
   function schedule(kind, item, rating) {
-    const key = itemKey(kind, item);
-    const srs = { ...srsFor(key) };
-    const lang = langFromKind(kind);
-
-    srs.seen += 1;
-    srs.last = Date.now();
-    srs.lastRating = rating;
-
-    if (rating <= 1) {
-      srs.reps = 0;
-      srs.interval = 0.007;
-      srs.ease = Math.max(1.3, srs.ease - 0.2);
-      srs.wrong += 1;
-    } else if (rating === 2) {
-      srs.reps += 1;
-      srs.interval = srs.reps <= 1 ? 0.5 : Math.max(1, srs.interval * 1.2);
-      srs.ease = Math.max(1.3, srs.ease - 0.08);
-      srs.correct += 1;
-    } else if (rating === 4) {
-      srs.reps += 1;
-      srs.interval = srs.reps === 1 ? 1 : srs.reps === 2 ? 3 : Math.max(3, srs.interval * srs.ease);
-      srs.ease += 0.02;
-      srs.correct += 1;
-    } else {
-      srs.reps += 1;
-      srs.interval = srs.reps === 1 ? 3 : srs.reps === 2 ? 7 : Math.max(7, srs.interval * srs.ease * 1.35);
-      srs.ease += 0.08;
-      srs.correct += 1;
-    }
-
-    srs.mastery = clamp(
-      Math.round((srs.reps * 12) + (srs.ease - 1.3) * 22 - Math.min(30, srs.wrong * 4)),
-      0,
-      100
-    );
-    srs.due = Date.now() + srs.interval * DAY;
-
-    state.srs[key] = srs;
-    state.xp[lang] += XP_AWARDS[rating] || 0;
-    markActivity(lang, 1);
-    return srs;
+    return scheduleEntry({ kind, item }, rating);
   }
 
   function learnedEntries(lang = "all") {
@@ -275,10 +464,84 @@
       .sort((a, b) => a.srs.due - b.srs.due);
   }
 
+  function skillMasteryForKey(key, skill) {
+    return Number(skillRecordFor(key, skill)?.mastery) || 0;
+  }
+
+  function languageSkillMastery(lang, skill) {
+    const prefix = lang === "jp" ? "jp" : "yue";
+    const records = Object.entries(state.skillSrs || {})
+      .filter(([key]) => key.startsWith(prefix))
+      .map(([, bucket]) => bucket?.[skill])
+      .filter(record => (record?.seen || 0) > 0);
+    if (!records.length) return 0;
+    return Math.round(records.reduce((sum, record) => sum + (Number(record.mastery) || 0), 0) / records.length);
+  }
+
   function languageMastery(lang) {
-    const entries = learnedEntries(lang);
-    if (!entries.length) return 0;
-    return Math.round(entries.reduce((sum, entry) => sum + (entry.srs.mastery || 0), 0) / entries.length);
+    const activeSkills = SKILLS.map(skill => languageSkillMastery(lang, skill)).filter(value => value > 0);
+    if (!activeSkills.length) return 0;
+    return Math.round(activeSkills.reduce((sum, value) => sum + value, 0) / activeSkills.length);
+  }
+
+  function dueSkillForKey(key) {
+    const now = Date.now();
+    const records = Object.entries(state.skillSrs[key] || {})
+      .filter(([, record]) => (record?.seen || 0) > 0)
+      .map(([skill, record]) => ({ skill, record, due: Number(record.card?.due) || now, mastery: Number(record.mastery) || 0 }));
+    if (!records.length) return "recognition";
+    records.sort((a, b) => {
+      const aDue = a.due <= now ? 0 : 1;
+      const bDue = b.due <= now ? 0 : 1;
+      if (aDue !== bDue) return aDue - bDue;
+      if (a.due !== b.due) return a.due - b.due;
+      return a.mastery - b.mastery;
+    });
+    return records[0].skill;
+  }
+
+  function formatDueInterval(ms) {
+    const minutes = Math.max(1, Math.round(ms / 60000));
+    if (minutes < 60) return `${minutes}m`;
+    const hours = Math.round(minutes / 60);
+    if (hours < 24) return `${hours}h`;
+    const days = Math.round(hours / 24);
+    if (days < 30) return `${days}d`;
+    const months = Math.round(days / 30);
+    if (months < 24) return `${months}mo`;
+    return `${Math.round(months / 12)}y`;
+  }
+
+  function fsrsRatingPreview(entry, skill = primarySkillForEntry(entry)) {
+    const base = sourceEntryFor(entry);
+    const key = itemKey(base.kind, base.item);
+    const record = skillRecordFor(key, skill);
+    const scheduler = fsrsScheduler();
+    const now = new Date();
+    const fallback = { 1: "1m", 2: "10m", 4: "1d", 5: "4d" };
+    if (!scheduler || !window.FSRS?.createEmptyCard) return fallback;
+    try {
+      const card = record?.card ? hydrateFsrsCard(record.card) : window.FSRS.createEmptyCard();
+      const preview = scheduler.repeat(card, now);
+      return {
+        1: formatDueInterval(preview[window.FSRS.Rating.Again].card.due - now),
+        2: formatDueInterval(preview[window.FSRS.Rating.Hard].card.due - now),
+        4: formatDueInterval(preview[window.FSRS.Rating.Good].card.due - now),
+        5: formatDueInterval(preview[window.FSRS.Rating.Easy].card.due - now)
+      };
+    } catch {
+      return fallback;
+    }
+  }
+
+  function renderRatingPreviews(entry, selector = "[data-rating]") {
+    const preview = fsrsRatingPreview(entry);
+    const labels = { 1: "Again", 2: "Hard", 4: "Good", 5: "Easy" };
+    $$(selector).forEach(button => {
+      const rating = Number(button.dataset.rating || button.dataset.reviewRating);
+      if (!rating) return;
+      button.innerHTML = `<span>${labels[rating]}</span><small>${escapeHtml(preview[rating] || "")}</small>`;
+    });
   }
 
   function streak() {
@@ -715,85 +978,295 @@
     };
   }
 
+  function deterministicHash(value) {
+    let hash = 2166136261;
+    for (const char of String(value || "")) {
+      hash ^= char.codePointAt(0);
+      hash = Math.imul(hash, 16777619);
+    }
+    return Math.abs(hash >>> 0);
+  }
+
+  const COHERENT_SCENES = {
+    jp: {
+      general: { text: "今日、身近な出来事について考えることがありました。", translation: "Today, something in everyday life gave me a reason to think." },
+      food: { text: "昼ごろ、友達と食事の話をしていました。", translation: "Around noon, I was talking with a friend about food." },
+      movement: { text: "出かける前に、今日の予定を確認しました。", translation: "Before going out, I checked today's plans." },
+      people: { text: "友達と話していると、ある出来事の話になりました。", translation: "While talking with a friend, the conversation turned to something that had happened." },
+      time: { text: "予定を確認していると、時間の使い方が話題になりました。", translation: "While checking the schedule, we started talking about how time was being used." },
+      work: { text: "仕事が終わったあと、今日の出来事を振り返りました。", translation: "After work, I looked back on what had happened that day." },
+      body: { text: "体調のことが気になって、少し立ち止まって考えました。", translation: "I was concerned about my condition, so I stopped to think for a moment." },
+      money: { text: "買い物の前に、何を優先するか考えていました。", translation: "Before shopping, I was thinking about what to prioritize." },
+      communication: { text: "会話の途中で、言葉の受け取り方について考えることがありました。", translation: "During a conversation, I found myself thinking about how words can be understood." },
+      home: { text: "家で過ごしているとき、身近なことが話題になりました。", translation: "While spending time at home, an everyday matter came up." },
+      nature: { text: "外の様子を見ながら、その日の出来事について話していました。", translation: "While looking outside, we talked about what had happened that day." }
+    },
+    yue: {
+      general: { text: "今日有件身邊嘅事令我停低諗咗一陣。", reading: "gam1 jat6 jau5 gin6 san1 bin1 ge3 si6 ling6 ngo5 ting4 dai1 nam2 zo2 jat1 zan6.", translation: "Something close to me today made me stop and think for a while." },
+      food: { text: "中午嗰陣，我同朋友傾緊食嘢嘅事。", reading: "zung1 ng5 go2 zan6, ngo5 tung4 pang4 jau5 king1 gan2 sik6 je5 ge3 si6.", translation: "Around noon, I was talking with a friend about food." },
+      movement: { text: "出門口之前，我睇咗一次今日嘅安排。", reading: "ceot1 mun4 hau2 zi1 cin4, ngo5 tai2 zo2 jat1 ci3 gam1 jat6 ge3 on1 paai4.", translation: "Before going out, I checked today's plans once more." },
+      people: { text: "我同朋友傾偈嗰陣，講起一件最近發生嘅事。", reading: "ngo5 tung4 pang4 jau5 king1 gai2 go2 zan6, gong2 hei2 jat1 gin6 zeoi3 gan6 faat3 sang1 ge3 si6.", translation: "While chatting with a friend, we brought up something that happened recently." },
+      time: { text: "我哋睇緊行程嗰陣，開始傾點樣安排時間。", reading: "ngo5 dei6 tai2 gan2 hang4 cing4 go2 zan6, hoi1 ci2 king1 dim2 joeng6 on1 paai4 si4 gaan3.", translation: "While looking at the schedule, we started talking about how to arrange our time." },
+      work: { text: "收工之後，我諗返今日發生嘅事。", reading: "sau1 gung1 zi1 hau6, ngo5 nam2 faan1 gam1 jat6 faat3 sang1 ge3 si6.", translation: "After work, I thought back over what happened today." },
+      body: { text: "我有啲擔心自己嘅狀態，所以停低諗清楚先。", reading: "ngo5 jau5 di1 daam1 sam1 zi6 gei2 ge3 zong6 taai3, so2 ji5 ting4 dai1 nam2 cing1 co2 sin1.", translation: "I was a little worried about my condition, so I stopped to think it through first." },
+      money: { text: "買嘢之前，我先諗清楚邊樣最值得。", reading: "maai5 je5 zi1 cin4, ngo5 sin1 nam2 cing1 co2 bin1 joeng6 zeoi3 zik6 dak1.", translation: "Before buying anything, I first thought about what was most worthwhile." },
+      communication: { text: "傾偈傾到一半，我開始留意大家點樣理解同一句說話。", reading: "king1 gai2 king1 dou3 jat1 bun3, ngo5 hoi1 ci2 lau4 ji3 daai6 gaa1 dim2 joeng6 lei5 gaai2 tung4 jat1 geoi3 syut3 waa6.", translation: "Halfway through the conversation, I started noticing how people understood the same sentence differently." },
+      home: { text: "我喺屋企嗰陣，講起一件好日常嘅事。", reading: "ngo5 hai2 uk1 kei2 go2 zan6, gong2 hei2 jat1 gin6 hou2 jat6 soeng4 ge3 si6.", translation: "While I was at home, an ordinary everyday matter came up." },
+      nature: { text: "我望住出面嘅環境，同朋友傾返今日發生嘅事。", reading: "ngo5 mong6 zyu6 ceot1 min6 ge3 waan4 ging2, tung4 pang4 jau5 king1 faan1 gam1 jat6 faat3 sang1 ge3 si6.", translation: "Looking at the surroundings outside, I talked with a friend about what happened today." }
+    }
+  };
+
+  const COHERENT_FRAME_LINES = {
+    jp: [
+      {
+        before: [],
+        after: [
+          { text: "そのあと、私はそのことをもう一度確認しました。", translation: "Afterward, I checked the matter once more." }
+        ],
+        label: "Everyday scene"
+      },
+      {
+        before: [
+          { text: "最初は、特に問題はないと思っていました。", translation: "At first, I did not think there was any particular problem." }
+        ],
+        after: [
+          { text: "ところが、少し考えると、別の見方もできることに気づきました。", translation: "However, after thinking about it, I realized there was another way to see the situation." }
+        ],
+        label: "Situation and reconsideration"
+      },
+      {
+        before: [
+          { text: "最初に聞いた説明だけでは、状況は単純に見えました。", translation: "From the first explanation alone, the situation looked simple." }
+        ],
+        after: [
+          { text: "しかし、前後の事情を考えると、同じ出来事でも見方によって意味が変わります。", translation: "But when the surrounding circumstances are considered, the same event can mean different things depending on the viewpoint." },
+          { text: "そこで、すぐに結論を出さず、もう少し情報を集めることにしました。", translation: "So I decided not to jump to a conclusion and to gather a little more information first." }
+        ],
+        label: "Context and inference"
+      }
+    ],
+    yue: [
+      {
+        before: [],
+        after: [
+          { text: "之後，我再確認咗一次件事。", reading: "zi1 hau6, ngo5 zoi3 kok3 jan6 zo2 jat1 ci3 gin6 si6.", translation: "Afterward, I checked the matter once more." }
+        ],
+        label: "Everyday scene"
+      },
+      {
+        before: [
+          { text: "一開始，我以為冇乜特別問題。", reading: "jat1 hoi1 ci2, ngo5 ji5 wai4 mou5 mat1 dak6 bit6 man6 tai4.", translation: "At first, I thought there was no particular problem." }
+        ],
+        after: [
+          { text: "不過再諗深一層，我先發現原來仲可以有另一個睇法。", reading: "bat1 gwo3 zoi3 nam2 sam1 jat1 cang4, ngo5 sin1 faat3 jin6 jyun4 loi4 zung6 ho2 ji5 jau5 ling6 jat1 go3 tai2 faat3.", translation: "But after thinking about it more deeply, I realized there could be another way to see it." }
+        ],
+        label: "Situation and reconsideration"
+      },
+      {
+        before: [
+          { text: "淨係聽最初嗰個解釋，件事好似好簡單。", reading: "zing6 hai6 teng1 zeoi3 co1 go2 go3 gaai2 sik1, gin6 si6 hou2 ci5 hou2 gaan2 daan1.", translation: "If you only hear the first explanation, the matter seems simple." }
+        ],
+        after: [
+          { text: "但係將前因後果放埋一齊睇，同一件事可以因為角度唔同而有唔同意思。", reading: "daan6 hai6 zoeng1 cin4 jan1 hau6 gwo2 fong3 maai4 jat1 cai4 tai2, tung4 jat1 gin6 si6 ho2 ji5 jan1 wai6 gok3 dou6 m4 tung4 ji4 jau5 m4 tung4 ji3 si1.", translation: "But when the whole context is considered, the same event can mean different things from different viewpoints." },
+          { text: "所以我冇即刻落結論，而係決定再搵多啲資料。", reading: "so2 ji5 ngo5 mou5 zik1 hak1 lok6 git3 leon6, ji4 hai6 kyut3 ding6 zoi3 wan2 do1 di1 zi1 liu2.", translation: "So I did not reach a conclusion immediately and decided to find more information." }
+        ],
+        label: "Context and inference"
+      }
+    ]
+  };
+
+  const COHERENT_SCENE_VARIANTS = {
+    jp: {
+      general: [{ text: "帰り道、今日あったことを思い返していました。", translation: "On the way home, I was thinking back over what had happened today." }],
+      food: [{ text: "夕食の店を決めるため、何を食べたいか話していました。", translation: "We were talking about what we wanted to eat so we could decide where to have dinner." }],
+      movement: [{ text: "駅に向かいながら、いちばん楽な行き方を考えていました。", translation: "On the way to the station, I was thinking about the easiest route." }],
+      people: [{ text: "久しぶりに会った友達と、最近のことを話していました。", translation: "I was catching up on recent events with a friend I had not seen for a while." }],
+      time: [{ text: "一日の予定を組み直しながら、どこに時間を使うか考えていました。", translation: "While rearranging the day's schedule, I was deciding where to spend my time." }],
+      work: [{ text: "打ち合わせのあと、同僚と仕事の進め方を見直しました。", translation: "After a meeting, I reviewed how we were approaching the work with a colleague." }],
+      body: [{ text: "少し疲れを感じたので、最近の生活を振り返ってみました。", translation: "Because I felt a little tired, I looked back over my recent routine." }],
+      money: [{ text: "予算を見ながら、本当に必要なものを選んでいました。", translation: "Looking at the budget, I was choosing what was truly necessary." }],
+      communication: [{ text: "説明がうまく伝わらなかったので、別の言い方を試しました。", translation: "Because the explanation had not come across clearly, I tried a different way of saying it." }],
+      home: [{ text: "夕方、家でゆっくりしながら今日のことを話しました。", translation: "In the evening, we relaxed at home and talked about the day." }],
+      nature: [{ text: "天気が変わりそうだったので、外の様子を確かめました。", translation: "Because the weather looked likely to change, I checked what it was like outside." }]
+    },
+    yue: {
+      general: [{ text: "返屋企途中，我一路諗返今日發生嘅事。", reading: "faan1 uk1 kei2 tou4 zung1, ngo5 jat1 lou6 nam2 faan1 gam1 jat6 faat3 sang1 ge3 si6.", translation: "On the way home, I kept thinking back over what happened today." }],
+      food: [{ text: "為咗決定今晚去邊度食，我哋傾緊大家想食乜。", reading: "wai6 zo2 kyut3 ding6 gam1 maan5 heoi3 bin1 dou6 sik6, ngo5 dei6 king1 gan2 daai6 gaa1 soeng2 sik6 mat1.", translation: "To decide where to eat tonight, we were talking about what everyone wanted." }],
+      movement: [{ text: "行去車站嗰陣，我一路諗邊條路最方便。", reading: "haang4 heoi3 ce1 zaam6 go2 zan6, ngo5 jat1 lou6 nam2 bin1 tiu4 lou6 zeoi3 fong1 bin6.", translation: "While walking to the station, I was thinking about which route was most convenient." }],
+      people: [{ text: "我同一個好耐冇見嘅朋友傾緊大家最近嘅事。", reading: "ngo5 tung4 jat1 go3 hou2 noi6 mou5 gin3 ge3 pang4 jau5 king1 gan2 daai6 gaa1 zeoi3 gan6 ge3 si6.", translation: "I was catching up on recent events with a friend I had not seen for a long time." }],
+      time: [{ text: "我重新排緊今日嘅行程，諗下啲時間應該點分。", reading: "ngo5 cung4 san1 paai4 gan2 gam1 jat6 ge3 hang4 cing4, nam2 haa5 di1 si4 gaan3 jing1 goi1 dim2 fan1.", translation: "I was rearranging today's schedule and thinking about how to divide the time." }],
+      work: [{ text: "開完會之後，我同同事重新睇一次點樣做件事。", reading: "hoi1 jyun4 wui2 zi1 hau6, ngo5 tung4 tung4 si6 cung4 san1 tai2 jat1 ci3 dim2 joeng6 zou6 gin6 si6.", translation: "After the meeting, I reviewed with a colleague how we should handle the task." }],
+      body: [{ text: "我覺得有啲攰，所以諗返最近自己點樣生活。", reading: "ngo5 gok3 dak1 jau5 di1 gui6, so2 ji5 nam2 faan1 zeoi3 gan6 zi6 gei2 dim2 joeng6 sang1 wut6.", translation: "I felt a little tired, so I thought back over my recent routine." }],
+      money: [{ text: "我望住個預算，逐樣諗清楚邊啲先係真正需要。", reading: "ngo5 mong6 zyu6 go3 jyu6 syun3, zuk6 joeng6 nam2 cing1 co2 bin1 di1 sin1 hai6 zan1 zing3 seoi1 jiu3.", translation: "Looking at the budget, I considered item by item what was truly necessary." }],
+      communication: [{ text: "頭先個解釋講得唔夠清楚，所以我試下用另一個講法。", reading: "tau4 sin1 go3 gaai2 sik1 gong2 dak1 m4 gau3 cing1 co2, so2 ji5 ngo5 si3 haa5 jung6 ling6 jat1 go3 gong2 faat3.", translation: "The earlier explanation was not clear enough, so I tried another way of saying it." }],
+      home: [{ text: "夜晚我哋喺屋企慢慢坐低，傾返今日啲事。", reading: "je6 maan5 ngo5 dei6 hai2 uk1 kei2 maan6 maan6 co5 dai1, king1 faan1 gam1 jat6 di1 si6.", translation: "In the evening, we sat down at home and talked through the day's events." }],
+      nature: [{ text: "個天好似就嚟變，所以我出去睇下外面嘅情況。", reading: "go3 tin1 hou2 ci5 zau6 lai4 bin3, so2 ji5 ngo5 ceot1 heoi3 tai2 haa5 ngoi6 min6 ge3 cing4 fong3.", translation: "The weather looked about to change, so I went out to check the conditions." }]
+    }
+  };
+
+  const COHERENT_FRAME_VARIANTS = {
+    jp: [
+      [{ before: [], after: [{ text: "それをきっかけに、次にどうするかを決めました。", translation: "That became the basis for deciding what to do next." }], label: "Everyday scene" }],
+      [{ before: [{ text: "はじめは、いつもどおりに進めればいいと思っていました。", translation: "At first, I thought things could proceed as usual." }], after: [{ text: "でも、実際の状況を見ると、その考えを少し変える必要がありました。", translation: "But after seeing the actual situation, I needed to adjust that view." }], label: "Situation and reconsideration" }],
+      [{ before: [{ text: "一つの情報だけを見ると、答えはすぐに出せそうでした。", translation: "Looking at only one piece of information, the answer seemed easy to reach." }], after: [{ text: "ところが、別の事情も加えると、最初の判断だけでは十分ではありません。", translation: "However, once another circumstance is added, the initial judgment is no longer enough." }, { text: "そのため、理由と結果を分けて考えてから判断することにしました。", translation: "For that reason, I decided to separate cause from result before making a judgment." }], label: "Context and inference" }]
+    ],
+    yue: [
+      [{ before: [], after: [{ text: "呢件事亦都令我決定下一步應該點做。", reading: "ni1 gin6 si6 jik6 dou1 ling6 ngo5 kyut3 ding6 haa6 jat1 bou6 jing1 goi1 dim2 zou6.", translation: "This also helped me decide what to do next." }], label: "Everyday scene" }],
+      [{ before: [{ text: "一開始，我以為照平時咁做就得。", reading: "jat1 hoi1 ci2, ngo5 ji5 wai4 ziu3 ping4 si4 gam2 zou6 zau6 dak1.", translation: "At first, I thought doing things the usual way would be enough." }], after: [{ text: "但係睇清楚實際情況之後，我發現要改一改原本嘅諗法。", reading: "daan6 hai6 tai2 cing1 co2 sat6 zai3 cing4 fong3 zi1 hau6, ngo5 faat3 jin6 jiu3 goi2 jat1 goi2 jyun4 bun2 ge3 nam2 faat3.", translation: "But after seeing the actual situation clearly, I realized I needed to adjust my original view." }], label: "Situation and reconsideration" }],
+      [{ before: [{ text: "淨係睇一個資料，個答案好似好快就可以決定。", reading: "zing6 hai6 tai2 jat1 go3 zi1 liu2, go3 daap3 on3 hou2 ci5 hou2 faai3 zau6 ho2 ji5 kyut3 ding6.", translation: "Looking at only one piece of information, the answer seemed easy to decide." }], after: [{ text: "不過加埋另一個情況之後，最初嗰個判斷就未必夠。", reading: "bat1 gwo3 gaa1 maai4 ling6 jat1 go3 cing4 fong3 zi1 hau6, zeoi3 co1 go2 go3 pun3 dyun6 zau6 mei6 bit1 gau3.", translation: "But after adding another circumstance, the initial judgment may no longer be enough." }, { text: "所以我決定先分清楚原因同結果，再作判斷。", reading: "so2 ji5 ngo5 kyut3 ding6 sin1 fan1 cing1 co2 jyun4 jan1 tung4 git3 gwo2, zoi3 zok3 pun3 dyun6.", translation: "So I decided to separate the cause and result before making a judgment." }], label: "Context and inference" }]
+    ]
+  };
+
+  function primarySemanticDomain(item) {
+    const domains = [...semanticDomainsForItem(item)];
+    return domains[0] || "general";
+  }
+
+  function normalizeSentencePunctuation(text, lang) {
+    const value = String(text || "").trim();
+    if (!value) return "";
+    if (/[。！？!?]$/.test(value)) return value;
+    return `${value}${lang === "jp" ? "。" : "。"}`;
+  }
+
+  function keywordGroupsFromAnswer(answer) {
+    const stop = new Set(["the","a","an","is","are","was","were","to","of","and","or","in","on","at","for","that","because","it","they","he","she","their","with","by","from","this","there","after","before","more","once","first"]);
+    const tokens = normalizeFreeResponse(answer).split(" ").filter(token => token.length > 3 && !stop.has(token));
+    return [...new Set(tokens)].slice(0, 5).map(token => [token]);
+  }
+
+  function coherentQuestions(variantIndex, anchorTranslation, frame, fullTranslation) {
+    const central = anchorTranslation || fullTranslation;
+    if (variantIndex % 3 === 0) {
+      const after = frame.after?.[0]?.translation || "The speaker checked the situation again.";
+      return [
+        { type: "CENTRAL DETAIL", question: "What is the central situation or claim described in the passage?", answer: central, keywordGroups: keywordGroupsFromAnswer(central) },
+        { type: "SEQUENCE", question: "What does the speaker do after the central situation?", answer: after, keywordGroups: keywordGroupsFromAnswer(after) },
+        { type: "PURPOSE", question: "Why does the final action make sense in this context?", answer: "The speaker wants to verify or better understand the situation before moving on.", keywordGroups: [["verify","understand"],["situation"]] }
+      ];
+    }
+    if (variantIndex % 3 === 1) {
+      const first = frame.before?.[0]?.translation || "At first, the speaker saw no particular problem.";
+      const final = frame.after?.[0]?.translation || "The speaker realized there was another way to view the situation.";
+      return [
+        { type: "CHANGE IN VIEW", question: "How does the speaker's view change from the beginning to the end of the passage?", answer: `${first} ${final}`, keywordGroups: keywordGroupsFromAnswer(`${first} ${final}`) },
+        { type: "EVIDENCE", question: "What information in the middle of the passage causes the speaker to reconsider the situation?", answer: central, keywordGroups: keywordGroupsFromAnswer(central) },
+        { type: "INFERENCE", question: "What can you infer about the speaker's attitude at the end?", answer: "The speaker is more cautious and open to another interpretation than at the beginning.", keywordGroups: [["cautious"],["another","interpretation"]] }
+      ];
+    }
+    const conclusion = frame.after?.at(-1)?.translation || "The speaker decides to gather more information before reaching a conclusion.";
+    return [
+      { type: "CONTEXT", question: "Why is the first explanation not enough for the speaker to make a confident judgment?", answer: "Because the surrounding circumstances can change how the central situation should be understood.", keywordGroups: [["circumstances","context"],["change"],["understood","interpretation"]] },
+      { type: "REASONING", question: "How does the central situation support the speaker's decision at the end?", answer: `${central} This gives the speaker a reason not to conclude too quickly and to seek more information.`, keywordGroups: keywordGroupsFromAnswer(`${central} seek more information`) },
+      { type: "IMPLICATION", question: "What broader lesson does the passage suggest about interpreting events or statements?", answer: "A single statement or event should be interpreted in context, and more information may be needed before reaching a conclusion.", keywordGroups: [["context"],["information"],["conclusion"]] },
+      { type: "SUMMARY", question: "Summarize the passage's reasoning in two or three sentences.", answer: fullTranslation, keywordGroups: keywordGroupsFromAnswer(fullTranslation) }
+    ];
+  }
+
   function contextPassageEntry(baseEntry, variantIndex = 0) {
     const allVariants = contextVariations(baseEntry.kind, baseEntry.item);
     const lang = langFromKind(baseEntry.kind);
     const passageKind = lang === "jp" ? "jpP" : "yueP";
     const focus = humanizedPattern(baseEntry.kind, baseEntry.item);
     const meaning = meaningOf(baseEntry.item);
-    // Three deterministic passage variations per source item. The first uses the
-    // two easiest contexts, the second uses the two denser contexts, and the third
-    // combines all three. Repeated encounters therefore become progressively harder.
-    const passageSets = [
-      allVariants.slice(0, 2),
-      allVariants.slice(1, 3),
-      allVariants.slice(0, 3)
-    ];
-    const variants = passageSets[variantIndex % 3].length ? passageSets[variantIndex % 3] : allVariants;
-    const text = variants.map(example => {
-      const value = String(example.text || "").trim();
-      return value && !/[。！？!?]$/.test(value) ? `${value}。` : value;
-    }).join("");
-    const reading = variants.map(example => String(example.reading || "").trim()).filter(Boolean).join(" / ");
-    const translations = variants.map(example => example.translation).filter(Boolean);
-    const translation = translations.join(" ") || `A short context set built around “${focus}” (${meaning}).`;
-    const firstMeaning = variants[0]?.translation || translation;
-    const relationVariant = variants.find(example => /ので|から|ため|だから|もし|なら|ば|たら|のに|けれど|しかし|一方|因為|所以|如果|就|雖然|但係|不過|即使|與其|不如/.test(String(example.text || ""))) || variants[1] || variants[0];
-    const relationText = String(relationVariant?.text || "");
-    let relationType = "DEVELOPMENT";
-    let relationQuestion = "What additional situation or idea is introduced after the opening sentence?";
-    if (/ので|から|ため|だから|因為|所以/.test(relationText)) {
-      relationType = "CAUSE / RESULT";
-      relationQuestion = "What reason or cause is given, and what result follows from it?";
-    } else if (/もし|なら|ば|たら|如果|就|即使/.test(relationText)) {
-      relationType = "CONDITION";
-      relationQuestion = "What condition is described, and what happens under that condition?";
-    } else if (/のに|けれど|しかし|一方|雖然|但係|不過|與其|不如/.test(relationText)) {
-      relationType = "CONTRAST";
-      relationQuestion = "What contrast or alternative does the passage present?";
-    }
-    const questions = [
-      {
-        type: "DETAIL",
-        question: "According to the first sentence, what happens or what is true?",
-        answer: firstMeaning,
-        keywordGroups: []
-      },
-      {
-        type: relationType,
-        question: relationQuestion,
-        answer: relationVariant?.translation || translation,
-        keywordGroups: []
-      },
-      {
-        type: "SUMMARY",
-        question: "Summarize the passage's overall situation or message in one or two sentences.",
-        answer: translation,
-        keywordGroups: []
-      }
-    ];
+    const normalizedIndex = ((variantIndex % 3) + 3) % 3;
+    const anchor = allVariants[normalizedIndex] || allVariants[0] || {
+      text: focus,
+      reading: humanizedReading(baseEntry.kind, baseEntry.item),
+      translation: meaning,
+      source: "AIDA context"
+    };
+    const domain = primarySemanticDomain(baseEntry.item);
+    const sceneBank = COHERENT_SCENES[lang] || COHERENT_SCENES.jp;
+    const primaryScene = sceneBank[domain] || sceneBank.general;
+    const sceneOptions = [primaryScene, ...(COHERENT_SCENE_VARIANTS[lang]?.[domain] || COHERENT_SCENE_VARIANTS[lang]?.general || [])];
+    const scene = sceneOptions[deterministicHash(`${baseItemKey(baseEntry)}:scene:${normalizedIndex}`) % sceneOptions.length];
+    const frameOptions = [COHERENT_FRAME_LINES[lang][normalizedIndex], ...(COHERENT_FRAME_VARIANTS[lang]?.[normalizedIndex] || [])];
+    const frame = frameOptions[deterministicHash(`${baseItemKey(baseEntry)}:frame:${normalizedIndex}`) % frameOptions.length];
+    const segments = [scene, ...(frame.before || []), anchor, ...(frame.after || [])]
+      .filter(segment => segment?.text)
+      .map(segment => ({
+        text: normalizeSentencePunctuation(segment.text, lang),
+        reading: segment.reading || "",
+        translation: segment.translation || ""
+      }));
+    const text = segments.map(segment => segment.text).join(lang === "jp" ? "" : "");
+    const reading = lang === "yue"
+      ? segments.map(segment => String(segment.reading || "").trim()).filter(Boolean).join(" ")
+      : segments.map(segment => String(segment.reading || "").trim()).filter(Boolean).join(" / ");
+    const translation = segments.map(segment => segment.translation).filter(Boolean).join(" ") || `A coherent context built around “${focus}” (${meaning}).`;
+    const anchorTranslation = anchor.translation || meaning;
+    const questions = coherentQuestions(normalizedIndex, anchorTranslation, frame, translation);
     return {
       kind: passageKind,
       item: {
-        id: `ctx-p-${baseEntry.kind}-${baseEntry.item.id}-${variantIndex}`,
+        id: `ctx-p-${baseEntry.kind}-${baseEntry.item.id}-${normalizedIndex}`,
         level: itemLevel(baseEntry.kind, baseEntry.item),
         text,
         reading,
         translation,
         questions,
-        contextSource: [...new Set(variants.map(example => example.source).filter(Boolean))].join(" · "),
+        scenarioType: frame.label,
+        focusDomain: domain,
+        contextSource: [anchor.source, "AIDA coherent scenario engine"].filter(Boolean).join(" · "),
         _sourceKind: baseEntry.kind,
         _sourceId: baseEntry.item.id
       }
     };
   }
 
+  function materializeProductionEntry(baseEntry, variantIndex = 0) {
+    const base = sourceEntryFor(baseEntry);
+    const variants = contextVariations(base.kind, base.item);
+    const variant = variants[variantIndex % Math.max(1, variants.length)] || {};
+    const lang = langFromKind(base.kind);
+    const sentenceKind = lang === "jp" ? "jpS" : "yueS";
+    return {
+      kind: sentenceKind,
+      practiceMode: "production",
+      studySkills: base.kind.endsWith("G") ? ["production", "grammar"] : ["production"],
+      item: {
+        id: `prod-${base.kind}-${base.item.id}-${variantIndex}`,
+        level: itemLevel(base.kind, base.item),
+        text: variant.text || humanizedPattern(base.kind, base.item),
+        reading: variant.reading || humanizedReading(base.kind, base.item),
+        translation: variant.translation || meaningOf(base.item),
+        question: `Produce the ${languageName(lang)} sentence from the meaning. Type it or say it aloud before revealing the model answer.`,
+        answer: variant.text || humanizedPattern(base.kind, base.item),
+        contextSource: variant.source || "AIDA production context",
+        practiceMode: "production",
+        _sourceKind: base.kind,
+        _sourceId: base.item.id
+      }
+    };
+  }
+
+  function markListeningEntry(entry) {
+    return {
+      ...entry,
+      practiceMode: "listening",
+      studySkills: ["listening"],
+      item: { ...entry.item, practiceMode: "listening", studySkills: ["listening"] }
+    };
+  }
+
+  function materializeListeningEntry(baseEntry, variantIndex = 0, passage = false) {
+    const base = sourceEntryFor(baseEntry);
+    const contextual = passage ? contextPassageEntry(base, variantIndex) : contextSentenceEntry(base, variantIndex);
+    return markListeningEntry(contextual);
+  }
+
   function materializeStudyEntry(entry, index = 0) {
     const base = sourceEntryFor(entry);
-    const exposure = srsFor(itemKey(base.kind, base.item)).seen || 0;
+    const skill = primarySkillForEntry(entry);
+    const exposure = skillRecordFor(itemKey(base.kind, base.item), skill)?.seen || srsFor(itemKey(base.kind, base.item)).seen || 0;
     const progressiveVariant = exposure % 3;
     if (entry.contextMode === "sentence") return contextSentenceEntry(entry, progressiveVariant);
     if (entry.contextMode === "passage") return contextPassageEntry(entry, progressiveVariant);
+    if (entry.contextMode === "production") return materializeProductionEntry(entry, progressiveVariant);
+    if (entry.contextMode === "listening-sentence") return materializeListeningEntry(entry, progressiveVariant, false);
+    if (entry.contextMode === "listening-passage") return materializeListeningEntry(entry, progressiveVariant, true);
+    if (entry.practiceMode === "listening") return markListeningEntry(entry);
     return entry;
   }
 
@@ -863,10 +1336,23 @@
     const sentences = source[sentenceKind].filter(item => inTarget(sentenceKind, item, lang)).map(item => ({ kind: sentenceKind, item }));
     const passages = source[passageKind].filter(item => inTarget(passageKind, item, lang)).map(item => ({ kind: passageKind, item }));
     const bases = [...grammar, ...vocabulary];
+    if (focus === "recognition") return vocabulary;
     if (focus === "grammar") return grammar;
     if (focus === "vocabulary") return vocabulary;
+    if (focus === "production") return bases.map(entry => ({ ...entry, contextMode: "production" }));
+    if (focus === "listening") {
+      const bank = [
+        ...sentences.map(entry => ({ ...entry, practiceMode: "listening", studySkills: ["listening"] })),
+        ...passages.map(entry => ({ ...entry, practiceMode: "listening", studySkills: ["listening"] }))
+      ];
+      const generated = bases.map(entry => ({
+        ...entry,
+        contextMode: deterministicHash(baseItemKey(entry)) % 4 === 0 ? "listening-passage" : "listening-sentence"
+      }));
+      return [...bank, ...generated];
+    }
     // Every vocabulary and grammar item participates in sentence/passage practice.
-    // Context is materialized only after sampling, so the app does not duplicate 50k+ source items in memory.
+    // Context is materialized only after sampling, so the app does not duplicate the full generated corpus in memory.
     if (focus === "sentences") return [...sentences, ...bases.map(entry => ({ ...entry, contextMode: "sentence" }))];
     if (focus === "passages") return [...passages, ...bases.map(entry => ({ ...entry, contextMode: "passage" }))];
     return [...grammar, ...vocabulary, ...sentences, ...passages];
@@ -881,9 +1367,15 @@
     return copy;
   }
 
+  function entryHasSkillHistory(entry) {
+    const key = baseItemKey(entry);
+    const skill = primarySkillForEntry(entry);
+    return (skillRecordFor(key, skill)?.seen || 0) > 0;
+  }
+
   function prioritizedSample(entries, count) {
-    const unseen = shuffled(entries.filter(entry => !state.srs[baseItemKey(entry)]));
-    const learned = shuffled(entries.filter(entry => state.srs[baseItemKey(entry)]));
+    const unseen = shuffled(entries.filter(entry => !entryHasSkillHistory(entry)));
+    const learned = shuffled(entries.filter(entry => entryHasSkillHistory(entry)));
     return [...unseen, ...learned].slice(0, count);
   }
 
@@ -941,35 +1433,34 @@
       return progressiveOrder(picked.map((entry, index) => materializeStudyEntry(entry, index)));
     }
 
+    // Mixed sessions deliberately exercise different memory systems instead of showing
+    // the same card format repeatedly. Quotas are minimum targets; the fallback fills
+    // any rounding gaps while preserving the easier-to-harder level progression.
     const buckets = [
-      { focus: "vocabulary", weight: 0.30 },
-      { focus: "grammar", weight: 0.30 },
-      { focus: "sentences", weight: 0.25 },
-      { focus: "passages", weight: 0.15 }
+      { focus: "recognition", weight: 0.24 },
+      { focus: "grammar", weight: 0.18 },
+      { focus: "production", weight: 0.16 },
+      { focus: "listening", weight: 0.16 },
+      { focus: "sentences", weight: 0.13 },
+      { focus: "passages", weight: 0.13 }
     ].map(bucket => ({ ...bucket, entries: studyPool(lang, bucket.focus) }));
 
     const selected = [];
     const used = new Set();
     buckets.forEach(bucket => {
       let quota = Math.floor(count * bucket.weight);
-      if (bucket.focus === "passages" && count >= 5) quota = Math.max(1, quota);
-      if (bucket.focus === "sentences" && count >= 4) quota = Math.max(1, quota);
+      if (["production", "listening", "sentences", "passages"].includes(bucket.focus) && count >= 6) quota = Math.max(1, quota);
       progressiveSample(bucket.entries, quota, lang).forEach(entry => {
-        const key = `${entry.contextMode || "base"}:${baseItemKey(entry)}`;
+        const key = `${entry.contextMode || entry.practiceMode || bucket.focus}:${baseItemKey(entry)}`;
         if (!used.has(key)) { used.add(key); selected.push(entry); }
       });
     });
 
     if (selected.length < count) {
-      const fallback = [
-        ...studyPool(lang, "vocabulary"),
-        ...studyPool(lang, "grammar"),
-        ...studyPool(lang, "sentences"),
-        ...studyPool(lang, "passages")
-      ];
-      progressiveSample(fallback, count * 4, lang).forEach(entry => {
+      const fallback = buckets.flatMap(bucket => bucket.entries);
+      progressiveSample(fallback, count * 5, lang).forEach(entry => {
         if (selected.length >= count) return;
-        const key = `${entry.contextMode || "base"}:${baseItemKey(entry)}`;
+        const key = `${entry.contextMode || entry.practiceMode || "base"}:${baseItemKey(entry)}`;
         if (!used.has(key)) { used.add(key); selected.push(entry); }
       });
     }
@@ -1126,6 +1617,183 @@
     });
     if (current.trim()) chunks.push(current.trim());
     return chunks;
+  }
+
+  function syncTokenData(text, lang, reading = "") {
+    const value = String(text || "");
+    if (lang === "yue" && reading) {
+      const syllables = jyutpingSyllables(reading);
+      let syllableIndex = 0;
+      let charIndex = 0;
+      return [...value].map(char => {
+        const start = charIndex;
+        charIndex += char.length;
+        const han = /\p{Script=Han}/u.test(char);
+        const syllable = han ? (syllables[syllableIndex++] || "") : "";
+        return { text: char, start, end: charIndex, syllable, punctuation: /[。！？!?、，,.；;：「」『』（）()\[\]…\s]/.test(char) };
+      });
+    }
+    const mode = lang === "jp" ? "ja" : "yue";
+    let segmented = [];
+    try { segmented = segmentText(value, mode); } catch { /* parser may not be initialized yet */ }
+    if (!segmented.length) segmented = [...value].map(char => ({ text: char, punctuation: /[。！？!?、，,.；;：「」『』（）()\[\]…\s]/.test(char) }));
+    const originalChars = [...value];
+    let cursor = 0;
+    return segmented.map(token => {
+      while (cursor < originalChars.length && /\s/.test(originalChars[cursor])) cursor += 1;
+      const length = Math.max(1, [...String(token.text || "")].length);
+      const slice = originalChars.slice(cursor, cursor + length).join("") || String(token.text || "");
+      const start = cursor;
+      cursor += [...slice].length;
+      return { text: slice, start, end: cursor, punctuation: Boolean(token.punctuation) };
+    });
+  }
+
+  function renderSyncTranscript(host, text, lang, reading = "") {
+    if (!host) return [];
+    const tokens = syncTokenData(text, lang, reading);
+    host.innerHTML = tokens.map((token, index) => {
+      const content = lang === "yue" && token.syllable
+        ? `<ruby><rb>${escapeHtml(token.text)}</rb><rt>${escapeHtml(token.syllable)}</rt></ruby>`
+        : escapeHtml(token.text);
+      return `<span class="sync-word${token.punctuation ? " sync-punctuation" : ""}" data-sync-index="${index}" data-sync-start="${token.start}" data-sync-end="${token.end}">${content}</span>`;
+    }).join("");
+    return tokens;
+  }
+
+  function clearSyncHighlight(host) {
+    if (!host) return;
+    $$(".sync-word", host).forEach(node => node.classList.remove("active", "passed"));
+  }
+
+  function activateSyncIndex(host, index) {
+    if (!host) return;
+    const nodes = $$(".sync-word", host);
+    nodes.forEach((node, i) => {
+      node.classList.toggle("active", i === index);
+      node.classList.toggle("passed", i < index);
+    });
+    const active = nodes[index];
+    active?.scrollIntoView?.({ block: "nearest", inline: "nearest", behavior: "smooth" });
+  }
+
+  function syncIndexForChar(host, charIndex) {
+    const nodes = $$(".sync-word", host);
+    const index = nodes.findIndex(node => {
+      const start = Number(node.dataset.syncStart) || 0;
+      const end = Number(node.dataset.syncEnd) || start + 1;
+      return charIndex >= start && charIndex < end;
+    });
+    return index >= 0 ? index : Math.max(0, nodes.length - 1);
+  }
+
+  function startApproximateSync(host, estimatedMs) {
+    const nodes = $$(".sync-word", host);
+    if (!nodes.length) return () => {};
+    const weights = nodes.map(node => node.classList.contains("sync-punctuation") ? 0.35 : Math.max(1, [...node.textContent.trim()].length));
+    const totalWeight = weights.reduce((sum, value) => sum + value, 0) || 1;
+    let elapsedWeight = 0;
+    const timers = [];
+    weights.forEach((weight, index) => {
+      const at = estimatedMs * (elapsedWeight / totalWeight);
+      timers.push(setTimeout(() => activateSyncIndex(host, index), at));
+      elapsedWeight += weight;
+    });
+    return () => timers.forEach(clearTimeout);
+  }
+
+  function speakBrowserHighlighted(text, lang, voice, host) {
+    return new Promise(resolve => {
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = voice?.lang || (lang === "jp" ? "ja-JP" : "yue-CN");
+      if (voice) utterance.voice = voice;
+      utterance.rate = lang === "jp" ? 0.86 : 0.78;
+      utterance.pitch = 1;
+      utterance.volume = 1;
+      let sawBoundary = false;
+      let cancelApprox = () => {};
+      const estimatedMs = Math.max(1800, [...text].length * (lang === "jp" ? 145 : 190));
+      const fallbackTimer = setTimeout(() => {
+        if (!sawBoundary) cancelApprox = startApproximateSync(host, estimatedMs);
+      }, 420);
+      utterance.onboundary = event => {
+        sawBoundary = true;
+        cancelApprox();
+        activateSyncIndex(host, syncIndexForChar(host, Number(event.charIndex) || 0));
+      };
+      const finish = success => {
+        clearTimeout(fallbackTimer);
+        cancelApprox();
+        const nodes = $$(".sync-word", host);
+        nodes.forEach(node => node.classList.remove("active"));
+        if (success) nodes.forEach(node => node.classList.add("passed"));
+        resolve(success);
+      };
+      utterance.onend = () => finish(true);
+      utterance.onerror = event => {
+        console.warn("AIDA highlighted speech error", event.error, voice?.name, voice?.lang);
+        finish(false);
+      };
+      window.speechSynthesis.speak(utterance);
+    });
+  }
+
+  function playAudioBlobHighlighted(blob, host) {
+    return new Promise(resolve => {
+      const url = URL.createObjectURL(blob);
+      const audio = new Audio(url);
+      const nodes = $$(".sync-word", host);
+      const finish = success => {
+        URL.revokeObjectURL(url);
+        nodes.forEach(node => node.classList.remove("active"));
+        if (success) nodes.forEach(node => node.classList.add("passed"));
+        resolve(success);
+      };
+      audio.ontimeupdate = () => {
+        if (!Number.isFinite(audio.duration) || audio.duration <= 0 || !nodes.length) return;
+        const progress = clamp(audio.currentTime / audio.duration, 0, 0.9999);
+        activateSyncIndex(host, Math.min(nodes.length - 1, Math.floor(progress * nodes.length)));
+      };
+      audio.onended = () => finish(true);
+      audio.onerror = () => finish(false);
+      audio.play().catch(() => finish(false));
+    });
+  }
+
+  async function speakCantoneseCloudHighlighted(text, host) {
+    if (!text || location.protocol === "file:") return false;
+    try {
+      const response = await fetch("/api/cantonese-tts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text })
+      });
+      if (!response.ok || !(response.headers.get("content-type") || "").startsWith("audio/")) return false;
+      return await playAudioBlobHighlighted(await response.blob(), host);
+    } catch {
+      return false;
+    }
+  }
+
+  async function speakItemHighlighted(kind, item, host) {
+    const text = speechText(kind, item);
+    if (!text || !host) return speakItem(kind, item);
+    const lang = langFromKind(kind);
+    const reading = humanizedReading(kind, item);
+    renderSyncTranscript(host, text, lang, reading);
+    clearSyncHighlight(host);
+    await ensureVoices();
+    const voice = pickVoice(lang);
+    window.speechSynthesis?.cancel?.();
+    window.speechSynthesis?.resume?.();
+    if (lang === "yue" && !voice) {
+      const cloud = await speakCantoneseCloudHighlighted(text, host);
+      if (cloud) return true;
+    }
+    if (!("speechSynthesis" in window)) return false;
+    const success = await speakBrowserHighlighted(text, lang, voice, host);
+    if (!success && lang === "yue") return await speakCantoneseCloudHighlighted(text, host);
+    return success;
   }
 
   function speakChunk(text, lang, voice) {
@@ -1313,23 +1981,79 @@
     return [];
   }
 
+  function levenshteinDistance(a, b) {
+    const left = [...String(a || "")];
+    const right = [...String(b || "")];
+    const previous = Array.from({ length: right.length + 1 }, (_, index) => index);
+    for (let i = 1; i <= left.length; i += 1) {
+      const current = [i];
+      for (let j = 1; j <= right.length; j += 1) {
+        current[j] = Math.min(
+          current[j - 1] + 1,
+          previous[j] + 1,
+          previous[j - 1] + (left[i - 1] === right[j - 1] ? 0 : 1)
+        );
+      }
+      previous.splice(0, previous.length, ...current);
+    }
+    return previous[right.length] || 0;
+  }
+
+  function compactTargetText(value) {
+    return String(value || "").normalize("NFKC").toLocaleLowerCase().replace(/[\s。！？!?、，,.；;：「」『』（）()\[\]~〜・]/g, "");
+  }
+
+  function productionMatchEstimate(response, entry) {
+    if (!response.trim()) return null;
+    const lang = langFromKind(entry.kind);
+    const target = compactTargetText(entry.item.text || humanizedPattern(entry.kind, entry.item));
+    const reading = compactTargetText(humanizedReading(entry.kind, entry.item));
+    let prepared = String(response || "");
+    if (lang === "jp" && /[A-Za-zāīūēō]/.test(prepared)) prepared = prepareLabInput(prepared, "ja").interpreted;
+    const candidates = [target, reading].filter(Boolean);
+    if (!candidates.length) return null;
+    const user = compactTargetText(prepared);
+    if (!user) return null;
+    const best = Math.max(...candidates.map(candidate => {
+      const distance = levenshteinDistance(user, candidate);
+      return Math.round((1 - distance / Math.max(user.length, candidate.length, 1)) * 100);
+    }));
+    return clamp(best, 0, 100);
+  }
+
+  function setStudySkillBadge(entry) {
+    const skills = skillsForEntry(entry);
+    const labels = skills.map(skill => SKILL_LABELS[skill]).join(" + ");
+    $("#studySkillBadge").textContent = labels.toUpperCase();
+    $("#studySkillBadge").dataset.skill = skills[0] || "recognition";
+  }
+
   function resetPassageAssessment(entry) {
     const questions = passageQuestionsFor(entry.item);
+    const listening = primarySkillForEntry(entry) === "listening" || entry.practiceMode === "listening" || entry.item.practiceMode === "listening";
     passageAssessment = {
       entry,
       questions,
       index: 0,
       correct: 0,
       results: [],
-      checked: false
+      checked: false,
+      listening
     };
-    $("#passageText").textContent = entry.item.text || "";
-    $("#passageReferenceText").textContent = entry.item.text || "";
     $("#passageReadingStage").classList.remove("hidden");
     $("#passageQuestionStage").classList.add("hidden");
     $("#passageResultStage").classList.add("hidden");
     $("#passageFeedback").classList.add("hidden");
+    $("#passageResultTranscriptWrap").classList.add("hidden");
     $("#passageResponse").value = "";
+    $("#passageListeningPrompt").classList.toggle("hidden", !listening);
+    $("#passageText").classList.toggle("hidden", listening);
+    $("#passageStageKicker").textContent = listening ? "LISTEN FIRST · TRANSCRIPT HIDDEN" : "READ FIRST · NO TRANSLATION";
+    $("#startPassageQuestions").textContent = listening ? "Begin listening comprehension ↗" : "Begin comprehension test ↗";
+    $("#passageText").textContent = listening ? "" : (entry.item.text || "");
+    $("#passageReferenceSummary").textContent = listening ? "Listening passage" : "Passage";
+    $("#passageReferenceText").textContent = listening ? "Transcript stays hidden until the assessment is complete. Replay the audio whenever you need it." : (entry.item.text || "");
+    $("#replayListeningPassage").classList.toggle("hidden", !listening);
   }
 
   function renderStudyItem() {
@@ -1341,15 +2065,19 @@
 
     const { kind, item } = entry;
     const percent = (study.index / study.items.length) * 100;
-    const grammar = kind.endsWith("G");
+    const grammar = sourceEntryFor(entry).kind.endsWith("G");
     const comprehension = isComprehensionKind(kind);
     const passage = kind.endsWith("P");
+    const practiceMode = entry.practiceMode || item.practiceMode || "";
+    const listening = practiceMode === "listening";
+    const production = practiceMode === "production";
     study.revealed = false;
 
     $("#sessionProgressBar").style.width = `${percent}%`;
     $("#studySessionProgress").textContent = `${study.index + 1} / ${study.items.length}`;
-    $("#studyItemType").textContent = studyTypeLabel(kind);
+    $("#studyItemType").textContent = listening ? (passage ? "LISTENING PASSAGE" : "LISTENING") : production ? "PRODUCTION" : studyTypeLabel(kind);
     $("#studyItemLevel").textContent = itemLevel(kind, item);
+    setStudySkillBadge(entry);
 
     $("#standardStudyExperience").classList.toggle("hidden", passage);
     $("#passageStudyExperience").classList.toggle("hidden", !passage);
@@ -1360,44 +2088,93 @@
     }
 
     $("#studyLanguageLabel").textContent = study.lang === "jp" ? "日本語 · JAPANESE" : "廣東話 · CANTONESE";
-    $("#studyMain").textContent = humanizedPattern(kind, item);
-    $("#studyQuestion").textContent = comprehension ? item.question : "Recall the meaning and usage, then reveal the answer.";
+    $("#listeningChallenge").classList.toggle("hidden", !listening);
+    $("#productionChallenge").classList.toggle("hidden", !production);
+    $("#productionInput").value = "";
+    $("#productionMatch").classList.add("hidden");
+    $("#listeningResponse").value = "";
+    $("#listeningMatch").classList.add("hidden");
+    $("#studySyncTranscript").classList.add("hidden");
+    $("#studySyncTranscriptText").innerHTML = "";
+
+    if (listening) {
+      $("#studyMain").textContent = "Listen to the full sentence.";
+      $("#studyQuestion").textContent = "Reconstruct the meaning before revealing the transcript. Replay as often as needed.";
+    } else if (production) {
+      $("#studyMain").textContent = meaningOf(item) || "Produce the target-language sentence.";
+      $("#studyQuestion").textContent = item.question || `Produce the ${languageName(study.lang)} sentence before revealing the model answer.`;
+    } else {
+      $("#studyMain").textContent = humanizedPattern(kind, item);
+      $("#studyQuestion").textContent = comprehension ? item.question : "Recall the meaning and usage, then reveal the answer.";
+    }
+
     const reading = humanizedReading(kind, item);
     $("#studyReadingLabel").textContent = study.lang === "yue" ? "Jyutping" : "Reading";
     $("#studyReading").textContent = reading;
     $("#studyReadingBlock").classList.toggle("hidden", !reading);
-    $("#studyMeaning").textContent = meaningOf(item);
+    $("#studyMeaning").textContent = production ? humanizedPattern(kind, item) : meaningOf(item);
     $("#studyMeta").textContent = [displayMeta(kind, item), item.contextSource].filter(Boolean).join(" · ");
 
-    const guide = comprehension
-      ? `Answer: ${item.answer}`
-      : grammar ? `${item.usage_note || ""}${grammarGuide(item) ? ` ${grammarGuide(item)}` : ""}`.trim() : "";
+    const guide = production
+      ? `Model meaning: ${meaningOf(item)}`
+      : comprehension
+        ? `Answer: ${item.answer}`
+        : grammar ? `${sourceEntryFor(entry).item.usage_note || ""}${grammarGuide(sourceEntryFor(entry).item) ? ` ${grammarGuide(sourceEntryFor(entry).item)}` : ""}`.trim() : "";
     $("#studyGuide").classList.toggle("hidden", !guide);
     $("#studyGuide").textContent = guide;
 
-    const contexts = /^(jp|yue)[GV]$/.test(kind) ? contextHtml(kind, item) : "";
+    const base = sourceEntryFor(entry);
+    const contexts = /^(jp|yue)[GV]$/.test(base.kind) && !listening && !production ? contextHtml(base.kind, base.item) : "";
     $("#studyContexts").classList.toggle("hidden", !contexts);
     $("#studyContexts").innerHTML = contexts;
     $("#speakCurrent").disabled = !speechText(kind, item);
+    $("#speakCurrent").classList.toggle("hidden", production && !study.revealed);
+    $("#speakCurrent").textContent = listening ? "Play audio" : "Play pronunciation";
 
     $("#singleStudyCard").classList.remove("revealed");
     $("#studyAnswer").classList.add("hidden");
     $("#studyActions").classList.add("hidden");
     $("#studyRevealHint").classList.remove("hidden");
+    renderRatingPreviews(entry);
   }
 
   function revealStudyCard() {
     if (study.revealed) return;
     study.revealed = true;
     const entry = study.items[study.index];
-    if (entry && study.lang === "yue") {
-      const reading = humanizedReading(entry.kind, entry.item);
-      if (reading) $("#studyMain").innerHTML = cantoneseRubyHtml(humanizedPattern(entry.kind, entry.item), reading);
+    if (!entry) return;
+    const practiceMode = entry.practiceMode || entry.item.practiceMode || "";
+    const reading = humanizedReading(entry.kind, entry.item);
+
+    if (practiceMode === "listening") {
+      const response = $("#listeningResponse").value.trim();
+      if (response) {
+        const meaningAnswer = meaningOf(entry.item) || entry.item.answer || "";
+        const meaningScore = meaningAnswer ? passageMatchEstimate(response, { answer: meaningAnswer, keywordGroups: keywordGroupsFromAnswer(meaningAnswer) }) : 0;
+        const transcriptScore = productionMatchEstimate(response, entry) || 0;
+        const estimate = Math.max(meaningScore, transcriptScore);
+        $("#listeningMatch").classList.remove("hidden");
+        $("#listeningMatch").innerHTML = `<strong>${estimate}%</strong><span>local match hint against the meaning or transcript — judge your actual understanding yourself</span>`;
+      }
+      $("#studySyncTranscript").classList.remove("hidden");
+      renderSyncTranscript($("#studySyncTranscriptText"), speechText(entry.kind, entry.item), study.lang, reading);
+    } else if (practiceMode === "production") {
+      const estimate = productionMatchEstimate($("#productionInput").value, entry);
+      if (estimate !== null) {
+        $("#productionMatch").classList.remove("hidden");
+        $("#productionMatch").innerHTML = `<strong>${estimate}%</strong><span>surface-form similarity to the model answer — use this only as a hint</span>`;
+      }
+      if (study.lang === "yue" && reading) $("#studyMeaning").innerHTML = cantoneseRubyHtml(humanizedPattern(entry.kind, entry.item), reading);
+      $("#speakCurrent").classList.remove("hidden");
+    } else if (study.lang === "yue" && reading) {
+      $("#studyMain").innerHTML = cantoneseRubyHtml(humanizedPattern(entry.kind, entry.item), reading);
     }
+
     $("#singleStudyCard").classList.add("revealed");
     $("#studyAnswer").classList.remove("hidden");
     $("#studyActions").classList.remove("hidden");
     $("#studyRevealHint").classList.add("hidden");
+    renderRatingPreviews(entry);
   }
 
   function rateCurrent(rating) {
@@ -1502,7 +2279,7 @@
 
   function finishPassageAssessment() {
     if (!passageAssessment) return;
-    const { entry, questions, correct } = passageAssessment;
+    const { entry, questions, correct, listening } = passageAssessment;
     const accuracy = questions.length ? Math.round((correct / questions.length) * 100) : 0;
     const rating = accuracy >= 90 ? 5 : accuracy >= 70 ? 4 : accuracy >= 40 ? 2 : 1;
     scheduleEntry(entry, rating);
@@ -1511,7 +2288,8 @@
     $("#passageQuestionStage").classList.add("hidden");
     $("#passageResultStage").classList.remove("hidden");
     $("#passageScoreOrb").textContent = `${accuracy}%`;
-    $("#passageResultSummary").textContent = `${correct} of ${questions.length} questions marked correct. The passage was scheduled as ${rating === 5 ? "Easy" : rating === 4 ? "Good" : rating === 2 ? "Hard" : "Again"}.`;
+    const skillLabel = SKILL_LABELS[primarySkillForEntry(entry)] || "Reading";
+    $("#passageResultSummary").textContent = `${correct} of ${questions.length} questions marked correct. ${skillLabel} was scheduled with FSRS as ${rating === 5 ? "Easy" : rating === 4 ? "Good" : rating === 2 ? "Hard" : "Again"}.`;
     const resultReading = humanizedReading(entry.kind, entry.item);
     $("#passageResultReadingLabel").textContent = study.lang === "yue" ? "Jyutping over text" : "Reading";
     if (study.lang === "yue" && resultReading) {
@@ -1522,6 +2300,9 @@
       $("#passageResultReading").textContent = resultReading || "No separate reading guide is bundled for this passage.";
     }
     $("#passageResultTranslation").textContent = meaningOf(entry.item) || "No translation is bundled for this passage.";
+    $("#passageResultTranscriptWrap").classList.remove("hidden");
+    renderSyncTranscript($("#passageResultTranscript"), entry.item.text || "", study.lang, resultReading);
+    if (listening) showToast("Listening transcript unlocked. Replay it with synchronized highlighting.");
   }
 
   function continueAfterPassage() {
@@ -1553,6 +2334,7 @@
   let reviewQueue = [];
   let reviewIndex = 0;
   let draggedReviewKey = null;
+  let reviewCurrentPractice = null;
 
   function reviewSort(entries) {
     const now = Date.now();
@@ -1601,13 +2383,14 @@
       const absoluteIndex = reviewIndex + offset;
       const due = entry.srs.due <= Date.now();
       const lang = langFromKind(entry.kind);
+      const skill = dueSkillForKey(entry.key);
       return `
         <button class="queue-card ${absoluteIndex === reviewIndex ? "active" : ""}" draggable="true" data-review-key="${escapeHtml(entry.key)}">
           <span class="drag-handle" aria-hidden="true">⋮⋮</span>
           <span class="queue-lang">${lang === "jp" ? "日" : "粵"}</span>
           <span class="queue-copy">
             <strong>${escapeHtml(humanizedPattern(entry.kind, entry.item))}</strong>
-            <small>${escapeHtml(itemLevel(entry.kind, entry.item))} · ${due ? "Due now" : `Mastery ${entry.srs.mastery || 0}%`}</small>
+            <small>${escapeHtml(SKILL_LABELS[skill])} · ${due ? "Due now" : `Mastery ${entry.srs.mastery || 0}%`}</small>
           </span>
         </button>`;
     }).join("");
@@ -1655,50 +2438,110 @@
     renderReviewWorkspace();
   }
 
+  function materializeReviewPractice(entry) {
+    const skill = dueSkillForKey(entry.key);
+    const record = skillRecordFor(entry.key, skill);
+    const variant = (record?.seen || 0) % 3;
+    if (skill === "production") return materializeProductionEntry(entry, variant);
+    if (skill === "listening") {
+      const passage = entry.kind.endsWith("P") || deterministicHash(entry.key) % 5 === 0;
+      if (entry.kind.endsWith("S") || entry.kind.endsWith("P")) return markListeningEntry(entry);
+      return materializeListeningEntry(entry, variant, passage);
+    }
+    if (skill === "reading" && !entry.kind.endsWith("S") && !entry.kind.endsWith("P")) {
+      return deterministicHash(entry.key) % 3 === 0 ? contextPassageEntry(entry, variant) : contextSentenceEntry(entry, variant);
+    }
+    return { ...entry, studySkills: [skill] };
+  }
+
   function renderReviewCard() {
     const entry = reviewQueue[reviewIndex];
     if (!entry) return;
     const due = entry.srs.due <= Date.now();
     const lang = langFromKind(entry.kind);
-    const reading = humanizedReading(entry.kind, entry.item);
+    const skill = dueSkillForKey(entry.key);
+    reviewCurrentPractice = materializeReviewPractice(entry);
+    const practice = reviewCurrentPractice;
+    const reading = humanizedReading(practice.kind, practice.item);
     const readingLabel = lang === "yue" ? "Jyutping" : "Reading";
+    const mode = practice.practiceMode || practice.item.practiceMode || "";
 
     $("#reviewSessionCount").textContent = `${reviewIndex + 1} / ${reviewQueue.length}`;
-    $("#reviewSessionDue").textContent = due ? "Due now" : `Mastery ${entry.srs.mastery || 0}%`;
-    $("#reviewSideLabel").textContent = lang === "jp" ? "JAPANESE REVIEW" : "CANTONESE REVIEW";
-    $("#reviewPrompt").textContent = humanizedPattern(entry.kind, entry.item);
-    $("#reviewPromptSub").textContent = entry.kind.endsWith("P")
-      ? "Recall the passage meaning and main ideas before revealing."
-      : "Recall the meaning and usage before revealing.";
-    $("#speakReview").disabled = !speechText(entry.kind, entry.item);
+    $("#reviewSessionDue").textContent = `${SKILL_LABELS[skill]} · ${due ? "Due now" : `Mastery ${skillMasteryForKey(entry.key, skill)}%`}`;
+    $("#reviewSideLabel").textContent = `${lang === "jp" ? "JAPANESE" : "CANTONESE"} · ${SKILL_LABELS[skill].toUpperCase()} REVIEW`;
+
+    if (mode === "listening") {
+      $("#reviewPrompt").textContent = "Listen to the context.";
+      $("#reviewPromptSub").textContent = "The transcript stays hidden until you reveal. Reconstruct the meaning first.";
+    } else if (mode === "production") {
+      $("#reviewPrompt").textContent = meaningOf(practice.item) || "Produce the target-language sentence.";
+      $("#reviewPromptSub").textContent = "Say or write the target-language model before revealing it.";
+    } else {
+      $("#reviewPrompt").textContent = humanizedPattern(practice.kind, practice.item);
+      $("#reviewPromptSub").textContent = practice.kind.endsWith("P")
+        ? "Recall the passage meaning and main ideas before revealing."
+        : skill === "reading" ? "Read for meaning before revealing the explanation." : "Recall the meaning and usage before revealing.";
+    }
+
+    $("#speakReview").disabled = !speechText(practice.kind, practice.item);
+    $("#speakReview").classList.toggle("hidden", mode === "production");
     $("#reviewReveal").classList.add("hidden");
-    $("#reviewReveal").innerHTML = `
-      ${lang !== "yue" && reading ? `<div class="review-reading-line"><span>${readingLabel}</span><p>${escapeHtml(reading)}</p></div>` : ""}
-      <strong>${escapeHtml(meaningOf(entry.item))}</strong>
-      ${entry.kind.endsWith("G") && grammarGuide(entry.item) ? `<p>${escapeHtml(grammarGuide(entry.item))}</p>` : ""}
-      <small>${escapeHtml(displayMeta(entry.kind, entry.item))}</small>`;
+    $("#reviewReveal").innerHTML = "";
     $("#reviewControls").innerHTML = '<button class="btn primary" id="revealReview">Reveal answer</button>';
     $("#revealReview").addEventListener("click", revealReview);
   }
 
   function revealReview() {
-    const entry = reviewQueue[reviewIndex];
-    if (entry && langFromKind(entry.kind) === "yue") {
-      const reading = humanizedReading(entry.kind, entry.item);
-      if (reading) $("#reviewPrompt").innerHTML = cantoneseRubyHtml(humanizedPattern(entry.kind, entry.item), reading);
+    const baseEntry = reviewQueue[reviewIndex];
+    const entry = reviewCurrentPractice || baseEntry;
+    if (!baseEntry || !entry) return;
+    const lang = langFromKind(baseEntry.kind);
+    const reading = humanizedReading(entry.kind, entry.item);
+    const mode = entry.practiceMode || entry.item.practiceMode || "";
+    const target = humanizedPattern(entry.kind, entry.item);
+
+    if (mode !== "listening" && mode !== "production" && lang === "yue" && reading) {
+      $("#reviewPrompt").innerHTML = cantoneseRubyHtml(target, reading);
     }
+
+    let revealHtml = "";
+    if (mode === "listening") {
+      revealHtml = `
+        <div class="review-sync-block">
+          <div class="sync-transcript-head"><span>Transcript</span><button type="button" class="speak-btn compact-audio" id="replayReviewSync">Replay with highlighting</button></div>
+          <div id="reviewSyncTranscript" class="sync-transcript"></div>
+        </div>
+        <strong>${escapeHtml(meaningOf(entry.item))}</strong>
+        ${reading && lang !== "yue" ? `<div class="review-reading-line"><span>Reading</span><p>${escapeHtml(reading)}</p></div>` : ""}`;
+    } else if (mode === "production") {
+      revealHtml = `
+        <div class="production-model-answer"><span>Model answer</span><p class="${lang === "yue" ? "canto-ruby" : ""}">${lang === "yue" && reading ? cantoneseRubyHtml(target, reading) : escapeHtml(target)}</p></div>
+        ${reading && lang !== "yue" ? `<div class="review-reading-line"><span>Reading</span><p>${escapeHtml(reading)}</p></div>` : ""}
+        <strong>${escapeHtml(meaningOf(entry.item))}</strong>`;
+    } else {
+      revealHtml = `
+        ${lang !== "yue" && reading ? `<div class="review-reading-line"><span>${lang === "yue" ? "Jyutping" : "Reading"}</span><p>${escapeHtml(reading)}</p></div>` : ""}
+        <strong>${escapeHtml(meaningOf(entry.item))}</strong>
+        ${sourceEntryFor(entry).kind.endsWith("G") && grammarGuide(sourceEntryFor(entry).item) ? `<p>${escapeHtml(grammarGuide(sourceEntryFor(entry).item))}</p>` : ""}
+        <small>${escapeHtml(displayMeta(sourceEntryFor(entry).kind, sourceEntryFor(entry).item))}</small>`;
+    }
+
+    $("#reviewReveal").innerHTML = revealHtml;
     $("#reviewReveal").classList.remove("hidden");
+    if (mode === "listening") {
+      renderSyncTranscript($("#reviewSyncTranscript"), speechText(entry.kind, entry.item), lang, reading);
+      $("#replayReviewSync")?.addEventListener("click", () => speakItemHighlighted(entry.kind, entry.item, $("#reviewSyncTranscript")));
+    }
+    const preview = fsrsRatingPreview(entry);
+    const labels = { 1: "Again", 2: "Hard", 4: "Good", 5: "Easy" };
     $("#reviewControls").innerHTML = `
       <div class="review-rating-row">
-        <button class="rating-btn again" data-review-rating="1">Again</button>
-        <button class="rating-btn hard" data-review-rating="2">Hard</button>
-        <button class="rating-btn good" data-review-rating="4">Good</button>
-        <button class="rating-btn easy" data-review-rating="5">Easy</button>
+        ${[1,2,4,5].map(rating => `<button class="rating-btn ${rating === 1 ? "again" : rating === 2 ? "hard" : rating === 4 ? "good" : "easy"}" data-review-rating="${rating}"><span>${labels[rating]}</span><small>${escapeHtml(preview[rating] || "")}</small></button>`).join("")}
       </div>`;
-    $$("[data-review-rating]").forEach(button => {
+    $$('[data-review-rating]').forEach(button => {
       button.addEventListener("click", () => {
-        const entry = reviewQueue[reviewIndex];
-        schedule(entry.kind, entry.item, Number(button.dataset.reviewRating));
+        const rating = Number(button.dataset.reviewRating);
+        scheduleEntry(entry, rating);
         reviewIndex += 1;
         saveState();
         renderReviewWorkspace();
@@ -2406,8 +3249,8 @@
         <div class="context-review-section-head"><div><span>01</span><h4>Sentence variations</h4></div><p>The same item in three progressively denser contexts.</p></div>
         <div class="context-review-sentence-grid">
           ${sentences.map((example, index) => `<article class="context-review-card">
-            <span class="context-difficulty">${["EASIER", "BUILD", "HARDER"][index]}</span>
-            <p class="context-review-target ${lang === "yue" ? "canto-ruby" : ""}">${lang === "yue" && example.reading ? cantoneseRubyHtml(example.text, example.reading) : escapeHtml(example.text)}</p>
+            <div class="context-audio-head"><span class="context-difficulty">${["EASIER", "BUILD", "HARDER"][index]}</span><button type="button" class="context-audio-button" data-context-sentence-audio="${index}">Listen ↗</button></div>
+            <p class="context-review-target ${lang === "yue" ? "canto-ruby" : ""}" data-context-sentence-sync="${index}">${lang === "yue" && example.reading ? cantoneseRubyHtml(example.text, example.reading) : escapeHtml(example.text)}</p>
             ${lang !== "yue" && example.reading ? `<p class="context-review-reading">${escapeHtml(example.reading)}</p>` : ""}
             <p class="context-review-translation">${escapeHtml(example.translation || "")}</p>
           </article>`).join("")}
@@ -2418,8 +3261,8 @@
         <div class="context-review-section-head"><div><span>02</span><h4>Passage variations</h4></div><p>Read for meaning first, then use the prompts to check actual comprehension.</p></div>
         <div class="context-review-passage-list">
           ${passages.map((passage, index) => `<article class="context-passage-card">
-            <div class="context-passage-head"><span>${["EASIER", "BUILD", "HARDER"][index]}</span><strong>${passage.questions?.length || 0} comprehension prompts</strong></div>
-            <p class="context-passage-text ${lang === "yue" ? "canto-ruby" : ""}">${lang === "yue" && passage.reading ? cantoneseRubyHtml(passage.text, passage.reading) : escapeHtml(passage.text)}</p>
+            <div class="context-passage-head"><span>${["EASIER", "BUILD", "HARDER"][index]}</span><div><strong>${passage.questions?.length || 0} comprehension prompts</strong><button type="button" class="context-audio-button" data-context-passage-audio="${index}">Listen with highlighting ↗</button></div></div>
+            <p class="context-passage-text ${lang === "yue" ? "canto-ruby" : ""}" data-context-passage-sync="${index}">${lang === "yue" && passage.reading ? cantoneseRubyHtml(passage.text, passage.reading) : escapeHtml(passage.text)}</p>
             ${lang !== "yue" && passage.reading ? `<p class="context-review-reading">${escapeHtml(passage.reading)}</p>` : ""}
             <details class="context-translation-details"><summary>Show passage translation</summary><p>${escapeHtml(passage.translation || "")}</p></details>
             <div class="context-question-list">${(passage.questions || []).map(renderContextQuestion).join("")}</div>
@@ -2439,6 +3282,29 @@
       $("#librarySearch").value = humanizedPattern(kind, item);
       renderLibrary();
     });
+
+    $$('[data-context-sentence-audio]', host).forEach(button => button.addEventListener("click", async () => {
+      const index = Number(button.dataset.contextSentenceAudio);
+      const example = sentences[index];
+      const target = $(`[data-context-sentence-sync="${index}"]`, host);
+      if (!example || !target) return;
+      button.disabled = true;
+      button.textContent = "Playing…";
+      await speakItemHighlighted(lang === "jp" ? "jpS" : "yueS", { text: example.text, reading: example.reading || "" }, target);
+      button.disabled = false;
+      button.textContent = "Replay ↗";
+    }));
+    $$('[data-context-passage-audio]', host).forEach(button => button.addEventListener("click", async () => {
+      const index = Number(button.dataset.contextPassageAudio);
+      const passage = passages[index];
+      const target = $(`[data-context-passage-sync="${index}"]`, host);
+      if (!passage || !target) return;
+      button.disabled = true;
+      button.textContent = "Playing…";
+      await speakItemHighlighted(lang === "jp" ? "jpP" : "yueP", passage, target);
+      button.disabled = false;
+      button.textContent = "Replay with highlighting ↗";
+    }));
   }
 
   function setContextBrowserLanguage(lang, preserveSearch = false) {
@@ -2660,7 +3526,7 @@
       ? reviewPreview.map(entry => `
           <button class="review-item" data-action="review">
             <span class="lang-dot">${langFromKind(entry.kind) === "jp" ? "日" : "粵"}</span>
-            <span><strong>${escapeHtml(humanizedPattern(entry.kind, entry.item))}</strong><small>${escapeHtml(itemLevel(entry.kind, entry.item))} · Mastery ${entry.srs.mastery || 0}%</small></span>
+            <span><strong>${escapeHtml(humanizedPattern(entry.kind, entry.item))}</strong><small>${escapeHtml(itemLevel(entry.kind, entry.item))} · Next: ${escapeHtml(SKILL_LABELS[dueSkillForKey(entry.key)] || "Recognition")} · Mastery ${entry.srs.mastery || 0}%</small></span>
             <em>${entry.srs.due <= Date.now() ? "Due" : "Saved"}</em>
           </button>`).join("")
       : '<button class="review-item empty-review" data-action="open-study">No learned items yet — start a study session.</button>';
@@ -2689,16 +3555,27 @@
     $("#countYueVocab").textContent = source.yueV.length.toLocaleString();
   }
 
+  function renderSkillMiniSummary(lang) {
+    return SKILLS.map(skill => {
+      const value = languageSkillMastery(lang, skill);
+      return `<div class="skill-mini"><span>${escapeHtml(SKILL_LABELS[skill])}</span><div><i style="width:${value}%"></i></div><strong>${value}%</strong></div>`;
+    }).join("");
+  }
+
   function openProfile() {
     $("#profileNameInput").value = state.profile.name;
     $("#jpTargetInput").value = state.profile.jpTarget;
     $("#yueTargetInput").value = state.profile.yueTarget;
     $("#jpDailyGoalInput").value = state.profile.jpDailyGoal;
     $("#yueDailyGoalInput").value = state.profile.yueDailyGoal;
+    const retention = Math.round(clamp(Number(state.profile.fsrsRetention) || 0.90, 0.80, 0.97) * 100);
+    $("#fsrsRetentionInput").value = retention;
+    $("#fsrsRetentionValue").value = `${retention}%`;
+    $("#fsrsRetentionValue").textContent = `${retention}%`;
     $("#profileStats").innerHTML = `
       <div class="profile-stat"><strong>${state.xp.jp}</strong><span>Japanese XP</span></div>
       <div class="profile-stat"><strong>${state.xp.yue}</strong><span>Cantonese XP</span></div>
-      <div class="profile-stat"><strong>${learnedEntries().length}</strong><span>items learned</span></div>
+      <div class="profile-stat"><strong>${learnedEntries().length}</strong><span>base items encountered</span></div>
       <div class="profile-stat"><strong>${streak()}</strong><span>day streak</span></div>`;
     renderAudioStatus();
     ensureVoices().then(() => { populateVoiceSelectors(); renderAudioStatus(); });
@@ -2706,13 +3583,16 @@
   }
 
   function saveProfile() {
+    const existingAudio = state.audio;
     state.profile = {
       name: $("#profileNameInput").value.trim() || "Learner",
       jpTarget: $("#jpTargetInput").value,
       yueTarget: $("#yueTargetInput").value,
       jpDailyGoal: Math.max(1, Math.round(Number($("#jpDailyGoalInput").value) || 30)),
-      yueDailyGoal: Math.max(1, Math.round(Number($("#yueDailyGoalInput").value) || 30))
+      yueDailyGoal: Math.max(1, Math.round(Number($("#yueDailyGoalInput").value) || 30)),
+      fsrsRetention: clamp((Number($("#fsrsRetentionInput").value) || 90) / 100, 0.80, 0.97)
     };
+    state.audio = existingAudio || state.audio;
     saveState();
     closeDialog($("#profileDialog"));
     showToast("Settings saved locally.");
@@ -2724,6 +3604,33 @@
     return total ? Math.round((answers.correct / total) * 100) : 0;
   }
 
+  function skillDueCount(lang, skill) {
+    const prefix = lang === "jp" ? "jp" : "yue";
+    const now = Date.now();
+    return Object.entries(state.skillSrs || {}).reduce((count, [key, bucket]) => {
+      if (!key.startsWith(prefix)) return count;
+      const record = bucket?.[skill];
+      return count + ((record?.seen || 0) > 0 && (Number(record.card?.due) || 0) <= now ? 1 : 0);
+    }, 0);
+  }
+
+  function renderSkillMatrix(lang) {
+    return `<section class="skill-matrix-block">
+      <div class="skill-matrix-head"><div><span>${lang === "jp" ? "日本語" : "廣東話"}</span><h3>${lang === "jp" ? "Japanese" : "Cantonese"} skill memory</h3></div><strong>${languageMastery(lang)}% overall</strong></div>
+      <div class="skill-matrix">
+        ${SKILLS.map(skill => {
+          const mastery = languageSkillMastery(lang, skill);
+          const due = skillDueCount(lang, skill);
+          return `<article class="skill-metric-card">
+            <div><span>${escapeHtml(SKILL_LABELS[skill])}</span><strong>${mastery}%</strong></div>
+            <div class="skill-meter"><i style="width:${mastery}%"></i></div>
+            <small>${due ? `${due} due now` : "No due reviews"}</small>
+          </article>`;
+        }).join("")}
+      </div>
+    </section>`;
+  }
+
   function openProgress() {
     const rows = [
       ["Japanese grammar", "jpG"],
@@ -2731,24 +3638,27 @@
       ["Cantonese grammar", "yueG"],
       ["Cantonese vocabulary", "yueV"]
     ];
+    const retention = Math.round((Number(state.profile.fsrsRetention) || 0.90) * 100);
     $("#progressDashboard").innerHTML = `
       <div class="progress-kpis">
         <div class="progress-kpi"><strong>${state.xp.jp}</strong><span>Japanese XP</span></div>
         <div class="progress-kpi"><strong>${state.xp.yue}</strong><span>Cantonese XP</span></div>
-        <div class="progress-kpi"><strong>${languageMastery("jp")}%</strong><span>Japanese average mastery</span></div>
-        <div class="progress-kpi"><strong>${languageMastery("yue")}%</strong><span>Cantonese average mastery</span></div>
+        <div class="progress-kpi"><strong>${dueEntries().length}</strong><span>base items with something due</span></div>
+        <div class="progress-kpi"><strong>${retention}%</strong><span>FSRS desired retention</span></div>
       </div>
       <div class="progress-targets">
         <div><span>Japanese target</span><strong>${escapeHtml(state.profile.jpTarget)}</strong><small>${escapeHtml(targetScopeText("jp"))}</small></div>
         <div><span>Cantonese target</span><strong>${escapeHtml(state.profile.yueTarget)}</strong><small>${escapeHtml(targetScopeText("yue"))}</small></div>
       </div>
+      <div class="skill-analytics-stack">${renderSkillMatrix("jp")}${renderSkillMatrix("yue")}</div>
+      <section class="dataset-mastery-block"><div class="dataset-mastery-head"><span>BASE ITEM COVERAGE</span><p>Aggregate mastery across any skill you have practiced for each vocabulary or grammar item.</p></div>
       <div class="mastery-table">
         ${rows.map(([label, prefix]) => {
           const entries = learnedEntries().filter(entry => entry.kind === prefix);
           const mastery = entries.length ? Math.round(entries.reduce((sum, entry) => sum + (entry.srs.mastery || 0), 0) / entries.length) : 0;
           return `<div class="mastery-row"><span>${label} · ${entries.length}</span><div class="mastery-bar"><i style="width:${mastery}%"></i></div><strong>${mastery}%</strong></div>`;
         }).join("")}
-      </div>`;
+      </div></section>`;
     showDialog($("#progressDialog"));
   }
 
@@ -2850,11 +3760,27 @@
   $("#speakCurrent").addEventListener("click", event => {
     event.stopPropagation();
     const entry = study.items[study.index];
-    if (entry) speakItem(entry.kind, entry.item);
+    if (!entry) return;
+    if (entry.practiceMode?.startsWith("listening") && study.revealed) {
+      speakItemHighlighted(entry.kind, entry.item, $("#studySyncTranscriptText"));
+    } else speakItem(entry.kind, entry.item);
+  });
+  $("#replaySyncTranscript").addEventListener("click", event => {
+    event.stopPropagation();
+    const entry = study.items[study.index];
+    if (entry) speakItemHighlighted(entry.kind, entry.item, $("#studySyncTranscriptText"));
   });
   $("#speakPassage").addEventListener("click", () => {
     const entry = study.items[study.index];
     if (entry?.kind.endsWith("P")) speakItem(entry.kind, entry.item);
+  });
+  $("#replayListeningPassage").addEventListener("click", () => {
+    const entry = study.items[study.index];
+    if (entry?.kind.endsWith("P")) speakItem(entry.kind, entry.item);
+  });
+  $("#replayPassageResult").addEventListener("click", () => {
+    const entry = study.items[study.index];
+    if (entry?.kind.endsWith("P")) speakItemHighlighted(entry.kind, entry.item, $("#passageResultTranscript"));
   });
   $("#startPassageQuestions").addEventListener("click", startPassageQuestions);
   $("#checkPassageAnswer").addEventListener("click", checkPassageAnswer);
@@ -2865,7 +3791,7 @@
   $("#markPassageCorrect").addEventListener("click", () => selfGradePassageQuestion(true));
   $("#continueAfterPassage").addEventListener("click", continueAfterPassage);
   $("#speakReview").addEventListener("click", () => {
-    const entry = reviewQueue[reviewIndex];
+    const entry = reviewCurrentPractice || reviewQueue[reviewIndex];
     if (entry) speakItem(entry.kind, entry.item);
   });
 
@@ -2915,6 +3841,11 @@
   $("#testJapaneseAudio").addEventListener("click", () => speakItem("jpS", { text: "日本語の音声を確認しています。" }));
   $("#testCantoneseAudio").addEventListener("click", () => speakItem("yueS", { text: "而家測試廣東話發音。" }));
 
+  $("#fsrsRetentionInput").addEventListener("input", event => {
+    const value = `${Math.round(Number(event.target.value) || 90)}%`;
+    $("#fsrsRetentionValue").value = value;
+    $("#fsrsRetentionValue").textContent = value;
+  });
   $("#saveProfile").addEventListener("click", saveProfile);
   $("#exportProgress").addEventListener("click", exportProgress);
   $("#openClearProgress").addEventListener("click", openClearProgressDialog);
@@ -2937,6 +3868,26 @@
       if (event.target === dialog) dialog.close();
     });
   });
+
+  window.AIDA_DEBUG = {
+    source,
+    state: () => state,
+    contextVariations,
+    contextPassageEntry,
+    materializeProductionEntry,
+    materializeListeningEntry,
+    materializeStudyEntry,
+    studyPool,
+    languageSkillMastery,
+    dueSkillForKey,
+    scheduleEntry,
+    skillRecordFor,
+    fsrsRatingPreview,
+    coherentQuestions,
+    primarySemanticDomain,
+    itemKey,
+    byId
+  };
 
   populateLibraryControls();
   setLabMode("ja");

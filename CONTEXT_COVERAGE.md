@@ -1,8 +1,8 @@
-# Context coverage report
+# Context coverage report — V9
 
 ## Learner-facing source items
 
-| Track | Type | Items | Sentence variants | Mini-passage variants |
+| Track | Type | Items | Sentence variants | Coherent passage variants |
 |---|---:|---:|---:|---:|
 | Japanese | Vocabulary | 7,973 | 23,919 | 23,919 |
 | Japanese | Grammar | 963 | 2,889 | 2,889 |
@@ -10,75 +10,105 @@
 | Cantonese | Grammar | 67 | 201 | 201 |
 | **Total** |  | **34,872** | **104,616** | **104,616** |
 
-Coverage is generated on demand. The website stores source items plus imported context and materializes the sentence or passage assessment when selected. This avoids storing 209,232 duplicated runtime cards.
+Context is materialized on demand rather than stored as hundreds of thousands of duplicate runtime cards.
 
-## Progressive variation model
+## Three-stage progression
 
-Every source item exposes three sentence contexts:
+Every source item exposes:
 
 ```text
 EASIER → BUILD → HARDER
 ```
 
-It also exposes three passage variants:
+The progression is skill-specific. Repeated listening exposure can advance while recognition remains on another state because listening and recognition no longer share one universal exposure counter.
 
-1. the two easier contexts
-2. the two denser contexts
-3. all three contexts together
+## Coherent passage construction
 
-The source item's SRS exposure count advances repeated sentence/passage encounters through those three variants.
+A passage variant is built from:
 
-## Context priority
+1. a semantic-domain scenario setup
+2. an authentic, bundled, original, or deterministic target-containing anchor context
+3. discourse framing appropriate to the difficulty stage
+4. a consequence, reconsideration, evidence step, or inference step
+
+The three variants are not simple concatenations of the three sentence cards.
+
+### EASIER
+
+- short everyday setup
+- target-containing central event/claim
+- direct consequence or follow-up
+- detail and sequence questions
+
+### BUILD
+
+- initial expectation
+- target-containing event/claim
+- changed interpretation
+- purpose, change-in-view, and evidence questions
+
+### HARDER
+
+- contextual setup
+- target-containing event/claim
+- broader reasoning
+- delayed conclusion or information gathering
+- context, reasoning, implication, and summary questions
+
+## Exhaustive validation
+
+The V9 validation pass generated all three passage variants for all 34,872 active vocabulary/grammar items:
+
+- 104,616 generated passage variants checked
+- 348,720 generated comprehension questions checked
+- 0 duplicate three-variant sets
+- 0 empty passages
+- 0 item-linked passages without comprehension questions
+- 0 generated “What does this word mean?” comprehension prompts
+- 0 Cantonese generated passages missing a reading/Jyutping string
+
+Question types observed:
+
+- CENTRAL DETAIL
+- SEQUENCE
+- PURPOSE
+- CHANGE IN VIEW
+- EVIDENCE
+- INFERENCE
+- CONTEXT
+- REASONING
+- IMPLICATION
+- SUMMARY
+
+## Context source priority
 
 ### Japanese vocabulary and grammar
 
-1. Selected Tatoeba/Tanaka-WWWJDIC Japanese–English contexts from `data/context_examples.js`
-2. Original AIDA grammar examples for grammar points with no corpus match
-3. Deterministic AIDA fallback context for any remaining uncovered vocabulary slot
+1. selected Tatoeba/Tanaka-WWWJDIC Japanese–English context
+2. original AIDA grammar examples where no imported match exists
+3. deterministic AIDA fallback for remaining gaps
 
 ### Cantonese vocabulary
 
-1. Existing bundled vocabulary examples with usable Jyutping
-2. HKCanCor conversational contexts from `data/context_examples.js`
-3. Deterministic AIDA fallback context for remaining uncovered slots
+1. bundled vocabulary examples with Jyutping
+2. HKCanCor conversational context
+3. deterministic AIDA fallback
 
 ### Cantonese grammar
 
-Three deterministic target-language structure instantiations using different people, objects, times, and places.
+Target-language structure instantiations with varied people, objects, times, and places.
+
+Generated/original material is identified as AIDA material rather than corpus-authentic text.
 
 ## Imported/bundled coverage before fallback
 
 - Japanese vocabulary with imported context: 6,991 / 7,973
 - Japanese grammar with imported corpus context: 742 / 963
-- Japanese imported total: 7,733 / 8,936
-- Japanese grammar with three non-meta contexts after original AIDA supplementation: 963 / 963
-- Japanese grammar points supplied with original AIDA examples because no imported corpus match was available: 221
+- Japanese grammar with at least three non-meta contexts after AIDA supplementation: 963 / 963
 - Cantonese vocabulary with bundled examples: 24,927 / 25,869
 - Cantonese vocabulary with HKCanCor context: 4,224 / 25,869
 - Cantonese vocabulary covered by bundled examples or HKCanCor: 25,130 / 25,869
 
-Fallback/original material is labeled as AIDA content rather than corpus-sourced material.
+## Cantonese pronunciation coverage
 
-## Difficulty progression
-
-A target is a ceiling, not a request to study only that exact band.
-
-Japanese:
-
-```text
-N5 → N4 → N3 → N2 → N1
-```
-
-Cantonese:
-
-```text
-Beginner → Intermediate → Advanced
-```
-
-Session sampling is stratified across allowed bands and then ordered from lower to higher difficulty. Repeated encounters with the same source item also move through its easier, build, and harder context variants.
-
-## Learner-facing Cantonese cleanup
-
-The raw Cantonese source export contained **18,566 records** that could not function as reliable study cards because they lacked a definition, carried explicit deletion/editing markers, or had no recoverable pronunciation data. They are excluded from study but preserved in `exports/cantonese_vocabulary_excluded.csv` with an `exclusion_reason` field.
-
-All **25,869 active Cantonese vocabulary items** have pronunciation/Jyutping data. All bundled Cantonese examples that remain learner-facing also have usable Jyutping; unrecoverable example rows were removed from display.
+The learner-facing active Cantonese dataset contains 25,869 vocabulary items and 67 grammar items. Active items retain learner-visible Jyutping/pronunciation data. Generated Cantonese passage support lines also include Jyutping so answer reveal and synchronized transcript rendering can annotate characters.

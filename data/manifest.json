@@ -10,7 +10,6 @@
     "An additional original reading passage bank is stored in data/reading_passages.js.",
     "Context coverage is exhaustive at runtime: every vocabulary and grammar item can generate sentence variations and a mini-passage; imported corpus examples are preferred when available.",
     "Selected Japanese context examples were imported from Tatoeba/Tanaka-WWWJDIC data; selected Cantonese conversational examples come from HKCanCor via PyCantonese.",
-    "The supplemental common Japanese vocabulary item うんち was added because it is a concrete parser/test case and common everyday vocabulary.",
     "V7 study sessions stratify across all allowed levels and order selected material from easier to harder.",
     "V7 Usage Lab converts common Japanese romaji to kana and uses global dynamic-programming segmentation with contextual candidate ranking instead of greedy local matching.",
     "V7 Cantonese audio recognizes yue-CN, yue-HK, other yue locales, and zh-HK, with manual browser voice selection.",
@@ -20,7 +19,11 @@
     "Imported Japanese grammar items with only one or two corpus examples are padded to three by contextual variations of the corpus sentence rather than meta-linguistic placeholder cards.",
     "V7 provides three progressive sentence contexts and three progressive mini-passage variations for every active vocabulary and grammar source item; repeated encounters advance through easier, build, and harder variants.",
     "Cantonese pronunciation data is normalized for learner display; all active vocabulary items and all displayed bundled Cantonese examples have usable pronunciation/Jyutping, while unrecoverable source rows remain in the excluded audit CSV.",
-    "V7 includes an optional same-origin Vercel serverless Cantonese TTS endpoint backed by Azure Speech; browser-native yue-CN/yue-HK/zh-HK remains the no-key fallback."
+    "V7 includes an optional same-origin Vercel serverless Cantonese TTS endpoint backed by Azure Speech; browser-native yue-CN/yue-HK/zh-HK remains the no-key fallback.",
+    "V9 replaces concatenated mini-passages with a coherent scenario engine that embeds the target context in a semantic-domain setup, development, and consequence.",
+    "V9 tracks recognition, production, listening, reading, and grammar as independent memory skills.",
+    "V9 vendors ts-fsrs and schedules each practiced item-skill memory independently with configurable desired retention.",
+    "V9 adds transcript-hidden sentence and passage listening practice with synchronized reveal highlighting and Cantonese ruby Jyutping."
   ],
   "sources": {
     "japanese_grammar_primary": "https://bunpro.jp/grammar_points",
@@ -52,5 +55,5 @@
     "cantonese_bundled_context_items": 24927,
     "cantonese_bundled_or_hkcancor_context_items": 25130
   },
-  "version": "V7 Context Engine"
+  "version": "V9 Multi-Skill Learning Engine"
 }
