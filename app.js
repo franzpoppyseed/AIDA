@@ -38,6 +38,28 @@
     .replace(/[_-]+/g, " ")
     .replace(/\b\w/g, char => char.toUpperCase());
 
+
+  function jyutpingSyllables(reading) {
+    return String(reading || "")
+      .normalize("NFKC")
+      .match(/[A-Za-z]+[0-9]/g) || [];
+  }
+
+  function cantoneseRubyHtml(text, reading) {
+    const syllables = jyutpingSyllables(reading);
+    if (!syllables.length) return escapeHtml(text);
+    let syllableIndex = 0;
+    return [...String(text || "")].map(char => {
+      if (/\p{Script=Han}/u.test(char)) {
+        const syllable = syllables[syllableIndex++] || "";
+        return syllable
+          ? `<ruby><rb>${escapeHtml(char)}</rb><rt>${escapeHtml(syllable)}</rt></ruby>`
+          : escapeHtml(char);
+      }
+      return escapeHtml(char);
+    }).join("");
+  }
+
   function todayKey(date = new Date()) {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -684,10 +706,8 @@
         text: variant.text || focus,
         reading: variant.reading || "",
         translation: variant.translation || meaning,
-        question: baseEntry.kind.endsWith("V")
-          ? `What does “${focus}” mean in this sentence?`
-          : `What meaning or function does “${focus}” contribute here?`,
-        answer: meaning,
+        question: "What situation, action, or idea is expressed in this sentence?",
+        answer: variant.translation || meaning,
         contextSource: variant.source || "AIDA context",
         _sourceKind: baseEntry.kind,
         _sourceId: baseEntry.item.id
@@ -710,28 +730,46 @@
       allVariants.slice(0, 3)
     ];
     const variants = passageSets[variantIndex % 3].length ? passageSets[variantIndex % 3] : allVariants;
-    const text = variants.map(example => example.text).join("");
-    const reading = variants.map(example => example.reading).filter(Boolean).join(" / ");
+    const text = variants.map(example => {
+      const value = String(example.text || "").trim();
+      return value && !/[。！？!?]$/.test(value) ? `${value}。` : value;
+    }).join("");
+    const reading = variants.map(example => String(example.reading || "").trim()).filter(Boolean).join(" / ");
     const translations = variants.map(example => example.translation).filter(Boolean);
     const translation = translations.join(" ") || `A short context set built around “${focus}” (${meaning}).`;
+    const firstMeaning = variants[0]?.translation || translation;
+    const relationVariant = variants.find(example => /ので|から|ため|だから|もし|なら|ば|たら|のに|けれど|しかし|一方|因為|所以|如果|就|雖然|但係|不過|即使|與其|不如/.test(String(example.text || ""))) || variants[1] || variants[0];
+    const relationText = String(relationVariant?.text || "");
+    let relationType = "DEVELOPMENT";
+    let relationQuestion = "What additional situation or idea is introduced after the opening sentence?";
+    if (/ので|から|ため|だから|因為|所以/.test(relationText)) {
+      relationType = "CAUSE / RESULT";
+      relationQuestion = "What reason or cause is given, and what result follows from it?";
+    } else if (/もし|なら|ば|たら|如果|就|即使/.test(relationText)) {
+      relationType = "CONDITION";
+      relationQuestion = "What condition is described, and what happens under that condition?";
+    } else if (/のに|けれど|しかし|一方|雖然|但係|不過|與其|不如/.test(relationText)) {
+      relationType = "CONTRAST";
+      relationQuestion = "What contrast or alternative does the passage present?";
+    }
     const questions = [
       {
-        type: "TARGET MEANING",
-        question: baseEntry.kind.endsWith("V") ? `What does “${focus}” mean in this passage?` : `What meaning or function does “${focus}” contribute?`,
-        answer: meaning,
-        keywordGroups: [[meaning, ...meaning.split(/[;,/]/).map(part => part.trim()).filter(Boolean)]]
-      },
-      {
-        type: "FIRST CONTEXT",
-        question: "What is the main idea of the first sentence?",
-        answer: variants[0]?.translation || `It gives a context containing ${focus}.`,
+        type: "DETAIL",
+        question: "According to the first sentence, what happens or what is true?",
+        answer: firstMeaning,
         keywordGroups: []
       },
       {
-        type: "CONTEXT LINK",
-        question: "What word or grammar point is repeated across the passage?",
-        answer: focus,
-        keywordGroups: [[focus]]
+        type: relationType,
+        question: relationQuestion,
+        answer: relationVariant?.translation || translation,
+        keywordGroups: []
+      },
+      {
+        type: "SUMMARY",
+        question: "Summarize the passage's overall situation or message in one or two sentences.",
+        answer: translation,
+        keywordGroups: []
       }
     ];
     return {
@@ -769,7 +807,7 @@
         ${examples.map((example, index) => `
           <article class="context-variation-card">
             <span>${["EASIER", "BUILD", "HARDER"][index] || String(index + 1).padStart(2, "0")}</span>
-            <p class="context-target">${escapeHtml(example.text)}</p>
+            <p class="context-target ${kind.startsWith("yue") ? "canto-ruby" : ""}">${kind.startsWith("yue") && example.reading ? cantoneseRubyHtml(example.text, example.reading) : escapeHtml(example.text)}</p>
             ${example.reading ? `<p class="context-reading"><b>${readingLabel}</b>${escapeHtml(example.reading)}</p>` : ""}
             ${example.translation ? `<p class="context-translation">${escapeHtml(example.translation)}</p>` : ""}
             <small>${escapeHtml(example.source || "AIDA context")}</small>
@@ -1351,6 +1389,11 @@
   function revealStudyCard() {
     if (study.revealed) return;
     study.revealed = true;
+    const entry = study.items[study.index];
+    if (entry && study.lang === "yue") {
+      const reading = humanizedReading(entry.kind, entry.item);
+      if (reading) $("#studyMain").innerHTML = cantoneseRubyHtml(humanizedPattern(entry.kind, entry.item), reading);
+    }
     $("#singleStudyCard").classList.add("revealed");
     $("#studyAnswer").classList.remove("hidden");
     $("#studyActions").classList.remove("hidden");
@@ -1418,7 +1461,7 @@
     $("#passageQuestionCount").textContent = `Question ${passageAssessment.index + 1} of ${total}`;
     $("#passageQuestionRail").style.width = `${(passageAssessment.index / total) * 100}%`;
     $("#passageQuestionType").textContent = titleCase(question.type || "comprehension");
-    $("#passageQuestionPrompt").textContent = question.prompt || question.question || "What does this passage mean?";
+    $("#passageQuestionPrompt").textContent = question.prompt || question.question || "What is the main idea of this passage?";
     $("#passageResponse").value = "";
     $("#passageResponse").disabled = false;
     $("#checkPassageAnswer").disabled = false;
@@ -1469,8 +1512,15 @@
     $("#passageResultStage").classList.remove("hidden");
     $("#passageScoreOrb").textContent = `${accuracy}%`;
     $("#passageResultSummary").textContent = `${correct} of ${questions.length} questions marked correct. The passage was scheduled as ${rating === 5 ? "Easy" : rating === 4 ? "Good" : rating === 2 ? "Hard" : "Again"}.`;
-    $("#passageResultReadingLabel").textContent = study.lang === "yue" ? "Jyutping" : "Reading";
-    $("#passageResultReading").textContent = humanizedReading(entry.kind, entry.item) || "No separate reading guide is bundled for this passage.";
+    const resultReading = humanizedReading(entry.kind, entry.item);
+    $("#passageResultReadingLabel").textContent = study.lang === "yue" ? "Jyutping over text" : "Reading";
+    if (study.lang === "yue" && resultReading) {
+      $("#passageResultReading").classList.add("canto-ruby", "passage-ruby-result");
+      $("#passageResultReading").innerHTML = cantoneseRubyHtml(entry.item.text || "", resultReading);
+    } else {
+      $("#passageResultReading").classList.remove("canto-ruby", "passage-ruby-result");
+      $("#passageResultReading").textContent = resultReading || "No separate reading guide is bundled for this passage.";
+    }
     $("#passageResultTranslation").textContent = meaningOf(entry.item) || "No translation is bundled for this passage.";
   }
 
@@ -1623,7 +1673,7 @@
     $("#speakReview").disabled = !speechText(entry.kind, entry.item);
     $("#reviewReveal").classList.add("hidden");
     $("#reviewReveal").innerHTML = `
-      ${reading ? `<div class="review-reading-line"><span>${readingLabel}</span><p>${escapeHtml(reading)}</p></div>` : ""}
+      ${lang !== "yue" && reading ? `<div class="review-reading-line"><span>${readingLabel}</span><p>${escapeHtml(reading)}</p></div>` : ""}
       <strong>${escapeHtml(meaningOf(entry.item))}</strong>
       ${entry.kind.endsWith("G") && grammarGuide(entry.item) ? `<p>${escapeHtml(grammarGuide(entry.item))}</p>` : ""}
       <small>${escapeHtml(displayMeta(entry.kind, entry.item))}</small>`;
@@ -1632,6 +1682,11 @@
   }
 
   function revealReview() {
+    const entry = reviewQueue[reviewIndex];
+    if (entry && langFromKind(entry.kind) === "yue") {
+      const reading = humanizedReading(entry.kind, entry.item);
+      if (reading) $("#reviewPrompt").innerHTML = cantoneseRubyHtml(humanizedPattern(entry.kind, entry.item), reading);
+    }
     $("#reviewReveal").classList.remove("hidden");
     $("#reviewControls").innerHTML = `
       <div class="review-rating-row">
@@ -1657,7 +1712,7 @@
   let labMode = "ja";
   const usageExamples = {
     ja: {
-      sentences: ["unchi wo taberu", "ここに座ってもいいですか？", "雨が降っていたので、電車で会社に行きました。"],
+      sentences: ["ashita tomodachi to eki de au", "ここに座ってもいいですか？", "雨が降っていたので、電車で会社に行きました。"],
       passages: ["先週、新しいアルバイトを始めました。仕事は少し忙しいですが、店の人たちは親切です。まだ覚えることがたくさんあるので、毎日メモを取りながら働いています。"]
     },
     yue: {
@@ -2205,6 +2260,211 @@
     }));
   }
 
+  // ---------- context browser ----------
+
+  const contextBrowserDialog = $("#contextBrowserDialog");
+  let contextBrowserLang = "jp";
+  let contextBrowserSelectedKey = "";
+  let contextSearchTimer;
+
+  function contextBrowserEntries(lang = contextBrowserLang) {
+    const kinds = lang === "yue" ? ["yueV", "yueG"] : ["jpV", "jpG"];
+    return kinds.flatMap(kind => source[kind].map(item => ({ kind, item })));
+  }
+
+  function contextBrowserSearchText(entry) {
+    const { kind, item } = entry;
+    return normalize([
+      humanizedPattern(kind, item),
+      humanizedReading(kind, item),
+      meaningOf(item),
+      itemLevel(kind, item),
+      itemCategory(kind, item)
+    ].filter(Boolean).join(" "));
+  }
+
+  function populateContextBrowserLevels() {
+    const levels = contextBrowserLang === "jp" ? JP_LEVELS : YUE_LEVELS;
+    const current = $("#contextLevelFilter").value;
+    $("#contextLevelFilter").innerHTML = '<option value="all">All levels</option>' + levels
+      .map(level => `<option value="${escapeHtml(level)}">${escapeHtml(level)}</option>`).join("");
+    $("#contextLevelFilter").value = levels.includes(current) ? current : "all";
+  }
+
+  function contextTypeMatches(kind, type) {
+    if (type === "vocab") return kind.endsWith("V");
+    if (type === "grammar") return kind.endsWith("G");
+    return true;
+  }
+
+  function renderContextBrowserResults(preferredKey = contextBrowserSelectedKey) {
+    const query = normalize($("#contextSearchInput").value.trim());
+    const terms = query.split(/\s+/).filter(Boolean);
+    const level = $("#contextLevelFilter").value;
+    const type = $("#contextTypeFilter").value;
+    let matches = contextBrowserEntries().filter(entry => {
+      if (level !== "all" && itemLevel(entry.kind, entry.item) !== level) return false;
+      if (!contextTypeMatches(entry.kind, type)) return false;
+      if (!terms.length) return true;
+      const haystack = contextBrowserSearchText(entry);
+      return terms.every(term => haystack.includes(term));
+    });
+    matches = progressiveOrder(matches).slice(0, 80);
+
+    if (!matches.some(entry => itemKey(entry.kind, entry.item) === preferredKey)) {
+      contextBrowserSelectedKey = matches[0] ? itemKey(matches[0].kind, matches[0].item) : "";
+    } else contextBrowserSelectedKey = preferredKey;
+
+    $("#contextBrowserResults").innerHTML = matches.length
+      ? `<div class="context-result-count">${matches.length}${matches.length === 80 ? "+" : ""} matching items</div>` + matches.map(entry => {
+          const key = itemKey(entry.kind, entry.item);
+          const selected = key === contextBrowserSelectedKey;
+          return `<button class="context-result-item ${selected ? "active" : ""}" data-context-result-key="${escapeHtml(key)}">
+            <span class="context-result-kind">${entry.kind.endsWith("V") ? "VOCAB" : "GRAMMAR"} · ${escapeHtml(itemLevel(entry.kind, entry.item))}</span>
+            <strong>${escapeHtml(humanizedPattern(entry.kind, entry.item))}</strong>
+            ${humanizedReading(entry.kind, entry.item) ? `<small>${escapeHtml(humanizedReading(entry.kind, entry.item))}</small>` : ""}
+            <em>${escapeHtml(meaningOf(entry.item))}</em>
+          </button>`;
+        }).join("")
+      : '<div class="context-browser-empty compact">No matching vocabulary or grammar point.</div>';
+
+    $$("[data-context-result-key]", $("#contextBrowserResults")).forEach(button => {
+      button.addEventListener("click", () => {
+        contextBrowserSelectedKey = button.dataset.contextResultKey;
+        renderContextBrowserResults(contextBrowserSelectedKey);
+        renderContextBrowserDetail(byId.get(contextBrowserSelectedKey));
+      });
+    });
+
+    renderContextBrowserDetail(byId.get(contextBrowserSelectedKey));
+  }
+
+  function renderContextQuestion(question, index) {
+    return `<div class="context-review-question">
+      <span>${escapeHtml(question.type || `Question ${index + 1}`)}</span>
+      <p>${escapeHtml(question.question || question.prompt || "Comprehension question")}</p>
+      <details><summary>Show reference answer</summary><div>${escapeHtml(question.answer || "")}</div></details>
+    </div>`;
+  }
+
+  function directReadingBankMatches(entry) {
+    if (!entry?.kind?.endsWith("V")) return [];
+    const lang = langFromKind(entry.kind);
+    const surface = entry.kind === "jpV" ? String(entry.item.expression || "").trim() : String(entry.item.word || "").trim();
+    if (!surface) return [];
+    const sentenceKind = lang === "jp" ? "jpS" : "yueS";
+    const passageKind = lang === "jp" ? "jpP" : "yueP";
+    return [
+      ...source[sentenceKind].filter(item => String(item.text || "").includes(surface)).map(item => ({ kind: sentenceKind, item })),
+      ...source[passageKind].filter(item => String(item.text || "").includes(surface)).map(item => ({ kind: passageKind, item }))
+    ].slice(0, 10);
+  }
+
+  function renderDirectReadingMatch(match, lang) {
+    const reading = humanizedReading(match.kind, match.item);
+    const target = lang === "yue" && reading
+      ? cantoneseRubyHtml(match.item.text || "", reading)
+      : escapeHtml(match.item.text || "");
+    return `<article class="direct-reading-match">
+      <span>${match.kind.endsWith("P") ? "PASSAGE BANK" : "SENTENCE BANK"} · ${escapeHtml(itemLevel(match.kind, match.item))}</span>
+      <p class="${lang === "yue" ? "canto-ruby" : ""}">${target}</p>
+      ${lang !== "yue" && reading ? `<small>${escapeHtml(reading)}</small>` : ""}
+      <details><summary>Show meaning${match.item.questions?.length ? " & questions" : ""}</summary>
+        <div class="direct-reading-reveal"><p>${escapeHtml(meaningOf(match.item))}</p>${(match.item.questions || []).map(renderContextQuestion).join("")}</div>
+      </details>
+    </article>`;
+  }
+
+  function renderContextBrowserDetail(entry) {
+    const host = $("#contextBrowserDetail");
+    if (!entry) {
+      host.innerHTML = '<div class="context-browser-empty">Search for a word or choose an item to review its sentence and passage variations.</div>';
+      return;
+    }
+    const { kind, item } = entry;
+    const lang = langFromKind(kind);
+    const reading = humanizedReading(kind, item);
+    const termHtml = lang === "yue" && reading
+      ? cantoneseRubyHtml(humanizedPattern(kind, item), reading)
+      : escapeHtml(humanizedPattern(kind, item));
+    const sentences = contextVariations(kind, item);
+    const passages = [0, 1, 2].map(index => contextPassageEntry(entry, index).item);
+    const directMatches = directReadingBankMatches(entry);
+
+    host.innerHTML = `
+      <div class="context-detail-head">
+        <div>
+          <span class="modal-kicker">${kind.endsWith("V") ? "VOCABULARY" : "GRAMMAR"} · ${escapeHtml(itemLevel(kind, item))}</span>
+          <h3 class="${lang === "yue" ? "canto-ruby" : ""}">${termHtml}</h3>
+          ${lang !== "yue" && reading ? `<p class="context-detail-reading">${escapeHtml(reading)}</p>` : ""}
+          <p class="context-detail-meaning">${escapeHtml(meaningOf(item))}</p>
+        </div>
+        <button class="btn secondary compact-btn" data-context-open-library="${escapeHtml(kind)}">Open in library</button>
+      </div>
+
+      <section class="context-review-section">
+        <div class="context-review-section-head"><div><span>01</span><h4>Sentence variations</h4></div><p>The same item in three progressively denser contexts.</p></div>
+        <div class="context-review-sentence-grid">
+          ${sentences.map((example, index) => `<article class="context-review-card">
+            <span class="context-difficulty">${["EASIER", "BUILD", "HARDER"][index]}</span>
+            <p class="context-review-target ${lang === "yue" ? "canto-ruby" : ""}">${lang === "yue" && example.reading ? cantoneseRubyHtml(example.text, example.reading) : escapeHtml(example.text)}</p>
+            ${lang !== "yue" && example.reading ? `<p class="context-review-reading">${escapeHtml(example.reading)}</p>` : ""}
+            <p class="context-review-translation">${escapeHtml(example.translation || "")}</p>
+          </article>`).join("")}
+        </div>
+      </section>
+
+      <section class="context-review-section">
+        <div class="context-review-section-head"><div><span>02</span><h4>Passage variations</h4></div><p>Read for meaning first, then use the prompts to check actual comprehension.</p></div>
+        <div class="context-review-passage-list">
+          ${passages.map((passage, index) => `<article class="context-passage-card">
+            <div class="context-passage-head"><span>${["EASIER", "BUILD", "HARDER"][index]}</span><strong>${passage.questions?.length || 0} comprehension prompts</strong></div>
+            <p class="context-passage-text ${lang === "yue" ? "canto-ruby" : ""}">${lang === "yue" && passage.reading ? cantoneseRubyHtml(passage.text, passage.reading) : escapeHtml(passage.text)}</p>
+            ${lang !== "yue" && passage.reading ? `<p class="context-review-reading">${escapeHtml(passage.reading)}</p>` : ""}
+            <details class="context-translation-details"><summary>Show passage translation</summary><p>${escapeHtml(passage.translation || "")}</p></details>
+            <div class="context-question-list">${(passage.questions || []).map(renderContextQuestion).join("")}</div>
+          </article>`).join("")}
+        </div>
+      </section>
+      ${directMatches.length ? `<section class="context-review-section">
+        <div class="context-review-section-head"><div><span>03</span><h4>Exact reading-bank matches</h4></div><p>Existing bundled sentences or passages that contain this exact vocabulary form.</p></div>
+        <div class="direct-reading-list">${directMatches.map(match => renderDirectReadingMatch(match, lang)).join("")}</div>
+      </section>` : ""}`;
+
+    const libraryButton = $("[data-context-open-library]", host);
+    if (libraryButton) libraryButton.addEventListener("click", () => {
+      const dataset = kind === "jpV" ? "japaneseVocabulary" : kind === "jpG" ? "japaneseGrammar" : kind === "yueV" ? "cantoneseVocabulary" : "cantoneseGrammar";
+      closeDialog(contextBrowserDialog);
+      openLibrary(dataset);
+      $("#librarySearch").value = humanizedPattern(kind, item);
+      renderLibrary();
+    });
+  }
+
+  function setContextBrowserLanguage(lang, preserveSearch = false) {
+    contextBrowserLang = lang === "yue" ? "yue" : "jp";
+    $$('[data-context-lang]').forEach(button => button.classList.toggle("active", button.dataset.contextLang === contextBrowserLang));
+    if (!preserveSearch) $("#contextSearchInput").value = "";
+    contextBrowserSelectedKey = "";
+    populateContextBrowserLevels();
+    renderContextBrowserResults();
+  }
+
+  function openContextBrowser(kind, id) {
+    const entry = kind && id ? byId.get(`${kind}:${id}`) : null;
+    const lang = entry ? langFromKind(entry.kind) : contextBrowserLang;
+    contextBrowserLang = lang;
+    $$('[data-context-lang]').forEach(button => button.classList.toggle("active", button.dataset.contextLang === contextBrowserLang));
+    populateContextBrowserLevels();
+    if (entry) {
+      contextBrowserSelectedKey = itemKey(entry.kind, entry.item);
+      $("#contextSearchInput").value = humanizedPattern(entry.kind, entry.item);
+    }
+    renderContextBrowserResults(contextBrowserSelectedKey);
+    showDialog(contextBrowserDialog);
+    setTimeout(() => $("#contextSearchInput").focus(), 80);
+  }
+
   // ---------- source library ----------
 
   const libraryDialog = $("#dataLibrary");
@@ -2301,6 +2561,9 @@
           ${guide ? `<div class="pattern-guide">${escapeHtml(guide)}</div>` : ""}
           ${kind === "yueG" && item.usage_note ? `<div class="usage-note"><strong>How to use it</strong><span>${escapeHtml(item.usage_note)}</span></div>` : ""}
           ${examples}
+          <div class="library-item-actions">
+            <button class="context-open-button" data-context-kind="${kind}" data-context-id="${escapeHtml(item.id)}">Review sentences & passages ↗</button>
+          </div>
           <div class="library-source-links">${sourceLinks}</div>
         </div>
         <div class="library-badges">
@@ -2337,6 +2600,12 @@
       button.addEventListener("click", () => {
         const entry = byId.get(`${button.dataset.audioKind}:${button.dataset.audioId}`);
         if (entry) speakItem(entry.kind, entry.item);
+      });
+    });
+    $$("[data-context-kind][data-context-id]", $("#libraryResults")).forEach(button => {
+      button.addEventListener("click", () => {
+        closeDialog(libraryDialog);
+        openContextBrowser(button.dataset.contextKind, button.dataset.contextId);
       });
     });
   }
@@ -2540,6 +2809,8 @@
       else if (action === "close-review") closeDialog(reviewDialog);
       else if (action === "usage-lab") { setLabMode(labMode); showDialog(usageDialog); }
       else if (action === "close-usage") closeDialog(usageDialog);
+      else if (action === "context-browser") openContextBrowser();
+      else if (action === "close-context-browser") closeDialog(contextBrowserDialog);
       else if (action === "data-library") openLibrary();
       else if (action === "close-library") closeDialog(libraryDialog);
       else if (action === "profile") openProfile();
@@ -2555,6 +2826,7 @@
   $$("[data-library-dataset]").forEach(button => button.addEventListener("click", () => openLibrary(button.dataset.libraryDataset)));
   $$("[data-review-filter]").forEach(button => button.addEventListener("click", () => rebuildReviewQueue(button.dataset.reviewFilter)));
   $$("[data-lab]").forEach(button => button.addEventListener("click", () => setLabMode(button.dataset.lab)));
+  $$('[data-context-lang]').forEach(button => button.addEventListener("click", () => setContextBrowserLanguage(button.dataset.contextLang)));
   $$("[data-dataset]").forEach(button => button.addEventListener("click", () => {
     currentDataset = button.dataset.dataset;
     $$("[data-dataset]").forEach(item => item.classList.toggle("active", item === button));
@@ -2601,6 +2873,12 @@
     $("#charCount").textContent = `${event.target.value.length}/2000`;
   });
   $("#sendUsage").addEventListener("click", analyzeUsage);
+
+  ["#contextLevelFilter", "#contextTypeFilter"].forEach(selector => $(selector).addEventListener("change", () => renderContextBrowserResults()));
+  $("#contextSearchInput").addEventListener("input", () => {
+    clearTimeout(contextSearchTimer);
+    contextSearchTimer = setTimeout(() => renderContextBrowserResults(), 120);
+  });
 
   ["#libraryLevel", "#libraryCategory", "#librarySort"].forEach(selector => $(selector).addEventListener("change", renderLibrary));
   $("#librarySearch").addEventListener("input", () => {
@@ -2654,7 +2932,7 @@
     showToast(`${streak()}-day streak · Japanese ${state.activity.jp[key] || 0}/${state.profile.jpDailyGoal} · Cantonese ${state.activity.yue[key] || 0}/${state.profile.yueDailyGoal}`);
   });
 
-  [libraryDialog, studyDialog, reviewDialog, usageDialog, $("#profileDialog"), $("#progressDialog"), $("#clearProgressDialog")].forEach(dialog => {
+  [libraryDialog, contextBrowserDialog, studyDialog, reviewDialog, usageDialog, $("#profileDialog"), $("#progressDialog"), $("#clearProgressDialog")].forEach(dialog => {
     dialog?.addEventListener("click", event => {
       if (event.target === dialog) dialog.close();
     });

@@ -22,6 +22,7 @@
       <button data-action="open-study">Study</button>
       <button data-action="review">Review</button>
       <button data-action="usage-lab">Usage Lab</button>
+      <button data-action="context-browser">Contexts</button>
       <button data-action="data-library">Source Library</button>
     </nav>
 
@@ -147,6 +148,7 @@
         </div>
         <div class="tool-links">
           <button data-action="usage-lab"><span><strong>Usage Lab</strong><small>Check a Japanese or Cantonese sentence against the local data.</small></span><em>↗</em></button>
+          <button data-action="context-browser"><span><strong>Context browser</strong><small>Find sentences and passages built around a specific word or grammar point.</small></span><em>↗</em></button>
           <button data-action="data-library"><span><strong>Source Library</strong><small>Search, filter, and sort grammar and vocabulary.</small></span><em>↗</em></button>
           <button data-action="profile"><span><strong>Profile & backup</strong><small>Targets, daily goals, and local progress export.</small></span><em>↗</em></button>
         </div>
@@ -202,6 +204,43 @@
     </div>
     <div id="libraryResults" class="library-results"></div>
     <div class="library-footnote">The screen renders up to 120 matching items at once for performance. Search and filters still apply to the full bundled dataset.</div>
+  </dialog>
+
+  <dialog id="contextBrowserDialog" class="base-dialog context-dialog">
+    <div class="dialog-header">
+      <div>
+        <div class="modal-kicker">CONTEXT BROWSER</div>
+        <h2>Sentences & passages by word</h2>
+        <p>Search a word or grammar point, then review progressively harder contexts that actually use it.</p>
+      </div>
+      <button class="modal-close static-close" data-action="close-context-browser" aria-label="Close"><span class="close-icon" aria-hidden="true"></span></button>
+    </div>
+    <div class="context-browser-body">
+      <div class="context-browser-toolbar">
+        <div class="lab-tabs context-language-tabs" role="tablist" aria-label="Context language">
+          <button class="active" data-context-lang="jp">Japanese</button>
+          <button data-context-lang="yue">Cantonese</button>
+        </div>
+        <label class="context-search-control">
+          <span>Find a word or grammar point</span>
+          <input id="contextSearchInput" type="search" autocomplete="off" placeholder="Search term, reading, Jyutping, or meaning…"/>
+        </label>
+        <label>
+          <span>Level</span>
+          <select id="contextLevelFilter"><option value="all">All levels</option></select>
+        </label>
+        <label>
+          <span>Type</span>
+          <select id="contextTypeFilter"><option value="all">Vocabulary & grammar</option><option value="vocab">Vocabulary</option><option value="grammar">Grammar</option></select>
+        </label>
+      </div>
+      <div class="context-browser-workspace">
+        <aside class="context-browser-results" id="contextBrowserResults"></aside>
+        <section class="context-browser-detail" id="contextBrowserDetail">
+          <div class="context-browser-empty">Search for a word or choose an item to review its sentence and passage variations.</div>
+        </section>
+      </div>
+    </div>
   </dialog>
 
   <dialog id="studyStudio" class="base-dialog studio-dialog">

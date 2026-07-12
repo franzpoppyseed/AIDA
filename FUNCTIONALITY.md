@@ -1,4 +1,4 @@
-# AIDA V7 functionality map
+# AIDA V8 functionality map
 
 ## Separate learning tracks
 
@@ -72,7 +72,7 @@ Japanese and Cantonese now use:
 
 Japanese additionally supports romaji-to-kana interpretation and common conjugation matching.
 
-Examples such as `unchi wo taberu`, all-kana `はしでごはんをたべる`, and bridge context `かわにかかるはしをわたる` are explicitly covered by the validation tests.
+Examples such as `ashita tomodachi to eki de au`, all-kana `はしでごはんをたべる`, and bridge context `かわにかかるはしをわたる` are explicitly covered by the validation tests.
 
 Multi-sentence input is analyzed sentence by sentence. The result pane scrolls independently and includes sentence jump navigation.
 
@@ -115,3 +115,7 @@ Hosted fallback path:
 - JSON export/import
 - separate language XP and goals
 - clear learning progress with typed `CLEAR` confirmation
+
+## Context browser
+
+A dedicated Contexts tab lets the learner search a vocabulary or grammar item and inspect its sentence and passage variants. Source Library items also link directly into this browser. Cantonese context text uses per-character ruby annotations so Jyutping appears above the Chinese characters.

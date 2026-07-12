@@ -1,4 +1,4 @@
-# AIDA / 間 — Functional V7 Context Engine
+# AIDA / 間 — Functional V8 Context Review
 
 A local-first Japanese and Cantonese learning application. Japanese and Cantonese share one website, but remain completely separate learning tracks with separate targets, XP, daily goals, activity, and review history.
 
@@ -80,9 +80,9 @@ The Usage Lab no longer uses greedy left-to-right matching. It now combines:
 Examples now handled correctly:
 
 ```text
-unchi wo taberu
-→ うんちをたべる
-→ うんち / を / たべる
+ashita tomodachi to eki de au
+→ あしたともだちとえきであう
+→ あした / ともだち / と / えき / で / あう
 ```
 
 ```text
@@ -198,3 +198,7 @@ AIDA_FUNCTIONAL_V3/
 ├── FUNCTIONALITY.md
 └── README.md
 ```
+
+## V8 context review
+
+The **Contexts** workspace lets you search any Japanese or Cantonese vocabulary or grammar item and review three progressively harder sentence variations plus three passage variations built around that item. Passage cards use comprehension prompts about events, details, development, and summary rather than isolated “what does this word mean?” questions. Cantonese contexts display Jyutping directly above Han characters with ruby annotations.
