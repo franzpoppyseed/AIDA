@@ -3775,7 +3775,68 @@ async function handleOnlineExampleLookup(payload) {
     if (dataset && datasetConfig[dataset]) currentDataset = dataset;
     $$("[data-dataset]").forEach(button => button.classList.toggle("active", button.dataset.dataset === currentDataset));
     $("#librarySearch").value = "";
-    populateLibraryControls();
+  
+  function initCyberpunkUI() {
+    const navButtons = $$('[data-action]');
+    const actionToDialog = {
+      'open-study': studyDialog,
+      'review': reviewDialog,
+      'usage-lab': usageDialog,
+      'context-browser': contextBrowserDialog,
+      'data-library': libraryDialog,
+      'profile': $("#profileDialog"),
+      'progress': $("#progressDialog")
+    };
+
+    function syncActiveNav() {
+      const openDialog = Object.values(actionToDialog).find(dialog => dialog?.open);
+      navButtons.forEach(button => {
+        const action = button.dataset.action;
+        const isActive = action && actionToDialog[action] === openDialog;
+        button.classList.toggle('active', Boolean(isActive));
+      });
+    }
+
+    Object.values(actionToDialog).forEach(dialog => {
+      if (!dialog) return;
+      dialog.addEventListener('close', syncActiveNav);
+      dialog.addEventListener('cancel', syncActiveNav);
+    });
+
+    const revealObserver = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) entry.target.classList.add('is-visible');
+      });
+    }, { threshold: 0.16 });
+    $$('.reveal-on-scroll').forEach(node => revealObserver.observe(node));
+
+    $$('.tilt-card').forEach(card => {
+      const strength = Number(card.dataset.tiltStrength || 10);
+      card.addEventListener('mousemove', event => {
+        const rect = card.getBoundingClientRect();
+        const px = (event.clientX - rect.left) / rect.width - 0.5;
+        const py = (event.clientY - rect.top) / rect.height - 0.5;
+        card.style.transform = `perspective(1200px) rotateX(${(-py * strength).toFixed(2)}deg) rotateY(${(px * strength).toFixed(2)}deg) translateY(-3px)`;
+      });
+      card.addEventListener('mouseleave', () => {
+        card.style.transform = '';
+      });
+    });
+
+    const glitchNode = $('.glitch-text');
+    if (glitchNode) {
+      const pulse = () => {
+        glitchNode.classList.add('is-glitching');
+        window.setTimeout(() => glitchNode.classList.remove('is-glitching'), 650);
+        window.setTimeout(pulse, 3200 + Math.random() * 2400);
+      };
+      window.setTimeout(pulse, 1200);
+    }
+
+    syncActiveNav();
+  }
+
+  populateLibraryControls();
     renderLibrary();
     showDialog(libraryDialog);
   }
@@ -4230,5 +4291,6 @@ async function handleOnlineExampleLookup(payload) {
   setLabMode("ja");
   renderDashboard();
   renderQualitySummary();
+  initCyberpunkUI();
 
 })();
