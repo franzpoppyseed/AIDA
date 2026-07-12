@@ -51,9 +51,11 @@
     .replace(/[_-]+/g, " ")
     .replace(/\b\w/g, char => char.toUpperCase());
 
+  const ONLINE_EXAMPLE_CACHE = new Map();
+
   const QUALITY_LABELS = {
     curated: "CURATED",
-    corpus: "CORPUS AUTHENTIC",
+    corpus: "VERIFIED",
     audited: "AUDITED",
     validated: "RULE VALIDATED",
     generated: "GENERATED",
@@ -106,14 +108,14 @@
     return `<span class="quality-badge quality-${escapeHtml(status)}">${escapeHtml(QUALITY_LABELS[status] || titleCase(status))}</span>${reported ? '<span class="quality-badge quality-reported">REPORTED</span>' : ''}`;
   }
 
-  function qualityControlsHtml(meta) {
-    registerQualityExample(meta);
-    const status = qualityStatusFor(meta);
-    return `<div class="quality-controls">${qualityBadgeHtml(status, meta.key)}<button type="button" class="quality-report-button" data-report-example="${escapeHtml(meta.key)}">Report issue</button></div>`;
-  }
+  
+function qualityControlsHtml(meta) {
+  registerQualityExample(meta);
+  return `<div class="quality-controls"><button type="button" class="quality-report-button" data-report-example="${escapeHtml(meta.key)}">Report issue</button></div>`;
+}
 
 
-  function jyutpingSyllables(reading) {
+function jyutpingSyllables(reading) {
     return String(reading || "")
       .normalize("NFKC")
       .match(/[A-Za-z]+[0-9]/g) || [];
@@ -1190,25 +1192,25 @@
 
   function contextHtml(kind, item) {
     const rawExamples = contextVariations(kind, item);
-    if (!rawExamples.length) return "";
+    if (!rawExamples.length) return onlineLookupPanel(kind, item, "library");
     const readingLabel = kind.startsWith("yue") ? "Jyutping" : "Reading";
     const visible = rawExamples.map((example, index) => {
       const key = qualityKey("sentence", kind, item.id, index, example.text || "");
       return { example, index, key, meta: { key, scope: "sentence", kind, itemId: item.id, index, text: example.text || "", reading: example.reading || "", translation: example.translation || "", source: example.source || "AIDA context", qualityStatus: example.qualityStatus, target: humanizedPattern(kind, item) } };
     }).filter(row => !shouldHideQualityExample(row.key));
     if (!visible.length) return `<div class="quality-all-hidden"><strong>All context examples for this item are hidden.</strong><span>Open Profile → Example quality to review your reports.</span></div>`;
-    return `
-      <div class="context-section-head"><span>Validated context variations</span><small>${visible.length} visible concept-matched ${visible.length === 1 ? "example" : "examples"}</small></div>
-      <div class="context-variation-grid">
-        ${visible.map(({ example, index, meta }) => `
-          <article class="context-variation-card">
-            <div class="context-card-topline"><span>${["EASIER", "BUILD", "HARDER"][index] || String(index + 1).padStart(2, "0")}</span>${qualityControlsHtml(meta)}</div>
-            <p class="context-target ${kind.startsWith("yue") ? "canto-ruby" : ""}">${kind.startsWith("yue") && example.reading ? cantoneseRubyHtml(example.text, example.reading) : escapeHtml(example.text)}</p>
-            ${example.reading ? `<p class="context-reading"><b>${readingLabel}</b>${escapeHtml(example.reading)}</p>` : ""}
-            ${example.translation ? `<p class="context-translation">${escapeHtml(example.translation)}</p>` : ""}
-            <small>${escapeHtml(example.source || "AIDA context")}</small>
-          </article>`).join("")}
-      </div>`;
+    
+return `
+  <div class="context-section-head"><span>Verified context examples</span><small>${visible.length} visible concept-matched ${visible.length === 1 ? "example" : "examples"}</small></div>
+  <div class="context-variation-grid">
+    ${visible.map(({ example, index, meta }) => `
+      <article class="context-variation-card">
+        <div class="context-card-topline"><span>Example ${index + 1}</span>${qualityControlsHtml(meta)}</div>
+        <p class="context-target ${kind.startsWith("yue") ? "canto-ruby" : ""}">${kind.startsWith("yue") && example.reading ? cantoneseRubyHtml(example.text, example.reading) : escapeHtml(example.text)}</p>
+        ${example.reading ? `<p class="context-reading"><b>${readingLabel}</b>${escapeHtml(example.reading)}</p>` : ""}
+        ${example.translation ? `<p class="context-translation">${escapeHtml(example.translation)}</p>` : ""}
+      </article>`).join("")}
+  </div>`;
   }
 
   function allowedJapaneseLevels(target) {
@@ -3259,6 +3261,106 @@
     </div>`;
   }
 
+
+function onlineExampleLangCode(kind) {
+  return kind.startsWith("jp") ? "jpn" : "yue";
+}
+
+function onlineExampleQuery(kind, item) {
+  if (kind === "jpV") return String(item.expression || item.reading || "").trim();
+  if (kind === "yueV") return String(item.word || "").trim();
+  return stripTemplatePlaceholders(String(item.pattern || "").replace(/→.*$/, "")).replace(/^~+/, "").trim();
+}
+
+async function fetchOnlineExamples(kind, item) {
+  const query = onlineExampleQuery(kind, item);
+  if (!query) return [];
+  const cacheKey = `${kind}:${item.id}:${query}`;
+  if (ONLINE_EXAMPLE_CACHE.has(cacheKey)) return ONLINE_EXAMPLE_CACHE.get(cacheKey);
+  try {
+    const params = new URLSearchParams({
+      lang: onlineExampleLangCode(kind),
+      query,
+      kind,
+      reading: humanizedReading(kind, item) || "",
+      meaning: meaningOf(item) || ""
+    });
+    const response = await fetch(`/api/example-search?${params.toString()}`);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const payload = await response.json();
+    const examples = Array.isArray(payload.examples)
+      ? payload.examples.filter(example => String(example.text || "").trim())
+      : [];
+    ONLINE_EXAMPLE_CACHE.set(cacheKey, examples);
+    return examples;
+  } catch (error) {
+    console.warn("AIDA online example lookup failed", error);
+    ONLINE_EXAMPLE_CACHE.set(cacheKey, []);
+    return [];
+  }
+}
+
+function onlineLookupPanel(kind, item, scope = "context") {
+  const id = `online-${scope}-${kind}-${item.id}`.replace(/[^a-zA-Z0-9_-]/g, "-");
+  const query = onlineExampleQuery(kind, item);
+  const lang = kind.startsWith("jp") ? "Japanese" : "Cantonese";
+  return `
+    <div class="online-example-panel" id="${id}">
+      <div class="online-example-copy">
+        <strong>No local verified example is bundled for this item yet.</strong>
+        <p>AIDA can search online for a real ${lang.toLowerCase()} example using <b>${escapeHtml(query)}</b>.</p>
+      </div>
+      <div class="online-example-actions">
+        <button type="button" class="btn secondary compact-btn" data-online-context="${escapeHtml(kind)}::${escapeHtml(item.id)}::${escapeHtml(scope)}::${escapeHtml(id)}">Search online examples ↗</button>
+      </div>
+    </div>`;
+}
+
+function renderOnlineExamples(host, kind, item, examples, scope = "context") {
+  const readingLabel = kind.startsWith("yue") ? "Jyutping" : "Reading";
+  if (!host) return;
+  if (!examples.length) {
+    host.innerHTML = `<div class="context-browser-empty">No online example could be retrieved right now. Try again later.</div>`;
+    return;
+  }
+  host.innerHTML = `<div class="context-review-sentence-grid">${examples.map((example, index) => {
+    const key = qualityKey(scope === "library" ? "online-library" : "online-context", kind, item.id, index, example.text || "");
+    const meta = {
+      key,
+      scope: scope === "library" ? "online-library" : "online-context",
+      kind,
+      itemId: item.id,
+      index,
+      text: example.text || "",
+      reading: example.reading || "",
+      translation: example.translation || "",
+      source: example.source || "Online example lookup",
+      qualityStatus: "unverified",
+      target: humanizedPattern(kind, item)
+    };
+    const target = kind.startsWith("yue") && example.reading
+      ? cantoneseRubyHtml(example.text, example.reading)
+      : escapeHtml(example.text);
+    return `<article class="context-review-card online-result-card">
+      <div class="context-audio-head"><span class="context-difficulty">Online example ${index + 1}</span></div>
+      ${qualityControlsHtml(meta)}
+      <p class="context-review-target ${kind.startsWith("yue") ? "canto-ruby" : ""}">${target}</p>
+      ${example.reading ? `<p class="context-review-reading"><b>${readingLabel}</b>${escapeHtml(example.reading)}</p>` : ""}
+      <p class="context-review-translation">${escapeHtml(example.translation || "")}</p>
+    </article>`;
+  }).join("")}</div>`;
+}
+
+async function handleOnlineExampleLookup(payload) {
+  const [kind, itemId, scope, hostId] = String(payload || "").split("::");
+  const entry = byId.get(`${kind}:${itemId}`);
+  const host = document.getElementById(hostId);
+  if (!entry || !host) return;
+  host.innerHTML = '<div class="context-browser-empty">Searching online examples…</div>';
+  const examples = await fetchOnlineExamples(kind, entry.item);
+  renderOnlineExamples(host, kind, entry.item, examples, scope);
+}
+
   function directReadingBankMatches(entry) {
     if (!entry?.kind?.endsWith("V")) return [];
     const lang = langFromKind(entry.kind);
@@ -3318,20 +3420,20 @@
       </div>
 
       <section class="context-review-section">
-        <div class="context-review-section-head"><div><span>01</span><h4>Verified sentence examples</h4></div><p>Only corpus-backed, bundled, or manually audited examples are shown.</p></div>
+        <div class="context-review-section-head"><div><span>01</span><h4>Verified sentence examples</h4></div><p>Only curated, translated, or manually checked examples are shown locally. If none are bundled yet, you can search online.</p></div>
         <div class="context-review-sentence-grid">
           ${sentences.length ? sentences.map((example, index) => {
             const key = qualityKey("sentence", kind, item.id, index, example.text || "");
             if (shouldHideQualityExample(key)) return "";
             const meta = { key, scope: "sentence", kind, itemId: item.id, index, text: example.text || "", reading: example.reading || "", translation: example.translation || "", source: example.source || "AIDA context", qualityStatus: example.qualityStatus, target: humanizedPattern(kind, item) };
             return `<article class="context-review-card">
-              <div class="context-audio-head"><span class="context-difficulty">${["EASIER", "BUILD", "HARDER"][index]}</span><button type="button" class="context-audio-button" data-context-sentence-audio="${index}">Listen ↗</button></div>
+              <div class="context-audio-head"><span class="context-difficulty">Sentence ${index + 1}</span><button type="button" class="context-audio-button" data-context-sentence-audio="${index}">Listen ↗</button></div>
               ${qualityControlsHtml(meta)}
               <p class="context-review-target ${lang === "yue" ? "canto-ruby" : ""}" data-context-sentence-sync="${index}">${lang === "yue" && example.reading ? cantoneseRubyHtml(example.text, example.reading) : escapeHtml(example.text)}</p>
               ${lang !== "yue" && example.reading ? `<p class="context-review-reading">${escapeHtml(example.reading)}</p>` : ""}
               <p class="context-review-translation">${escapeHtml(example.translation || "")}</p>
             </article>`;
-          }).join("") : `<div class="context-browser-empty">No verified sentence example is available for this item yet.</div>`}
+          }).join("") : `${onlineLookupPanel(kind, item, "context")}`}
         </div>
       </section>
 
@@ -3343,7 +3445,7 @@
             if (shouldHideQualityExample(key)) return "";
             const meta = { key, scope: "passage", kind, itemId: item.id, index, text: passage.text || "", reading: passage.reading || "", translation: passage.translation || "", source: passage.contextSource || "Curated reading bank", qualityStatus: passage.qualityStatus || "curated", target: humanizedPattern(kind, item) };
             return `<article class="context-passage-card">
-            <div class="context-passage-head"><span>${["EASIER", "BUILD", "HARDER"][index]}</span><div><strong>${passage.questions?.length || 0} comprehension prompts</strong><button type="button" class="context-audio-button" data-context-passage-audio="${index}">Listen with highlighting ↗</button></div></div>
+            <div class="context-passage-head"><span>Passage ${index + 1}</span><div><strong>${passage.questions?.length || 0} comprehension prompts</strong><button type="button" class="context-audio-button" data-context-passage-audio="${index}">Listen with highlighting ↗</button></div></div>
             ${qualityControlsHtml(meta)}
             <p class="context-passage-text ${lang === "yue" ? "canto-ruby" : ""}" data-context-passage-sync="${index}">${lang === "yue" && passage.reading ? cantoneseRubyHtml(passage.text, passage.reading) : escapeHtml(passage.text)}</p>
             ${lang !== "yue" && passage.reading ? `<p class="context-review-reading">${escapeHtml(passage.reading)}</p>` : ""}
@@ -3434,9 +3536,7 @@
     if (!meta) return;
     pendingQualityKey = key;
     const existing = qualityReportFor(key);
-    $("#qualityReportPreview").innerHTML = `
-      <div class="quality-report-target"><span>${escapeHtml(meta.target || meta.scope || "Example")}</span><p>${escapeHtml(meta.text || "")}</p>${meta.translation ? `<small>${escapeHtml(meta.translation)}</small>` : ""}</div>
-      ${qualityControlsHtml(meta)}`;
+    $("#qualityReportPreview").innerHTML = `<div class="quality-report-target"><span>${escapeHtml(meta.target || meta.scope || "Example")}</span><p>${escapeHtml(meta.text || "")}</p>${meta.translation ? `<small>${escapeHtml(meta.translation)}</small>` : ""}</div>`;
     $("#qualityReportReason").value = existing?.reason || "incorrect-grammar";
     $("#qualityReportNotes").value = existing?.notes || "";
     $("#qualityReportHide").checked = existing ? Boolean(existing.hidden) : true;
@@ -4029,6 +4129,8 @@
 
 
   document.addEventListener("click", event => {
+    const onlineButton = event.target.closest("[data-online-context]");
+    if (onlineButton) { event.preventDefault(); handleOnlineExampleLookup(onlineButton.dataset.onlineContext); return; }
     const reportButton = event.target.closest("[data-report-example]");
     if (reportButton) { event.preventDefault(); event.stopPropagation(); openQualityReport(reportButton.dataset.reportExample); return; }
     const toggleButton = event.target.closest("[data-quality-toggle-hide]");

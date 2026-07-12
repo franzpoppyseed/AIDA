@@ -5,16 +5,16 @@
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <meta name="theme-color" content="#050505"/>
   <meta name="color-scheme" content="dark"/>
-  <title>AIDA / 間 — Japanese & Cantonese</title>
+  <title>AIDA / 間 — Cyberpunk Japanese & Cantonese</title>
   <link rel="stylesheet" href="styles.css"/>
 </head>
 <body>
   <header class="topbar">
     <button class="brand" data-action="home" aria-label="Go to home">
-      <span class="brand-mark">間</span>
+      <span class="brand-mark">A</span>
       <span class="brand-lockup">
-        <strong>AIDA</strong>
-        <small>日本語 / 廣東話</small>
+        <strong class="brand-wordmark">AIDA</strong>
+        <small>日本語 / 廣東話 learning grid</small>
       </span>
     </button>
 
@@ -48,15 +48,63 @@
   </header>
 
   <main id="top" class="shell">
-    <section class="intro" aria-labelledby="intro-title">
-      <div class="intro-copy">
-        <p class="eyebrow">TWO LANGUAGES · TWO SEPARATE TRACKS</p>
-        <h1 id="intro-title">One workspace.<br/><span>Study them separately.</span></h1>
-        <p class="intro-text">Japanese and Cantonese share the same site, but not the same lesson. Each language has its own target, XP, daily goal, study history, and review progress.</p>
-      </div>
-      <div class="intro-actions split-actions">
-        <button class="btn primary" data-study-language="jp">Study Japanese <span aria-hidden="true">↗</span></button>
-        <button class="btn secondary" data-study-language="yue">Study Cantonese <span aria-hidden="true">↗</span></button>
+    <section class="intro cyber-hero" aria-labelledby="intro-title">
+      <div class="hero-frame">
+        <aside class="hero-rail" aria-label="Hero quick links">
+          <span class="hero-rail-kicker">AIDA / SYSTEM</span>
+          <button class="hero-rail-link" data-study-language="jp">Open Japanese track</button>
+          <button class="hero-rail-link" data-study-language="yue">Open Cantonese track</button>
+          <div class="hero-rail-note">Local progress. Separate XP. Review queue. Usage lab. Context browser.</div>
+        </aside>
+
+        <div class="hero-main">
+          <div class="hero-topline">
+            <span class="hero-project-tag">CYBERPUNK LEARNING GRID</span>
+            <span class="hero-project-copy">LOCAL-FIRST / SPLIT TRACKS / CONTEXT-HEAVY REVIEW</span>
+          </div>
+          <div class="hero-logo-block">
+            <div class="aida-wordmark hero-wordmark" aria-hidden="true">AIDA</div>
+            <div class="hero-logo-caption">
+              <span>TYPOGRAPHY</span>
+              <p>Angular display type for the system layer, with a calmer text face for explanations and study content.</p>
+            </div>
+          </div>
+          <div class="intro-copy">
+            <p class="eyebrow">TWO LANGUAGES / ONE INTERFACE / KEPT SEPARATE</p>
+            <h1 id="intro-title">Build Japanese and Cantonese fluency<br/><span>without mixing the tracks.</span></h1>
+            <p class="intro-text">AIDA keeps Japanese and Cantonese on the same website, but each language stays independent: separate targets, separate XP, separate daily goals, and separate review history. Learn from vocabulary, grammar, casual speech, usage analysis, and context-heavy examples.</p>
+          </div>
+          <div class="intro-actions split-actions">
+            <button class="btn primary" data-study-language="jp">Study Japanese <span aria-hidden="true">↗</span></button>
+            <button class="btn secondary" data-study-language="yue">Study Cantonese <span aria-hidden="true">↗</span></button>
+          </div>
+          <div class="hero-metrics">
+            <div><span>MODE</span><strong>LOCAL</strong></div>
+            <div><span>TRACKS</span><strong>2</strong></div>
+            <div><span>FOCUS</span><strong>WORDS + GRAMMAR + CONTEXT</strong></div>
+          </div>
+        </div>
+
+        <aside class="hero-side">
+          <div class="hero-chip-card">
+            <span>#AIDA01</span>
+            <p>Use the study flow for new items, then keep every learned item alive inside the review queue.</p>
+          </div>
+          <div class="hero-chip-card accent">
+            <span>#AIDA02</span>
+            <p>Context cards show cleaner examples. When a local example is missing, the browser can search online examples.</p>
+          </div>
+          <div class="hero-mini-stack">
+            <div>
+              <span>CASUAL</span>
+              <p>Reflect and practice conversational Japanese and Cantonese.</p>
+            </div>
+            <div>
+              <span>USAGE LAB</span>
+              <p>Break down sentences and passages with structure hints and context matching.</p>
+            </div>
+          </div>
+        </aside>
       </div>
     </section>
 
@@ -212,7 +260,7 @@
       <div>
         <div class="modal-kicker">CONTEXT BROWSER</div>
         <h2>Sentences & passages by word</h2>
-        <p>Search a word or grammar point, then review progressively harder contexts that actually use it.</p>
+        <p>Search a word or grammar point, then review verified contexts that actually use it.</p>
       </div>
       <button class="modal-close static-close" data-action="close-context-browser" aria-label="Close"><span class="close-icon" aria-hidden="true"></span></button>
     </div>
